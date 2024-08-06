@@ -11,6 +11,6 @@
 `pip install grafx`
 
 <br>
-<img src="sphinx-doc/source/imgs/cambridge_RememberDecember_CUNextTime.svg">
+<img src="https://github.com/sh-lee97/grafx/blob/main/sphinx-doc/source/imgs//cambridge_RememberDecember_CUNextTime.svg">
 
 </div>
