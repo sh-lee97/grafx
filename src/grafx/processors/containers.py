@@ -53,7 +53,7 @@ class GainStagingRegularization(nn.Module):
                 that will be passed to the processor.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times C \times L`
+            :python:`Tuple[FloatTensor, dict]`: A batch of output signals of shape :math:`B \times C \times L`
             and dictionary of intermediate/auxiliary results added with the regularization loss.
         """
         out = self.processor(input_signals, **processor_kwargs)
@@ -121,7 +121,7 @@ class DryWet(nn.Module):
                 that will be passed to the processor.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times C \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         out = self.processor(input_signals, **processor_kwargs)
         if isinstance(out, tuple):

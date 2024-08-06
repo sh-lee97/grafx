@@ -98,7 +98,7 @@ class ApproxCompressor(nn.Module):
                 Log of knee that operates on the log scale.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times C \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
 
         log_env = self.env_follower(input_signals, z_alpha)
@@ -189,7 +189,7 @@ class ApproxNoiseGate(nn.Module):
                 Log of knee that operates on the log scale.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times C \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         log_env = self.env_follower(input_signals, z_alpha)
         gain = self.compute_gain(log_env, log_threshold - 6, log_ratio, log_knee)

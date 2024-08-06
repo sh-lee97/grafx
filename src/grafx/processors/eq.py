@@ -40,7 +40,7 @@ class ZeroPhaseFIREqualizer(nn.Module):
                 A batch of log-magnitude vectors of the FIR filter.
 
         Returns:
-            :python:`FloatTensor`: A batch of output signals in :math:`B \times C \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         fir = self.fir(log_magnitude)[:, None, :]
         output_signals = convolve(input_signals, fir, mode="zerophase")

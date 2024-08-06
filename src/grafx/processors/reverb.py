@@ -136,7 +136,7 @@ class MidSideFilteredNoiseReverb(nn.Module):
                 A batch of log-gain envelopes.
 
         Returns:
-            output_signals
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         ir = self.compute_ir(
             init_log_magnitude, delta_log_magnitude, gain_env_log_magnitude

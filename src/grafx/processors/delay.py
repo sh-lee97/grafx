@@ -114,7 +114,7 @@ class StereoMultitapDelay(nn.Module):
                 Must be given when :python:`zp_filter_per_tap` is set to :python:`True`.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times 2 \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         ir, radii_loss = self.get_ir(delay_z, log_fir_magnitude)
         output_sinals = self.conv(input_signals, ir)

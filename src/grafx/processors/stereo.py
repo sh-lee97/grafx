@@ -29,7 +29,7 @@ class StereoGain(nn.Module):
                 A log-magnitude vector of the FIR filter.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times 2 \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         b, c, t = input_signals.shape
         assert c == 2
@@ -75,7 +75,7 @@ class SideGainImager(nn.Module):
                 A log-magnitude vector of the FIR filter.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times 2 \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         b, c, t = input_signals.shape
         assert c == 2
