@@ -1,0 +1,536 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.data" href="../graph_api/data.html" /><link rel="prev" title="Differentiable Processors" href="processors.html" />
+
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+        <title>Batched Audio Processing - GRAFX Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">GRAFX Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">GRAFX Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="graph.html">Audio Processing Graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processors.html">Differentiable Processors</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Batched Audio Processing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Graph API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/data.html">grafx.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/render.html">grafx.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/draw.html">grafx.draw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/utils.html">grafx.utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/eq.html">grafx.processors.eq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/stereo.html">grafx.processors.stereo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/reverb.html">grafx.processors.reverb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/delay.html">grafx.processors.delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/containers.html">grafx.processors.containers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="batched-audio-processing">
+<span id="id1"></span><h1>Batched Audio Processing<a class="headerlink" href="#batched-audio-processing" title="Link to this heading"></a></h1>
+<p>To compute the output audio of the graph faster in GPU,
+it is desirable to parallelize the computation as much as possible.
+The most standard approach is batched processing.
+We note that there are three levels of batched processing: <em>node-level</em>, <em>source-level</em>, and <em>graph-level</em>.</p>
+<section id="node-level-parallelism">
+<h2>Node-Level Parallelism<a class="headerlink" href="#node-level-parallelism" title="Link to this heading"></a></h2>
+<p>First, consider the computation of a single graph <span class="math notranslate nohighlight">\(G\)</span> with a single source <span class="math notranslate nohighlight">\(\mathbf{S} \in \mathbb{R}^{K\times C\times L}\)</span>.
+In other words, both graph and source are set to a batch size of <span class="math notranslate nohighlight">\(1\)</span>.
+In this setup, a common approach is to compute each processor “one-by-one” in a topological order.
+However, observe that we can process multiple processors of the same type simultaneously.</p>
+<section id="node-subset-sequence">
+<h3>Node Subset Sequence<a class="headerlink" href="#node-subset-sequence" title="Link to this heading"></a></h3>
+<p>Specifically, consider a sequence of <span class="math notranslate nohighlight">\(N+1\)</span> node subsets
+<span class="math notranslate nohighlight">\(V_0, \cdots, V_N \subset V\)</span> satisfying the followings.</p>
+<ul class="simple">
+<li><p>It forms a <em>partition</em>: <span class="math notranslate nohighlight">\(\cup_n V_n = V\)</span> and <span class="math notranslate nohighlight">\(V_n\cap V_m = \emptyset\)</span> if <span class="math notranslate nohighlight">\(n \neq m\)</span>.</p></li>
+<li><p>It is <em>causal</em>: no path from <span class="math notranslate nohighlight">\(u \in V_n\)</span> to <span class="math notranslate nohighlight">\(v \in V_m\)</span> exists if <span class="math notranslate nohighlight">\(n \geq m\)</span>.</p></li>
+<li><p>Each subset <span class="math notranslate nohighlight">\(V_n\)</span> is <em>homogeneous</em>: it has only a single type <span class="math notranslate nohighlight">\(t_n\)</span>.</p></li>
+</ul>
+<p>Then, we can compute a batch of output signals
+<span class="math notranslate nohighlight">\(\mathbf{Y}_n^{(1)}, \cdots, \mathbf{Y}_n^{(N_n)} \in \mathbb{R}^{\left|V_n\right| \times C\times L}\)</span>
+of each subset <span class="math notranslate nohighlight">\(V_n\)</span> sequentially, from <span class="math notranslate nohighlight">\(n=0\)</span> to <span class="math notranslate nohighlight">\(N\)</span>.
+Consequently, we reduce the number of the gather-aggregate-process iterations from <span class="math notranslate nohighlight">\(|V|\)</span> to <span class="math notranslate nohighlight">\(N\)</span>
+(we have no processings for <span class="math notranslate nohighlight">\(n=0\)</span> as <span class="math notranslate nohighlight">\(V_0\)</span> contains input modules).
+We call this approach <em>node-level parallelism</em>.</p>
+<blockquote>
+<div><p>The sequence length <span class="math notranslate nohighlight">\(N+1\)</span> will vary depending on structure of the graph <span class="math notranslate nohighlight">\(G\)</span>.
+The worst case is when the graph <span class="math notranslate nohighlight">\(G\)</span> is a serial chain; it results in <span class="math notranslate nohighlight">\(N + 1 = \left|V\right|\)</span>.
+However, in many cases, we can find a much shorter sequence, i.e., <span class="math notranslate nohighlight">\(N + 1 \ll \left|V\right|\)</span>.
+This is because, in many cases, the processing of audio (especially musical) involves independent processing of multiple sources
+with common types of processors.
+A good example is music mixing with a <em>mixing console</em>, where each source goes through
+a <em>channel strip</em> that comprises the same serial chain processors.</p>
+</div></blockquote>
+<p>See the following Figure for an example.
+For a graph with <span class="math notranslate nohighlight">\(|V|=107\)</span> nodes, there is a node subset sequence with <span class="math notranslate nohighlight">\(N=14\)</span>.</p>
+</section>
+<section id="type-scheduling">
+<span id="id2"></span><h3>Type Scheduling<a class="headerlink" href="#type-scheduling" title="Link to this heading"></a></h3>
+<p>To maximize the batched node processing, we want to find the shortest node subset sequence.
+.. However, the existence of such short sequences does not gaurantee that we can find them easily (especially the optimal one).
+This is a variant of the scheduling problem.
+First, we always choose a maximal subset <span class="math notranslate nohighlight">\(V_i\)</span> when the type <span class="math notranslate nohighlight">\(t_i\)</span> is fixed.
+This makes the subset sequence equivalent to a sequence of types, e.g., <code class="code highlight python docutils literal highlight-python"><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;eq&quot;</span><span class="p">,</span> <span class="s2">&quot;compressor&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></code>.
+We also choose the first and the last subset, <span class="math notranslate nohighlight">\(V_0\)</span> and <span class="math notranslate nohighlight">\(V_N\)</span>,
+to have all of the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;in&quot;</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;out&quot;</span></code> nodes, respectively.</p>
+<ul>
+<li><p><strong>Fixed —</strong> In some cases, from the way the graph is constructed, we know a priori a fixed type sequence that is optimal (or its supersequence that contains the optimal).
+For example, the below graph was first constructed with a fixed chain of processors, and then got pruned to the current graph <span id="id3">[<a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
+In such a case, we know that the optimal order is a subsequence of the original processor chain.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/fixed.svg"><img alt="../_images/fixed.svg" src="../_images/fixed.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
+</figure>
+</li>
+<li><p><strong>Greedy method —</strong> If we cannot use the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fixed&quot;</span></code> method, we have to find a short sequence by our own. However, since the search tree for the shortest sequence exponentially grows,
+the brute-force search is too expensive for most graphs.
+Instead, we can try the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;greedy&quot;</span></code> method that chooses a type with the largest number of computable nodes.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/greedy.svg"><img alt="../_images/greedy.svg" src="../_images/greedy.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
+</figure>
+</li>
+<li><p><strong>Beam search —</strong> The greedy method usually finds a longer sequence and slows down the processing.
+We can alleviate this with the beam search, i.e., keeping multiple best <span class="math notranslate nohighlight">\(W&gt;1\)</span> schedules as candidates instead of one.
+By default, we use <span class="math notranslate nohighlight">\(W=32\)</span>.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/beam.svg"><img alt="../_images/beam.svg" src="../_images/beam.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
+</figure>
+</li>
+<li><p><strong>One-by-one —</strong> Finally, we can ignore the batched processing and compute each node one by one.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/one-by-one.svg"><img alt="../_images/one-by-one.svg" src="../_images/one-by-one.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
+</figure>
+</li>
+</ul>
+<p>Which method should we use for our graphs? The general rule of thumb is to use the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;beam&quot;</span></code> method
+unless you already know the optimal sequence (use <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fixed&quot;</span></code> in this case).
+Sometimes, graphs are not parallelizable at all (e.g., being a simple serial chain);
+in such cases, the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;one-by-one&quot;</span></code> can be the best choice,
+as it bypasses some additional overheads of the batched processing (albeit small).
+The type sequence and the render order can be computed with the following code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grafx.render</span> <span class="kn">import</span> <span class="n">compute_render_order</span>
+<span class="n">type_sequence</span><span class="p">,</span> <span class="n">render_order</span> <span class="o">=</span> <span class="n">compute_render_order</span><span class="p">(</span><span class="n">G_t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;beam&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that we can further optimize the batched node processing by reordering the nodes
+so that the memory access becomes contiguous (e.g., read with <code class="code highlight python docutils literal highlight-python"><span class="n">torch</span><span class="o">.</span><span class="n">narrow</span></code>) when possible.
+To achieve this, we can use the following instead of the above code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grafx.render</span> <span class="kn">import</span> <span class="n">reorder_for_fast_render</span>
+<span class="n">G_t</span> <span class="o">=</span> <span class="n">reorder_for_fast_render</span><span class="p">(</span><span class="n">G_t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;beam&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="the-remaining-steps">
+<h3>The Remaining Steps<a class="headerlink" href="#the-remaining-steps" title="Link to this heading"></a></h3>
+<p>Once we computed the render order (and optionally reordered the nodes),
+we can compute metadata that describes the sequence of all computations required,
+including the reads, aggreations, processes, and writes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">render_data</span> <span class="o">=</span> <span class="n">prepare_render</span><span class="p">(</span><span class="n">G_t</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="code highlight python docutils literal highlight-python"><span class="nb">print</span><span class="p">(</span><span class="n">render_data</span><span class="p">)</span></code> will describe the rendering sequence as follows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Render</span> <span class="c1">#0</span>
+  <span class="o">-</span> <span class="n">Node</span> <span class="nb">type</span><span class="p">:</span> <span class="ow">in</span>
+  <span class="o">-</span> <span class="n">Source</span> <span class="n">read</span><span class="p">:</span> <span class="n">none</span> <span class="k">with</span> <span class="p">[]</span>
+  <span class="o">-</span> <span class="n">Aggregation</span><span class="p">:</span> <span class="n">none</span>
+  <span class="o">-</span> <span class="n">Parameter</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Dest</span> <span class="n">write</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">Render</span> <span class="c1">#1</span>
+  <span class="o">-</span> <span class="n">Node</span> <span class="nb">type</span><span class="p">:</span> <span class="n">eq</span>
+  <span class="o">-</span> <span class="n">Source</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Aggregation</span><span class="p">:</span> <span class="n">none</span>
+  <span class="o">-</span> <span class="n">Parameter</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Dest</span> <span class="n">write</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+<span class="n">Render</span> <span class="c1">#2</span>
+  <span class="o">-</span> <span class="n">Node</span> <span class="nb">type</span><span class="p">:</span> <span class="n">compressor</span>
+  <span class="o">-</span> <span class="n">Source</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Aggregation</span><span class="p">:</span> <span class="n">none</span>
+  <span class="o">-</span> <span class="n">Parameter</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Dest</span> <span class="n">write</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+
+<span class="n">Render</span> <span class="c1">#3</span>
+  <span class="o">-</span> <span class="n">Node</span> <span class="nb">type</span><span class="p">:</span> <span class="n">reverb</span>
+  <span class="o">-</span> <span class="n">Source</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Aggregation</span><span class="p">:</span> <span class="n">none</span>
+  <span class="o">-</span> <span class="n">Parameter</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Dest</span> <span class="n">write</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+
+<span class="n">Render</span> <span class="c1">#4</span>
+  <span class="o">-</span> <span class="n">Node</span> <span class="nb">type</span><span class="p">:</span> <span class="n">out</span>
+  <span class="o">-</span> <span class="n">Source</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Aggregation</span><span class="p">:</span> <span class="nb">sum</span>
+  <span class="o">-</span> <span class="n">Parameter</span> <span class="n">read</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="o">-</span> <span class="n">Dest</span> <span class="n">write</span><span class="p">:</span> <span class="nb">slice</span> <span class="k">with</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that, all the above pre-processings can be done in CPU with seperate threads (i.e., by the dataloader workers)
+so that the GPU is not blocked by these pre-processings.
+Finally, we can compute the output audio with the following code.
+The <code class="code highlight python docutils literal highlight-python"><span class="n">processors</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameters</span></code> are the dictionaries that we introduced in the previous section, respectively.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">grafx.render</span> <span class="kn">import</span> <span class="n">render_grafx</span>
+<span class="n">source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">17</span><span class="p">)</span>
+<span class="n">output</span><span class="p">,</span> <span class="n">intermediates</span> <span class="o">=</span> <span class="n">render_grafx</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">processors</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">render_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <code class="code highlight python docutils literal highlight-python"><span class="n">output</span></code> will contain a <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> of shape <code class="code highlight python docutils literal highlight-python"><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">17</span><span class="p">)</span></code></p>
+</section>
+</section>
+<section id="other-parallelisms">
+<h2>Other Parallelisms<a class="headerlink" href="#other-parallelisms" title="Link to this heading"></a></h2>
+<p>With the batched node processing, the remaining parallelisms are straightforward.</p>
+<section id="source-level">
+<h3>Source-Level<a class="headerlink" href="#source-level" title="Link to this heading"></a></h3>
+<p>For a given graph <span class="math notranslate nohighlight">\(G\)</span>,
+we can process a batch of sources
+<span class="math notranslate nohighlight">\(\mathbf{S}_\mathrm{batch} = [\mathbf{S}_1, \cdots, \mathbf{S}_B] \in \mathbb{R}^{B\times K\times C\times L}\)</span> with the same code; the implementation is almost identical
+(with some tensor reshapes &amp; repeats added).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">souurce</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+<span class="n">output</span><span class="p">,</span> <span class="n">intermediates</span> <span class="o">=</span> <span class="n">render_grafx</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">processors</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">render_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="graph-level">
+<h3>Graph-Level<a class="headerlink" href="#graph-level" title="Link to this heading"></a></h3>
+<p>We can also batch multiple graphs <span class="math notranslate nohighlight">\(G_1, \cdots, G_B\)</span> by treating them as a single large disconnected graph
+<span class="math notranslate nohighlight">\(G_\mathrm{batch} = (\cup_{i=1}^B V_i, \cup_{i=1}^B E_i)\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grafx.data</span> <span class="kn">import</span> <span class="n">batch_grafx</span>
+<span class="n">G_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">G</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+<span class="n">G_batch</span> <span class="o">=</span> <span class="n">batch_grafx</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, its corresponding source will be a node-axis concatenation of the individual sources:
+<span class="math notranslate nohighlight">\(\mathbf{S}_\mathrm{batch} = \mathbf{S}_1 \oplus \cdots \oplus \mathbf{S}_B\in \mathbb{R}^{ {K}_\mathrm{batch} \times C\times L}\)</span>
+where <span class="math notranslate nohighlight">\(\smash{{K}_\mathrm{batch} = \sum_{i=1}^B K_i}\)</span>.
+The output computation will be the same as above.
+Note that, conceptually, the source-level parallelism is a special case of the graph-level parallelism; we obtain the former when we set <span class="math notranslate nohighlight">\(G_1 = \cdots = G_B = G\)</span> to the latter.</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../graph_api/data.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">grafx.data</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="processors.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Differentiable Processors</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Sungho Lee
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Batched Audio Processing</a><ul>
+<li><a class="reference internal" href="#node-level-parallelism">Node-Level Parallelism</a><ul>
+<li><a class="reference internal" href="#node-subset-sequence">Node Subset Sequence</a></li>
+<li><a class="reference internal" href="#type-scheduling">Type Scheduling</a></li>
+<li><a class="reference internal" href="#the-remaining-steps">The Remaining Steps</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-parallelisms">Other Parallelisms</a><ul>
+<li><a class="reference internal" href="#source-level">Source-Level</a></li>
+<li><a class="reference internal" href="#graph-level">Graph-Level</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

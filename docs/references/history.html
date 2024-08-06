@@ -1,0 +1,381 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="References" href="reference.html" /><link rel="prev" title="grafx.processors.containers" href="../processor_api/containers.html" />
+
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+        <title>History - GRAFX Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">GRAFX Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">GRAFX Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/graph.html">Audio Processing Graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/processors.html">Differentiable Processors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/render.html">Batched Audio Processing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Graph API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/data.html">grafx.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/render.html">grafx.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/draw.html">grafx.draw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graph_api/utils.html">grafx.utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/eq.html">grafx.processors.eq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/stereo.html">grafx.processors.stereo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/reverb.html">grafx.processors.reverb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/delay.html">grafx.processors.delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/containers.html">grafx.processors.containers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">References</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="history">
+<h1>History<a class="headerlink" href="#history" title="Link to this heading"></a></h1>
+<section id="v0-5-0">
+<h2>v0.5.0<a class="headerlink" href="#v0-5-0" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Graph data structures: <a class="reference internal" href="../graph_api/data.html#grafx.data.graph.GRAFX" title="grafx.data.graph.GRAFX"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFX</span></code></a> and <a class="reference internal" href="../graph_api/data.html#grafx.data.tensor.GRAFXTensor" title="grafx.data.tensor.GRAFXTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFXTensor</span></code></a>, and their basic utility functions.</p></li>
+<li><p>Audio rendering methods: <a class="reference internal" href="../graph_api/render.html#grafx.render.graph.render_grafx" title="grafx.render.graph.render_grafx"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_grafx()</span></code></a> and other preparation methods.</p></li>
+<li><p>Basic graph visualization tools: <a class="reference internal" href="../graph_api/draw.html#grafx.draw.graph.draw_grafx" title="grafx.draw.graph.draw_grafx"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_grafx()</span></code></a> and other utility functions.</p></li>
+<li><p>Differentiable audio processors: <a class="reference internal" href="../processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer" title="grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a>,
+<a class="reference internal" href="../processor_api/stereo.html#grafx.processors.stereo.StereoGain" title="grafx.processors.stereo.StereoGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoGain</span></code></a>,
+<a class="reference internal" href="../processor_api/stereo.html#grafx.processors.stereo.SideGainImager" title="grafx.processors.stereo.SideGainImager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SideGainImager</span></code></a>,
+<a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.ApproxCompressor" title="grafx.processors.dynamics.ApproxCompressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxCompressor</span></code></a>,
+<a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate" title="grafx.processors.dynamics.ApproxNoiseGate"><code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxNoiseGate</span></code></a>,
+<a class="reference internal" href="../processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="xref py py-class docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a>, and
+<a class="reference internal" href="../processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay" title="grafx.processors.delay.StereoMultitapDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code></a>.</p></li>
+<li><p>Auxiliary processor containers: <a class="reference internal" href="../processor_api/containers.html#grafx.processors.containers.DryWet" title="grafx.processors.containers.DryWet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DryWet</span></code></a> and <a class="reference internal" href="../processor_api/containers.html#grafx.processors.containers.GainStagingRegularization" title="grafx.processors.containers.GainStagingRegularization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a>.</p></li>
+</ul>
+</section>
+<section id="pre-release">
+<h2>Pre-Release<a class="headerlink" href="#pre-release" title="Link to this heading"></a></h2>
+<p>A preliminary version of this library was created for work <cite>Blind Estimation of Audio Processing Graph</cite> <span id="id1">[<a class="reference internal" href="reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.
+Its aim was to create a simple baseline that can predict a graph from its output audio (or also with input audio).
+At that time (Summer 2022), literature on the differentiable audio processors (and their efficient computation in GPU) was not as rich as now.
+This led us to re-implement various processors in <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span></code>
+to run both the forward and backward pass efficiently in CPU with <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span><span class="o">.</span><span class="n">compile</span></code>.
+Our hope was that, if the forward pass is written correctly, the parameter optimization with gradient descent should work as well.
+Of course, this was not the case; for example, the modulation effects were not trained at all (now, we know why: <span id="id2">[<a class="reference internal" href="reference.html#id87" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id86" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>).
+Furthermore, the backpropagation through the graphs (even with <span class="math notranslate nohighlight">\(|V| = 10\)</span> nodes) was still too slow to be practical.
+Consequently, we decided to only use the graph engine for the forward passes and the training of the graph and parameter predictors
+was done with a simple “parameter loss.”</p>
+<p>After a year, we decided to revisit this idea of differentiable audio processing graphs
+as many advances on the differentiable processors were made in the meantime
+<span id="id3">[<a class="reference internal" href="reference.html#id113" title="Anders R Bargum, Stefania Serafin, Cumhur Erkut, and Julian D Parker. Differentiable allpass filters for phase response estimation and automatic signal alignment. arXiv:2306.00860, 2023.">BSEP23</a>, <a class="reference internal" href="reference.html#id87" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id71" title="J Colonel. Music production behaviour modelling. 2023.">Col23</a>, <a class="reference internal" href="reference.html#id108" title="Joseph T Colonel and Joshua Reiss. Reverse engineering a nonlinear mix of a multitrack recording. Journal of the AES, 71(9):586–595, 2023.">CR23</a>, <a class="reference internal" href="reference.html#id86" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>, <a class="reference internal" href="reference.html#id106" title="Ben Hayes, Jordie Shier, Gyorgy Fazekas, Andrew McPherson, and Charalampos Saitis. A review of differentiable digital signal processing for music &amp; speech synthesis. Frontiers in Signal Process., pages 1284100, 2023.">HSF+23</a>, <a class="reference internal" href="reference.html#id139" title="Naotake Masuda and Daisuke Saito. Improving semi-supervised differentiable synthesizer sound matching for practical applications. IEEE/ACM TASLP, 31:863–875, 2023.">MS23</a>, <a class="reference internal" href="reference.html#id119" title="Christian J Steinmetz, Thomas Walther, and Joshua D Reiss. High-fidelity noise reduction with differentiable signal processing. In AES Convention 155. 2023.">SWR23</a>, <a class="reference internal" href="reference.html#id96" title="Zhen Ye, Wei Xue, Xu Tan, Qifeng Liu, and Yike Guo. NAS-FM: neural architecture search for tunable and interpretable sound synthesis based on frequency modulation. arXiv:2305.12868, 2023.">YXT+23</a>]</span>.
+This led us to the current version of <code class="code highlight python docutils literal highlight-python"><span class="n">GRAFX</span></code>, which is entirely based on <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code>
+(in the current state, whether the backend is <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span></code> do not matter much,
+but we used the former for its popularity and ease of use).
+This library <span id="id4">[<a class="reference internal" href="reference.html#id152" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. GRAFX: an open-source library for audio processing graphs in Pytorch. In DAFx. 2024.">LMRL+24b</a>]</span> was developed along with the companion work <cite>Searching For Music Mixing Graphs: A Pruning Approach</cite> <span id="id5">[<a class="reference internal" href="reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
+Its motivation was, unlike the previous work <span id="id6">[<a class="reference internal" href="reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>, we wanted to find graphs and their parameters
+that matches the real-world music mixture so that we do not need to rely on the previous synthetic data when training the neural networks.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="reference.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">References</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../processor_api/containers.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">grafx.processors.containers</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Sungho Lee
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">History</a><ul>
+<li><a class="reference internal" href="#v0-5-0">v0.5.0</a></li>
+<li><a class="reference internal" href="#pre-release">Pre-Release</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
