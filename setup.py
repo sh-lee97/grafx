@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="GRAFX",
-    version="0.5.0",
+    version="0.5.1",
     description="An Open-Source Library for Audio Processing Graphs in PyTorch",
     long_description="See docs",
     # long_description_content_type="text/markdown",
