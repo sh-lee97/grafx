@@ -20,6 +20,7 @@ def _test_single_processor(
 ):
     processor = processor.to(device)
     parameter_size = processor.parameter_size()
+    parameter_size = {k: ((v,) if isinstance(v, int) else v) for k, v in parameter_size.items()}
     parameters = {k: torch.randn(batch_size, *v, device=device) for k, v in parameter_size.items()} 
     input_signal = torch.randn(batch_size, num_channels, audio_len, device=device)
     output = processor(input_signal, **parameters)
