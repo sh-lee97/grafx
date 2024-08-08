@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchcomp import compressor_core
 
 from grafx.processors.functional import convolve
 
@@ -63,6 +64,79 @@ class CausalConvolution(nn.Module):
         y = self.conv(x, h)
         y = y.view(*x_shape[:-1], -1)
         return y
+
+class IIRBallistics(nn.Module):
+    r"""
+    """
+
+    def __init__(
+        self,
+        iir_len=16384,
+        flashfftconv=True,
+        max_input_len=2**17,
+    ):
+        super().__init__()
+        arange = torch.arange(iir_len)[None, :]
+        self.register_buffer("arange", arange)
+
+        self.conv = CausalConvolution(
+            flashfftconv=flashfftconv,
+            max_input_len=max_input_len,
+        )
+
+    def forward(self, signal, z_alpha):
+        alpha = torch.sigmoid(z_alpha)
+        alpha = torch.clamp(alpha, min=1e-5, max=1 - 1e-5)
+        log_alpha = torch.log(alpha)
+        log_decay = self.arange * log_alpha
+        decay = torch.exp(log_decay)
+        h = (1 - alpha) * decay
+        signal = self.conv(signal, h)
+        signal = F.relu(signal)
+        return signal
+
+    def parameter_size(self):
+        return {"z_alpha": 1}
+
+class TrueBallistics(nn.Module):
+    r"""
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, signal, z_ts):
+        ts = torch.sigmoid(z_ts).clamp(min=1e-5, max=1 - 1e-5)
+        zi = torch.ones(signal.shape[0], device=signal.device)
+        at, rt = ts.chunk(2, dim=-1)
+        signal = compressor_core(signal, zi, at, rt)
+        return signal
+
+    def parameter_size(self):
+        return {"z_ts": 2}
+
+
+class FramewiseBallistics(nn.Module):
+    r"""
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, signal, z_ts):
+        ts = torch.sigmoid(z_ts)
+        ts_sample, ts_frame = ts.chunk(2, dim=-1)
+        ts_sample = ts_sample.clamp(min=1e-3, max=1 - 1e-3) 
+        ts_frame = ts_frame.clamp(min=1e-5, max=1 - 1e-5)   
+
+        zi = torch.ones(signal.shape[0], device=signal.device)
+        at_sample, rt_sample,  = ts.chunk(2, dim=-1)
+        signal = compressor_core(signal, zi, at, rt)
+        return signal
+
+    def parameter_size(self):
+        return {"z_ts": 2}
+
 
 
 class IIREnvelopeFollower(nn.Module):
