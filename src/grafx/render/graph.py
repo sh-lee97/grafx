@@ -140,11 +140,14 @@ def render_grafx(
             else:
                 common_parameters_i = {}
 
-            output_signals, intermediates = processors[node_type](
+            output = processors[node_type](
                 *input_signals, **parameters, **common_parameters_i
             )
-
-            intermediates_list.append(intermediates)
+            if isinstance(output, tuple):
+                output_signals, intermediates = output
+                intermediates_list.append(intermediates)
+            else:
+                output_signals = output 
 
         elif node_type in UTILITY_TYPES:
             output_signals = input_signals
