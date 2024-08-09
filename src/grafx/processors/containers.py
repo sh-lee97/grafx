@@ -127,12 +127,15 @@ class DryWet(nn.Module):
         if isinstance(out, tuple):
             output_signals, intermediates = out
         else:
-            output_signals, intermediates = out, {}
+            output_signals = out
         drywet_weight = drywet_weight.view(-1, 1, 1)
         output_signals = (
             drywet_weight * output_signals + (1 - drywet_weight) * input_signals
         )
-        return output_signals, intermediates
+        if isinstance(out, tuple):
+            return output_signals, intermediates
+        else:
+            return output_signals
 
     def parameter_size(self):
         r"""
