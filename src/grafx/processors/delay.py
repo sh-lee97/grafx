@@ -3,9 +3,10 @@ import torch.nn as nn
 from einops import rearrange
 from torch.fft import irfft
 
-from grafx.processors.components import CausalConvolution, SurrogateDelay
-from grafx.processors.functional import convolve, normalize_impulse
-from grafx.processors.components import ZeroPhaseFIR
+from grafx.processors.core.convolution import CausalConvolution, convolve
+from grafx.processors.core.utils import normalize_impulse
+from grafx.processors.core.fir import ZeroPhaseFIR
+from grafx.processors.core.delay import SurrogateDelay
 
 
 class StereoMultitapDelay(nn.Module):
@@ -148,13 +149,6 @@ class StereoMultitapDelay(nn.Module):
         irs = normalize_impulse(irs)
         loss = {"radii_reg": radii_loss}
         return irs, loss
-
-    def get_color_fir(self, fir_db):
-        eq = torch.exp(fir_db)
-        eq = irfft(eq, n=self.zp_filter_len)
-        eq = torch.roll(eq, shifts=self.zp_filter_bins - 1, dims=-1)
-        eq = self.window * eq
-        return eq
 
     def parameter_size(self):
         """

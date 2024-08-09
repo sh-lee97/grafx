@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from grafx.processors.components import IIREnvelopeFollower
+from grafx.processors.core.ballistics import IIREnvelopeFollower
 
 
 class ApproxCompressor(nn.Module):

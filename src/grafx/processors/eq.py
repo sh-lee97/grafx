@@ -1,7 +1,7 @@
 import torch.nn as nn
 
-from grafx.processors.components import ZeroPhaseFIR
-from grafx.processors.functional import convolve
+from grafx.processors.core.fir import ZeroPhaseFIR
+from grafx.processors.core.convolution import convolve
 
 
 class ZeroPhaseFIREqualizer(nn.Module):

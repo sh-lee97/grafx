@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from grafx.processors.functional import rms_difference
+from grafx.processors.core.utils import rms_difference
 
 
 class GainStagingRegularization(nn.Module):

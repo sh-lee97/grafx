@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from grafx.processors.components import CausalConvolution
-from grafx.processors.functional import normalize_impulse
+from grafx.processors.core.convolution import CausalConvolution
+from grafx.processors.core.utils import normalize_impulse
 
 
 class MidSideFilteredNoiseReverb(nn.Module):
