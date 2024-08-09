@@ -5,6 +5,7 @@ from torch.fft import irfft
 
 from grafx.processors.components import CausalConvolution, SurrogateDelay
 from grafx.processors.functional import convolve, normalize_impulse
+from grafx.processors.components import ZeroPhaseFIR
 
 
 class StereoMultitapDelay(nn.Module):
@@ -84,6 +85,10 @@ class StereoMultitapDelay(nn.Module):
         self.stereo = stereo
 
         self.zp_filter_per_tap = zp_filter_per_tap
+        if self.zp_filter_per_tap:
+            self.zp_filter = ZeroPhaseFIR(zp_filter_bins)
+
+
         self.zp_filter_bins = zp_filter_bins
         self.zp_filter_len = zp_filter_bins * 2 - 1
         window = torch.hann_window(self.zp_filter_len)
@@ -125,7 +130,7 @@ class StereoMultitapDelay(nn.Module):
         irs, radii_loss = self.delay(z_c)
 
         if self.zp_filter_per_tap:
-            color_firs = self.get_color_fir(log_fir_magnitude)
+            color_firs = self.zp_filter(log_fir_magnitude)
             irs = convolve(irs, color_firs, mode="zerophase")
 
         irs = rearrange(
