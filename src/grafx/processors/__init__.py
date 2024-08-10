@@ -1,6 +1,12 @@
 from .containers import DryWet, GainStagingRegularization
 from .delay import StereoMultitapDelay
-from .dynamics import ApproxCompressor, ApproxNoiseGate
+from .dynamics import (
+    ApproxCompressor,
+    ApproxNoiseGate,
+    BallisticsCompressor,
+    Compressor,
+    OnePoleIIRCompressor,
+)
 from .eq import ZeroPhaseFIREqualizer
 from .reverb import MidSideFilteredNoiseReverb
-from .stereo import SideGainImager, StereoGain
+from .stereo import MonoToStereo, SideGainImager, StereoGain

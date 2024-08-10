@@ -3,7 +3,11 @@ import torch
 from grafx.processors import (
     ApproxCompressor,
     ApproxNoiseGate,
+    BallisticsCompressor,
+    Compressor,
     MidSideFilteredNoiseReverb,
+    MonoToStereo,
+    OnePoleIIRCompressor,
     SideGainImager,
     StereoGain,
     StereoMultitapDelay,
@@ -63,3 +67,26 @@ def test_stereo_multitap_delay():
 def test_zero_phase_fir_equalizer():
     processor = ZeroPhaseFIREqualizer()
     _test_single_processor(processor, device="cpu")
+
+def test_mono_to_stereo():
+    processor = MonoToStereo()
+    _test_single_processor(processor, num_channels=1, device="cpu")
+
+#def test_one_pole_iir_compressor():
+#    processor = OnePoleIIRCompressor(flashfftconv=False)
+#    _test_single_processor(processor, device="cpu")
+#
+#def test_ballistics_compressor():
+#    processor = BallisticsCompressor()
+#    _test_single_processor(processor, device="cpu")
+
+def test_compressor():
+    for energy_smoother in ["iir", "ballistics", None]:
+        for gain_smoother in ["iir", "ballistics", None]:
+            if energy_smoother is None and gain_smoother is None:
+                continue
+            processor = Compressor(
+                energy_smoother=energy_smoother,
+                gain_smoother=gain_smoother,
+            )
+            _test_single_processor(processor, device="cuda")
