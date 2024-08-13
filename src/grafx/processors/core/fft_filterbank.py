@@ -278,6 +278,7 @@ if __name__ == "__main__":
         scale = scales[i]
         print(scale)
         fb = fft_triangular_filterbank(n_freqs, f_min, f_max, n_barks, scale)
+        print(fb.shape)
         ax[i].plot(fb, label=scale)
         ax[i].plot(fb.sum(-1), label=scale)
     fig.set_size_inches(10, 20)

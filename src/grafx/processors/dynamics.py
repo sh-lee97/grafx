@@ -6,6 +6,76 @@ from grafx.processors.core.convolution import CausalConvolution
 from grafx.processors.core.envelope import Ballistics, TruncatedOnePoleIIRFilter
 
 
+def compressor_gain(log_energy, log_threshold, log_ratio):
+    ratio = 1 + torch.exp(log_ratio)
+
+    below_mask = log_energy < log_threshold
+    above_mask = log_energy >= log_threshold
+
+    below = log_energy
+    above = log_threshold + (log_energy - log_threshold) / ratio
+
+    log_energy_out = below * below_mask + above * above_mask
+    log_gain = log_energy_out - log_energy
+    return log_gain
+
+
+def compressor_gain_minimum(log_energy, log_threshold, log_ratio):
+    ratio = 1 + torch.exp(log_ratio)
+    log_energy_out = torch.minimum(
+        log_energy, log_threshold + (log_energy - log_threshold) / ratio
+    )
+    log_gain = log_energy_out - log_energy
+    return log_gain
+
+
+def compressor_gain_quad_knee_original(log_energy, log_threshold, log_ratio, log_knee):
+    ratio = 1 + torch.exp(log_ratio)
+    log_knee = torch.exp(log_knee)
+
+    below_mask = log_energy < (log_threshold - log_knee / 2)
+    above_mask = log_energy > (log_threshold + log_knee / 2)
+    middle_mask = (~below_mask) * (~above_mask)
+
+    below = log_energy
+    above = log_threshold + (log_energy - log_threshold) / (ratio + 1e-3)
+    middle = log_energy + (1 / (ratio + 1e-3) - 1) * (
+        log_energy - log_threshold + log_knee / 2
+    ) ** 2 / 2 / (log_knee + 1e-3)
+
+    log_energy_out = below * below_mask + above * above_mask + middle * middle_mask
+    log_gain = log_energy_out - log_energy
+    return log_gain
+
+
+def compressor_gain_quad_knee(log_energy, log_threshold, log_ratio, log_knee):
+    ratio = 1 + torch.exp(log_ratio)
+    log_knee = torch.exp(log_knee) / 2
+
+    below_mask = log_energy < (log_threshold - log_knee)
+    above_mask = log_energy > (log_threshold + log_knee)
+    middle_mask = (~below_mask) * (~above_mask)
+
+    below = log_energy
+    above = log_threshold + (log_energy - log_threshold) / ratio
+    middle = log_energy + (1 / ratio - 1) * (
+        log_energy - log_threshold + log_knee
+    ).square() / (4 * log_knee)
+
+    log_energy_out = below * below_mask + above * above_mask + middle * middle_mask
+    log_gain = log_energy_out - log_energy
+    return log_gain
+
+
+def compressor_gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee):
+    ratio = 1 + torch.exp(log_ratio)
+    log_knee = torch.exp(log_knee - 1)
+    log_gain = (
+        (1 / ratio - 1) * F.softplus(log_knee * (log_energy - log_threshold)) / log_knee
+    )
+    return log_gain
+
+
 class ApproxCompressor(nn.Module):
     r"""
     A feed-forward dynamic range compressor :cite:`giannoulis2012digital`. 
@@ -105,41 +175,13 @@ class ApproxCompressor(nn.Module):
         """
 
         log_energy = self.env_follower(input_signals, z_alpha)
-        gain = self.compute_gain_exp(log_energy, log_threshold - 6, log_ratio, log_knee)
-        output_signals = gain * input_signals
-        return output_signals
-
-    def compute_gain(self, log_energy, log_threshold, log_ratio, log_knee):
-        ratio = 1 + torch.exp(log_ratio)
-        log_knee = torch.exp(log_knee)
-
-        below_mask = log_energy < (log_threshold - log_knee / 2)
-        above_mask = log_energy > (log_threshold + log_knee / 2)
-        middle_mask = (~below_mask) * (~above_mask)
-
-        below = log_energy
-        above = log_threshold + (log_energy - log_threshold) / (ratio + 1e-3)
-        middle = log_energy + (1 / (ratio + 1e-3) - 1) * (
-            log_energy - log_threshold + log_knee / 2
-        ) ** 2 / 2 / (log_knee + 1e-3)
-
-        log_energy_out = below * below_mask + above * above_mask + middle * middle_mask
-        log_gain = log_energy_out - log_energy
-        gain = torch.exp(log_gain)
-        gain = gain[:, None, :]
-        return gain
-
-    def compute_gain_exp(self, log_energy, log_threshold, log_ratio, log_knee):
-        ratio = 1 + torch.exp(log_ratio)
-        log_knee = torch.exp(log_knee - 1)
-        log_gain = (
-            (1 / ratio - 1)
-            * F.softplus(log_knee * (log_energy - log_threshold))
-            / log_knee
+        log_gain = compressor_gain_minimum(
+            log_energy, log_threshold - 6, log_ratio  # , log_knee
         )
         gain = torch.exp(log_gain)
         gain = gain[:, None, :]
-        return gain
+        output_signals = gain * input_signals
+        return output_signals
 
     def parameter_size(self):
         r"""
@@ -679,7 +721,10 @@ class Compressor(nn.Module):
         log_energy = torch.log(energy + 1e-5)
 
         if self.with_knee:
-            gain = self.compute_gain_with_knee(
+            # gain = self.compute_gain_with_knee(
+            #    log_energy, log_threshold - 6, log_ratio, log_knee
+            # )
+            gain = self.compute_gain_exp(
                 log_energy, log_threshold - 6, log_ratio, log_knee
             )
         else:
@@ -725,6 +770,17 @@ class Compressor(nn.Module):
         log_energy_out = below * below_mask + above * above_mask + middle * middle_mask
         log_gain = log_energy_out - log_energy
         return log_gain
+
+    def compute_gain_exp(self, log_energy, log_threshold, log_ratio, log_knee):
+        ratio = 1 + torch.exp(log_ratio)
+        log_knee = torch.exp(log_knee - 1)
+        log_gain = (
+            (1 / ratio - 1)
+            * F.softplus(log_knee * (log_energy - log_threshold))
+            / log_knee
+        )
+        gain = torch.exp(log_gain)
+        return gain
 
     def compute_gain_without_knee(self, log_energy, log_threshold, log_ratio):
         ratio = 1 + torch.exp(log_ratio)
@@ -825,38 +881,6 @@ class FactorizedCompressor(nn.Module):
         output_signals = gain[:, None, :] * input_signals
         return output_signals
 
-    def compute_gain_with_knee(self, log_energy, log_threshold, log_ratio, log_knee):
-        ratio = 1 + torch.exp(log_ratio)
-        log_knee = torch.exp(log_knee)
-
-        below_mask = log_energy < (log_threshold - log_knee / 2)
-        above_mask = log_energy > (log_threshold + log_knee / 2)
-        middle_mask = (~below_mask) * (~above_mask)
-
-        below = log_energy
-        above = log_threshold + (log_energy - log_threshold) / (ratio + 1e-3)
-        middle = log_energy + (1 / (ratio + 1e-3) - 1) * (
-            log_energy - log_threshold + log_knee / 2
-        ) ** 2 / 2 / (log_knee + 1e-3)
-
-        log_energy_out = below * below_mask + above * above_mask + middle * middle_mask
-        log_gain = log_energy_out - log_energy
-        return log_gain
-
-    def compute_gain_without_knee(self, log_energy, log_threshold, log_ratio):
-        ratio = 1 + torch.exp(log_ratio)
-        log_knee = torch.exp(log_knee)
-
-        below_mask = log_energy < log_threshold
-        above_mask = log_energy >= log_threshold
-
-        below = log_energy
-        above = log_threshold + (log_energy - log_threshold) / (ratio + 1e-3)
-
-        log_energy_out = below * below_mask + above * above_mask
-        log_gain = log_energy_out - log_energy
-        return log_gain
-
     def parameter_size(self):
         r"""
         Returns:
@@ -867,3 +891,43 @@ class FactorizedCompressor(nn.Module):
         else:
             size = 10
         return {"parameters": size}
+
+
+def test_gains():
+    from tqdm import tqdm
+
+    B = 16
+    T = 2**17
+    log_energy = -50 * torch.rand(B, T).cuda()
+    log_threshold = -50 * torch.rand(B, 1).cuda()
+    log_ratio = torch.randn(B, 1).cuda()
+    log_knee = 10 * torch.rand(B, 1).cuda()
+
+    for _ in tqdm(range(1000)):
+        compressor_gain(log_energy, log_threshold, log_ratio)
+
+    # for _ in tqdm(range(1000)):
+    #    compressor_gain_mask(log_energy, log_threshold, log_ratio)
+
+    for _ in tqdm(range(1000)):
+        compressor_gain_minimum(log_energy, log_threshold, log_ratio)
+
+    for _ in tqdm(range(1000)):
+        compressor_gain_quad_knee_original(
+            log_energy, log_threshold, log_ratio, log_knee
+        )
+
+    for _ in tqdm(range(1000)):
+        compressor_gain_quad_knee(log_energy, log_threshold, log_ratio, log_knee)
+
+    # for _ in tqdm(range(1000)):
+    #    compressor_gain_quad_knee_with_mask(
+    #        log_energy, log_threshold, log_ratio, log_knee
+    #    )
+
+    for _ in tqdm(range(1000)):
+        compressor_gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee)
+
+
+if __name__ == "__main__":
+    test_gains()

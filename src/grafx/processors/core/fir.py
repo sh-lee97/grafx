@@ -1,49 +1,126 @@
 import torch
 import torch.nn as nn
 
+from grafx.processors.core.fft_filterbank import fft_triangular_filterbank
+
+
+def get_window(window_type, window_length, **kwargs):
+    match window_type:
+        case "hann":
+            return torch.hann_window(window_length, **kwargs)
+        case "hamming":
+            return torch.hamming_window(window_length, **kwargs)
+        case "blackman":
+            return torch.blackman_window(window_length, **kwargs)
+        case "bartlett":
+            return torch.bartlett_window(window_length, **kwargs)
+        case "kaiser":
+            return torch.kaiser_window(window_length, **kwargs)
+        case _:
+            raise ValueError(f"Unsupported window type: {window_type}")
+
+
+def log_magnitude_to_zerophase_fir(
+    log_magnitude, fir_len, window=None, filterbank=None, eps=1e-7
+):
+    shape = log_magnitude.shape
+    shape, f = shape[:-1], shape[-1]
+    log_magnitude = log_magnitude.view(-1, f)
+    magnitude = torch.exp(log_magnitude)
+    if filterbank is not None:
+        energy = magnitude.square()
+        energy = torch.matmul(filterbank, energy)
+        magnitude = torch.sqrt(energy + eps)
+    ir = torch.fft.irfft(magnitude, n=fir_len)
+    shifts = fir_len // 2
+    ir = torch.roll(ir, shifts=shifts, dims=-1)
+    if window is not None:
+        ir = ir * window[None, :]
+    ir = ir.view(*shape, -1)
+    return ir
+
+
 class ZeroPhaseFIR(nn.Module):
-    """
-    ZeroPhaseFIR module that performs zero-phase filtering using the Fast Fourier Transform (FFT).
-
-    Args:
-        num_magnitude_bins (int): Number of magnitude bins for the FIR filter. Default is 1024.
-
-    Attributes:
-        num_magnitude_bins (int): Number of magnitude bins for the FIR filter.
-        fir_len (int): Length of the FIR filter.
-        window (torch.Tensor): Hann window used for the FIR filter.
-
+    r"""
+    Creates a simple zero-phase FIR from a log-magnitude response.
     """
 
     def __init__(
         self,
         num_magnitude_bins=1024,
+        window="hann",
+        **window_kwargs,
     ):
         super().__init__()
         self.num_magnitude_bins = num_magnitude_bins
         self.fir_len = 2 * num_magnitude_bins - 1
 
-        window = torch.hann_window(self.fir_len)
-        window = window.view(1, -1)
-        self.register_buffer("window", window)
+        if isinstance(window, torch.Tensor):
+            self.register_buffer("window", window)
+        else:
+            match window:
+                case "rectangular" | "none" | "boxcar" | None:
+                    self.window = None
+                case _:
+                    window = get_window(
+                        window_type=window, fir_len=self.fir_len, **window_kwargs
+                    )
+                    self.register_buffer("window", window)
 
-    def forward(self, log_mag):
-        """
-        Forward pass of the ZeroPhaseFIR module.
+    def forward(self, log_magnitude):
+        return log_magnitude_to_zerophase_fir(
+            log_magnitude, fir_len=self.fir_len, window=self.window
+        )
 
-        Args:
-            log_mag (torch.Tensor): Log-magnitude spectrogram.
 
-        Returns:
-            torch.Tensor: Zero-phase filtered output.
+class ZeroPhaseFilterBankFIR(nn.Module):
+    def __init__(
+        self,
+        num_magnitude_bins=1024,
+        scale="bark_traunmuller",
+        n_filters=80,
+        f_min=0,
+        f_max=None,
+        sr=None,
+        window="hann",
+        **window_kwargs,
+    ):
+        super().__init__()
 
-        """
-        shape = log_mag.shape
-        shape, f = shape[:-1], shape[-1]
-        log_mag = log_mag.view(-1, f)
-        mag = torch.exp(log_mag)
-        ir = torch.fft.irfft(mag, n=self.fir_len)
-        ir = torch.roll(ir, shifts=self.num_magnitude_bins - 1, dims=-1)
-        ir = ir * self.window
-        ir = ir.view(*shape, -1)
-        return ir
+        assert (
+            f_max is not None or sr is not None
+        ), "Either f_max or sr must be provided."
+
+        self.num_magnitude_bins = num_magnitude_bins
+        self.fir_len = 2 * num_magnitude_bins - 1
+
+        filterbank = fft_triangular_filterbank(
+            n_freqs=num_magnitude_bins,
+            f_min=f_min,
+            f_max=f_max,
+            n_filters=n_filters,
+            scale=scale,
+            attach_remaining=True,
+        )
+        filterbank = filterbank.T
+        self.register_buffer("filterbank", filterbank)
+
+        if isinstance(window, torch.Tensor):
+            self.register_buffer("window", window)
+        else:
+            match window:
+                case "rectangular" | "none" | "boxcar" | None:
+                    self.window = None
+                case _:
+                    window = get_window(
+                        window_type=window, fir_len=self.fir_len, **window_kwargs
+                    )
+                    self.register_buffer("window", window)
+
+    def forward(self, filterbank_log_magnitude):
+        return log_magnitude_to_zerophase_fir(
+            filterbank_log_magnitude,
+            fir_len=self.fir_len,
+            window=self.window,
+            filterbank=self.filterbank,
+        )
