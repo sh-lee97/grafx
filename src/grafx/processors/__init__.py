@@ -1,4 +1,4 @@
-from .containers import DryWet, GainStagingRegularization
+from .container import DryWet, GainStagingRegularization
 from .delay import StereoMultitapDelay
 from .dynamics import (
     ApproxCompressor,

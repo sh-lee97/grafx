@@ -9,6 +9,24 @@ History
   
 .. --------------------------
 
+v0.6.0
+--------------------------
+
+* Parameters: each processor can have a nested parameter dict.
+* New processors:
+  :class:`~grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer`,
+  :class:`~grafx.processors.dynamics.Compressor` and :class:`~grafx.processors.dynamics.NoiseGate`
+  (more options :cite:`yu2024differentiable` than the previous version), and 
+  :class:`~grafx.processors.reverb.FilteredNoiseShapingReverb` 
+  (based on `dasp_pytorch <https://github.com/csteinmetz1/dasp-pytorch/>`_ and :cite:`steinmetz2021filtered, lee2024fade`).
+* New containers:
+  :class:`~grafx.processors.container.SerialChain` and :class:`~grafx.processors.container.ParallelMix` added. 
+  Note that this module has been renamed from `containers` to `container`.
+* Updated processors: 
+  :class:`~grafx.processors.eq.ZeroPhaseFIREqualizer` (new window argument),
+  :class:`~grafx.processors.reverb.STFTFilteredNoiseReverb` (renamed from :class:`~grafx.processors.reverb.MidSideFilteredNoiseReverb`; more channel settings)
+  and :class:`~grafx.processors.delay.MultitapDelay` (renamed from :class:`~grafx.processors.delay.StereoMultitapDelay`; more channel settings).
+
 v0.5.0
 --------------------------
 
@@ -22,7 +40,7 @@ v0.5.0
   :class:`~grafx.processors.dynamics.ApproxNoiseGate`, 
   :class:`~grafx.processors.reverb.MidSideFilteredNoiseReverb`, and
   :class:`~grafx.processors.delay.StereoMultitapDelay`. 
-* Auxiliary processor containers: :class:`~grafx.processors.containers.DryWet` and :class:`~grafx.processors.containers.GainStagingRegularization`.
+* Auxiliary processor containers: :class:`~grafx.processors.container.DryWet` and :class:`~grafx.processors.container.GainStagingRegularization`.
 
 .. --------------------------
 

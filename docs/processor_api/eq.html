@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.stereo" href="stereo.html" /><link rel="prev" title="grafx.utils" href="../graph_api/utils.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.stereo" href="stereo.html" /><link rel="prev" title="grafx.processors.core" href="core.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>grafx.processors.eq - GRAFX Documentation</title>
@@ -214,6 +214,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
@@ -268,12 +269,12 @@
 <blockquote>
 <div><p>From the input log-magnitude <span class="math notranslate nohighlight">\(H_{\mathrm{log}}\)</span>,
 we compute inverse FFT (IFFT) of the magnitude response
-and multiply it with a zero-centered Hann window <span class="math notranslate nohighlight">\(v^\mathrm{Hann}[n]\)</span>.
+and multiply it with a zero-centered window <span class="math notranslate nohighlight">\(v[n]\)</span>.
 Each input channel is convolved with the following FIR.
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[
-h[n] = v^\mathrm{Hann}[n] \cdot \frac{1}{N} \sum_{k=0}^{N-1} \exp H_{\mathrm{log}}[k] \cdot  w_{N}^{kn}.
+h[n] = v[n] \cdot \frac{1}{N} \sum_{k=0}^{N-1} \exp H_{\mathrm{log}}[k] \cdot  w_{N}^{kn}.
 \]</div>
 </div>
 </p>
@@ -282,7 +283,14 @@ This equalizer’s learnable parameter is <span class="math notranslate nohighli
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>num_magnitude_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of FFT magnitude bins (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1024</span></code>).</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_magnitude_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of FFT magnitude bins (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1024</span></code>).</p></li>
+<li><p><strong>window</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <em>optional</em>) – The window function to use for the FIR filter.
+If <code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> is given, we create the window internally.
+It can be: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hamming&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;blackman&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bartlett&quot;</span></code>, and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;kaiser&quot;</span></code>.
+If <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> is given, we use it as a window (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>).</p></li>
+<li><p><strong>**window_kwargs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>, <em>optional</em>) – Additional keyword arguments for the window function.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -320,6 +328,83 @@ This equalizer’s learnable parameter is <span class="math notranslate nohighli
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeroPhaseFilterBankFIREqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_energy_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark_traunmuller'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">window_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer" title="Link to this definition"></a></dt>
+<dd><p>A zero-phase FIR filter parameterized with a filterbank log-magnitudes.</p>
+<blockquote>
+<div><p>From the input log-energy <span class="math notranslate nohighlight">\(H_{\mathrm{fb}} \in \mathbb{R}^{K_{\mathrm{fb}}}\)</span>,
+we compute the FFT magnitudes as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+H_{\mathrm{log}} = \sqrt { M \exp (H_{\mathrm{fb}}) + \epsilon}
+\]</div>
+</div>
+</p>
+<p>where <span class="math notranslate nohighlight">\(M \in \mathbb{R}^{K \times K_{\mathrm{fb}}}\)</span> is the filterbank matrix
+(<span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(K_{\mathrm{fb}}\)</span> are the number of FFT magnitude bins and filterbank bins, respectively).
+We use the standard triangular filterbank.
+After obtaining the log-magnitude response, the remaining process is the same as <a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer" title="grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a>.
+This equalizer’s learnable parameter is <span class="math notranslate nohighlight">\(p = \{ H_{\mathrm{fb}} \}\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_energy_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of FFT energy bins (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1024</span></code>).</p></li>
+<li><p><strong>f_min</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – Minimum frequency in Hz. (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">40</span></code>).</p></li>
+<li><p><strong>f_max</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – Maximum frequency in Hz.
+If <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, the sampling rate <code class="code highlight python docutils literal highlight-python"><span class="n">sr</span></code> must be provided
+and we use the half of the sampling rate (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+<li><p><strong>sr</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – The underlying sampling rate of the input signal (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+<li><p><strong>n_filters</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – Number of filterbank bins (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">80</span></code>).</p></li>
+<li><p><strong>scale</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The frequency scale to use, which can be:
+<code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_schroeder&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_wang&quot;</span></code>,
+<code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_htk&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_slaney&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;linear&quot;</span></code>, and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;log&quot;</span></code>
+(default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>).</p></li>
+<li><p><strong>window</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <em>optional</em>) – The window function to use for the FIR filter.
+If <code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> is given, we create the window internally.
+It can be: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hamming&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;blackman&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bartlett&quot;</span></code>, and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;kaiser&quot;</span></code>.
+If <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> is given, we use it as a window (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>).</p></li>
+<li><p><strong>**window_kwargs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>, <em>optional</em>) – Additional keyword arguments for the window function.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_magnitude</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>log_magnitude</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K_{\mathrm{fb}}\)</span>) – A batch of log-magnitude vectors of the FIR filter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -336,14 +421,14 @@ This equalizer’s learnable parameter is <span class="math notranslate nohighli
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../graph_api/utils.html">
+          <a class="prev-page" href="core.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">grafx.utils</div>
+                <div class="title">grafx.processors.core</div>
                 
               </div>
             </a>
@@ -378,11 +463,8 @@ This equalizer’s learnable parameter is <span class="math notranslate nohighli
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.eq</a><ul>
-<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a><ul>
-<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer.forward"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer.forward()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer.parameter_size"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer.parameter_size()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFilterBankFIREqualizer</span></code></a></li>
 </ul>
 </li>
 </ul>

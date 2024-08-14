@@ -4,7 +4,7 @@
      :language: python
      :class: highlight
 
-grafx.processors.containers
+grafx.processors.container
 ============================
 
 .. 
@@ -13,10 +13,10 @@ grafx.processors.containers
 
    ---------------------------
 
-.. autoclass:: grafx.processors.containers.GainStagingRegularization
+.. autoclass:: grafx.processors.container.GainStagingRegularization
    :members:
 
 .. ---------------------------
 
-.. autoclass:: grafx.processors.containers.DryWet
+.. autoclass:: grafx.processors.container.DryWet
    :members:

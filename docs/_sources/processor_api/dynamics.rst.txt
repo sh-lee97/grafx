@@ -1,4 +1,4 @@
-:tocdepth: 3
+:tocdepth: 2
 
 .. role:: python(code)
      :language: python

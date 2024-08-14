@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.delay" href="delay.html" /><link rel="prev" title="grafx.processors.dynamics" href="dynamics.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="History" href="../references/history.html" /><link rel="prev" title="grafx.processors.delay" href="delay.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
-        <title>grafx.processors.reverb - GRAFX Documentation</title>
+        <title>grafx.processors.container - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -214,13 +214,13 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.reverb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
@@ -260,67 +260,123 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-grafx.processors.reverb">
-<span id="grafx-processors-reverb"></span><h1>grafx.processors.reverb<a class="headerlink" href="#module-grafx.processors.reverb" title="Link to this heading"></a></h1>
+          <section id="grafx-processors-container">
+<h1>grafx.processors.container<a class="headerlink" href="#grafx-processors-container" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MidSideFilteredNoiseReverb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="Link to this definition"></a></dt>
-<dd><p>A filtered noise model <span id="id1">[<a class="reference internal" href="../references/reference.html#id9" title="Jesse Engel, Lamtharn (Hanoi) Hantrakul, Chenjie Gu, and Adam Roberts. DDSP: differentiable digital signal processing. In ICLR. 2020.">EHGR20</a>]</span> (or pseudo-random noise method) with mid/side controls.</p>
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GainStagingRegularization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gain_reg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization" title="Link to this definition"></a></dt>
+<dd><p>An regularization module that wraps an audio processor and calculates
+the energy differences between the input and output audio.
+It can be used guide the processors to mimic <em>gain-staging,</em>
+a practice that aims to keep the signal energy
+roughly the same throughout the processing chain.</p>
 <blockquote>
-<div><p>We employ two fixed-length uniform noise signal, <span class="math notranslate nohighlight">\(v_{\mathrm{m}}[n]\)</span> and <span class="math notranslate nohighlight">\(v_{\mathrm{s}}[n] \sim \mathcal{U}[-1, 1)\)</span>, that correpond to a mid and side chananels, respoenctively.
-Next, we apply a magnitude mask <span class="math notranslate nohighlight">\(M_{\mathrm{x}}[k, m] \in \mathbb{R}^{K\times M}\)</span> to each noise’s short-time Fourier transform (STFT) <span class="math notranslate nohighlight">\(V_{\mathrm{x}}[k, m] \in \mathbb{C}^{K\times M}\)</span>.
+<div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
+where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
+respeectively,
+we calculate their loudness difference
+with an energy function <span class="math notranslate nohighlight">\(\sigma\)</span> as follows,
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[
-H_{\mathrm{x}}[k, m] = V_{\mathrm{x}}[k, m] \odot M_{\mathrm{x}}[k, m] \quad (\mathrm{x} \in \{\mathrm{m}, \mathrm{s}\}).
+d = \left| g(y[n]) - g(u[n]) \right|.
 \]</div>
 </div>
 </p>
-<p>Here, <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(m\)</span> denote frequency and time frame index, respectively.
-Each mask is parameterized with an initial <span class="math notranslate nohighlight">\(H^0_{\mathrm{x}}[k] \in \mathbb{R}^K\)</span> and an absorption filter <span class="math notranslate nohighlight">\(H^\Delta_{\mathrm{x}}[k] \in \mathbb{R}^K\)</span> both in log-magnitudes.
-Also, a frequency-independent gain enevelope <span class="math notranslate nohighlight">\(G_{\mathrm{x}}[m] \in \mathbb{R}^{M}\)</span> can be optionally added.
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[
-M_{\mathrm{x}}[k, m] = \exp ({H^0_{\mathrm{x}}[k] + (m-1) H^\Delta_{\mathrm{x}}[k]} + \underbrace{G_{\mathrm{x}}[m]}_{\mathrm{optional}}).
-\]</div>
-</div>
-
-Next, we convert the masked noises to the time-domain responses, <span class="math notranslate nohighlight">\(h_\mathrm{m}[n]\)</span> and <span class="math notranslate nohighlight">\(h_\mathrm{s}[n]\)</span>, via inverse STFT.
-We obtain the desired FIR <span class="math notranslate nohighlight">\(h[n]\)</span> by converting the mid/side to stereo.
-Finally, we apply channel-wise convolutions (not a full 2-by-2 stereo convolution) to the input <span class="math notranslate nohighlight">\(u[n]\)</span> and obtain the wet output <span class="math notranslate nohighlight">\(y[n]\)</span>.
-Hence, the learnable parameter is
-<span class="math notranslate nohighlight">\(p = \{ H^0_{\mathrm{m}}, H^0_{\mathrm{s}}, H^\Delta_{\mathrm{m}}, H^\Delta_{\mathrm{s}}, G_{\mathrm{m}}, G_{\mathrm{s}} \}\)</span>
-where the latter two are optional.</p>
+<p>The energy function <span class="math notranslate nohighlight">\(g\)</span> computes log of
+mean energy across the time and channel axis.
+If the signals are stereo, then it is equivalent to calculating
+the log of mid-channel energy.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The length of the impulse response (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">60000</span></code>).</p></li>
-<li><p><strong>n_fft</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – FFT size of the STFT (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">384</span></code>).</p></li>
-<li><p><strong>hop_length</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – Hop length of the STFT (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">192</span></code>).</p></li>
-<li><p><strong>fixed_noise</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use fixed-seed random noises (<span class="math notranslate nohighlight">\(v_{\mathrm{m}}[n]\)</span> and <span class="math notranslate nohighlight">\(v_{\mathrm{s}}[n]\)</span>) for every forward pass.
-If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>, we create different uniform noises for every forward pass (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
-<li><p><strong>gain_envelope</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use the log-magnitude gain envelope <span class="math notranslate nohighlight">\(G[m]\)</span> (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
-<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id2">[<a class="reference internal" href="../references/reference.html#id150" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend to perform the causal convolution efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
-<li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
+<li><p><strong>processor</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Module</span></code>) – Any SISO processor with <code class="code highlight python docutils literal highlight-python"><span class="n">forward</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span></code> method implemented properly.</p></li>
+<li><p><strong>key</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – A dictionary key that will be used to store energy difference in the intermediate results.
+(default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;gain_reg&quot;</span></code>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_env_log_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb.forward" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processor_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times 2\times L\)</span>) – A batch of input audio signals.</p></li>
-<li><p><strong>init_log_magnitude</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times 2\times K \:\!\)</span>) – A batch of log-magnitudes of the initial filters.
-We assume that the mid- and side-channel responses,
-<span class="math notranslate nohighlight">\(H^0_{\mathrm{m}}\)</span> and <span class="math notranslate nohighlight">\(H^0_{\mathrm{s}}\)</span> repectively,
-are stacked together (the same applies to the remaining tensors).</p></li>
-<li><p><strong>delta_log_magnitude</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times 2\times K \:\!\)</span>) – A batch of log-magnitudes of the absorption filters.</p></li>
-<li><p><strong>gain_env_log_magnitude</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times 2\times M\)</span>, <em>optional</em>) – A batch of log-gain envelopes.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals that will be passed to the processor.</p></li>
+<li><p><strong>**processor_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters)
+that will be passed to the processor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>
+and dictionary of intermediate/auxiliary results added with the regularization loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Tuple</span><span class="p">[</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The wrapped processor’s <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.container.DryWet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DryWet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.DryWet" title="Link to this definition"></a></dt>
+<dd><p>An utility module that mixes the <em>dry</em> input with the wrapped processor’s <em>wet</em> output.</p>
+<blockquote>
+<div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
+where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
+respeectively,
+we mix the input and output with a dry/wet mix <span class="math notranslate nohighlight">\(0 &lt; w &lt; 1\)</span> as follows,
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+y[n] = (1 - w)u[n]  + w y[n].
+\]</div>
+</div>
+</p>
+<p>Here, the dry/wet is further parameterized as <span class="math notranslate nohighlight">\(w = \sigma(z_w)\)</span>
+where <span class="math notranslate nohighlight">\(z_w\)</span> is an unbounded logit and <span class="math notranslate nohighlight">\(\sigma\)</span> is logistic sigmoid.
+Hence, this processor’s learnable parameter is <span class="math notranslate nohighlight">\(p \cup \{z_w\}\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>processor</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Module</span></code>) – Any SISO processor with <code class="code highlight python docutils literal highlight-python"><span class="n">forward</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span></code> method implemented properly.</p></li>
+<li><p><strong>external_param</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we do not add our dry/wet weight shape to the
+<code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span></code> method.
+This is useful when every processor uses <code class="code highlight python docutils literal highlight-python"><span class="n">DryWet</span></code>
+and it is more convinient to have a single dry/wet tensor
+for entire nodes instead of keeping a tensor for each type
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.DryWet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drywet_weight</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processor_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.DryWet.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals that will be passed to the processor.</p></li>
+<li><p><strong>**processor_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters)
+that will be passed to the processor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -333,11 +389,12 @@ are stacked together (the same applies to the remaining tensors).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb.parameter_size">
-<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb.parameter_size" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.container.DryWet.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.DryWet.parameter_size" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+<dd class="field-odd"><p>The wrapped processor’s <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code>,
+optionally added with the dry/wet weight when <code class="code highlight python docutils literal highlight-python"><span class="n">external_param</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
@@ -354,23 +411,23 @@ are stacked together (the same applies to the remaining tensors).</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="delay.html">
+          <a class="next-page" href="../references/history.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">grafx.processors.delay</div>
+                <div class="title">History</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="dynamics.html">
+          <a class="prev-page" href="delay.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">grafx.processors.dynamics</div>
+                <div class="title">grafx.processors.delay</div>
                 
               </div>
             </a>
@@ -404,8 +461,9 @@ are stacked together (the same applies to the remaining tensors).</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">grafx.processors.reverb</a><ul>
-<li><a class="reference internal" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a></li>
+<li><a class="reference internal" href="#">grafx.processors.container</a><ul>
+<li><a class="reference internal" href="#grafx.processors.container.GainStagingRegularization"><code class="docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.container.DryWet"><code class="docutils literal notranslate"><span class="pre">DryWet</span></code></a></li>
 </ul>
 </li>
 </ul>

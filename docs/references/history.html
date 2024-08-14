@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="References" href="reference.html" /><link rel="prev" title="grafx.processors.containers" href="../processor_api/containers.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="References" href="reference.html" /><link rel="prev" title="grafx.processors.container" href="../processor_api/container.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>History - GRAFX Documentation</title>
@@ -214,12 +214,13 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/dynamics.html">grafx.processors.dynamics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul class="current">
@@ -261,6 +262,25 @@
         <article role="main" id="furo-main-content">
           <section id="history">
 <h1>History<a class="headerlink" href="#history" title="Link to this heading"></a></h1>
+<section id="v0-6-0">
+<h2>v0.6.0<a class="headerlink" href="#v0-6-0" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Parameters: each processor can have a nested parameter dict.</p></li>
+<li><p>New processors:
+<a class="reference internal" href="../processor_api/eq.html#grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer" title="grafx.processors.eq.ZeroPhaseFilterBankFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFilterBankFIREqualizer</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Compressor</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">NoiseGate</span></code>
+(more options <span id="id1">[<a class="reference internal" href="reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span> than the previous version), and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FilteredNoiseShapingReverb</span></code>
+(based on <a class="reference external" href="https://github.com/csteinmetz1/dasp-pytorch/">dasp_pytorch</a> and <span id="id2">[<a class="reference internal" href="reference.html#id157" title="Kyung Yun Lee, Nils Meyer-Kahlen, Georg Götz, U Peter Svensson, Sebastian J Schlecht, and Vesa Välimäki. Fade-in reverberation in multi-room environments using the common-slope model. arXiv preprint arXiv:2407.13242, 2024.">LMKGotz+24</a>, <a class="reference internal" href="reference.html#id5" title="Christian J Steinmetz, Vamsi Krishna Ithapu, and Paul Calamia. Filtered noise shaping for time domain room impulse response estimation from reverberant speech. In WASPAA. IEEE, 2021.">SIC21</a>]</span>),</p></li>
+<li><p>New containers:
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SerialChain</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelMix</span></code> added.
+Note that this module has been renamed from <cite>containers</cite> to <cite>container</cite>.</p></li>
+<li><p>Updated processors:
+<a class="reference internal" href="../processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer" title="grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a> (new window argument),
+<code class="xref py py-class docutils literal notranslate"><span class="pre">STFTFilteredNoiseReverb</span></code> (renamed from <a class="reference internal" href="../processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="xref py py-class docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a>; more channel settings)
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">MultitapDelay</span></code> (renamed from <a class="reference internal" href="../processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay" title="grafx.processors.delay.StereoMultitapDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code></a>; more channel settings).</p></li>
+</ul>
+</section>
 <section id="v0-5-0">
 <h2>v0.5.0<a class="headerlink" href="#v0-5-0" title="Link to this heading"></a></h2>
 <ul class="simple">
@@ -274,29 +294,29 @@
 <a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate" title="grafx.processors.dynamics.ApproxNoiseGate"><code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxNoiseGate</span></code></a>,
 <a class="reference internal" href="../processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="xref py py-class docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a>, and
 <a class="reference internal" href="../processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay" title="grafx.processors.delay.StereoMultitapDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code></a>.</p></li>
-<li><p>Auxiliary processor containers: <a class="reference internal" href="../processor_api/containers.html#grafx.processors.containers.DryWet" title="grafx.processors.containers.DryWet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DryWet</span></code></a> and <a class="reference internal" href="../processor_api/containers.html#grafx.processors.containers.GainStagingRegularization" title="grafx.processors.containers.GainStagingRegularization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a>.</p></li>
+<li><p>Auxiliary processor containers: <a class="reference internal" href="../processor_api/container.html#grafx.processors.container.DryWet" title="grafx.processors.container.DryWet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DryWet</span></code></a> and <a class="reference internal" href="../processor_api/container.html#grafx.processors.container.GainStagingRegularization" title="grafx.processors.container.GainStagingRegularization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a>.</p></li>
 </ul>
 </section>
 <section id="pre-release">
 <h2>Pre-Release<a class="headerlink" href="#pre-release" title="Link to this heading"></a></h2>
-<p>A preliminary version of this library was created for work <cite>Blind Estimation of Audio Processing Graph</cite> <span id="id1">[<a class="reference internal" href="reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.
+<p>A preliminary version of this library was created for work <cite>Blind Estimation of Audio Processing Graph</cite> <span id="id3">[<a class="reference internal" href="reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.
 Its aim was to create a simple baseline that can predict a graph from its output audio (or also with input audio).
 At that time (Summer 2022), literature on the differentiable audio processors (and their efficient computation in GPU) was not as rich as now.
 This led us to re-implement various processors in <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span></code>
 to run both the forward and backward pass efficiently in CPU with <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span><span class="o">.</span><span class="n">compile</span></code>.
 Our hope was that, if the forward pass is written correctly, the parameter optimization with gradient descent should work as well.
-Of course, this was not the case; for example, the modulation effects were not trained at all (now, we know why: <span id="id2">[<a class="reference internal" href="reference.html#id87" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id86" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>).
+Of course, this was not the case; for example, the modulation effects were not trained at all (now, we know why: <span id="id4">[<a class="reference internal" href="reference.html#id86" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id85" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>).
 Furthermore, the backpropagation through the graphs (even with <span class="math notranslate nohighlight">\(|V| = 10\)</span> nodes) was still too slow to be practical.
 Consequently, we decided to only use the graph engine for the forward passes and the training of the graph and parameter predictors
 was done with a simple “parameter loss.”</p>
 <p>After a year, we decided to revisit this idea of differentiable audio processing graphs
 as many advances on the differentiable processors were made in the meantime
-<span id="id3">[<a class="reference internal" href="reference.html#id113" title="Anders R Bargum, Stefania Serafin, Cumhur Erkut, and Julian D Parker. Differentiable allpass filters for phase response estimation and automatic signal alignment. arXiv:2306.00860, 2023.">BSEP23</a>, <a class="reference internal" href="reference.html#id87" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id71" title="J Colonel. Music production behaviour modelling. 2023.">Col23</a>, <a class="reference internal" href="reference.html#id108" title="Joseph T Colonel and Joshua Reiss. Reverse engineering a nonlinear mix of a multitrack recording. Journal of the AES, 71(9):586–595, 2023.">CR23</a>, <a class="reference internal" href="reference.html#id86" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>, <a class="reference internal" href="reference.html#id106" title="Ben Hayes, Jordie Shier, Gyorgy Fazekas, Andrew McPherson, and Charalampos Saitis. A review of differentiable digital signal processing for music &amp; speech synthesis. Frontiers in Signal Process., pages 1284100, 2023.">HSF+23</a>, <a class="reference internal" href="reference.html#id139" title="Naotake Masuda and Daisuke Saito. Improving semi-supervised differentiable synthesizer sound matching for practical applications. IEEE/ACM TASLP, 31:863–875, 2023.">MS23</a>, <a class="reference internal" href="reference.html#id119" title="Christian J Steinmetz, Thomas Walther, and Joshua D Reiss. High-fidelity noise reduction with differentiable signal processing. In AES Convention 155. 2023.">SWR23</a>, <a class="reference internal" href="reference.html#id96" title="Zhen Ye, Wei Xue, Xu Tan, Qifeng Liu, and Yike Guo. NAS-FM: neural architecture search for tunable and interpretable sound synthesis based on frequency modulation. arXiv:2305.12868, 2023.">YXT+23</a>]</span>.
+<span id="id5">[<a class="reference internal" href="reference.html#id112" title="Anders R Bargum, Stefania Serafin, Cumhur Erkut, and Julian D Parker. Differentiable allpass filters for phase response estimation and automatic signal alignment. arXiv:2306.00860, 2023.">BSEP23</a>, <a class="reference internal" href="reference.html#id86" title="Alistair Carson, Simon King, Cassia Valentini Botinhao, and Stefan Bilbao. Differentiable grey-box modelling of phaser effects using frame-based spectral processing. In DAFx. 2023.">CKBB23</a>, <a class="reference internal" href="reference.html#id70" title="J Colonel. Music production behaviour modelling. 2023.">Col23</a>, <a class="reference internal" href="reference.html#id107" title="Joseph T Colonel and Joshua Reiss. Reverse engineering a nonlinear mix of a multitrack recording. Journal of the AES, 71(9):586–595, 2023.">CR23</a>, <a class="reference internal" href="reference.html#id85" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>, <a class="reference internal" href="reference.html#id105" title="Ben Hayes, Jordie Shier, Gyorgy Fazekas, Andrew McPherson, and Charalampos Saitis. A review of differentiable digital signal processing for music &amp; speech synthesis. Frontiers in Signal Process., pages 1284100, 2023.">HSF+23</a>, <a class="reference internal" href="reference.html#id138" title="Naotake Masuda and Daisuke Saito. Improving semi-supervised differentiable synthesizer sound matching for practical applications. IEEE/ACM TASLP, 31:863–875, 2023.">MS23</a>, <a class="reference internal" href="reference.html#id118" title="Christian J Steinmetz, Thomas Walther, and Joshua D Reiss. High-fidelity noise reduction with differentiable signal processing. In AES Convention 155. 2023.">SWR23</a>, <a class="reference internal" href="reference.html#id95" title="Zhen Ye, Wei Xue, Xu Tan, Qifeng Liu, and Yike Guo. NAS-FM: neural architecture search for tunable and interpretable sound synthesis based on frequency modulation. arXiv:2305.12868, 2023.">YXT+23</a>]</span>.
 This led us to the current version of <code class="code highlight python docutils literal highlight-python"><span class="n">GRAFX</span></code>, which is entirely based on <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code>
 (in the current state, whether the backend is <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">jax</span></code> do not matter much,
 but we used the former for its popularity and ease of use).
-This library <span id="id4">[<a class="reference internal" href="reference.html#id152" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. GRAFX: an open-source library for audio processing graphs in Pytorch. In DAFx. 2024.">LMRL+24b</a>]</span> was developed along with the companion work <cite>Searching For Music Mixing Graphs: A Pruning Approach</cite> <span id="id5">[<a class="reference internal" href="reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
-Its motivation was, unlike the previous work <span id="id6">[<a class="reference internal" href="reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>, we wanted to find graphs and their parameters
+This library <span id="id6">[<a class="reference internal" href="reference.html#id151" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. GRAFX: an open-source library for audio processing graphs in Pytorch. In DAFx. 2024.">LMRL+24b</a>]</span> was developed along with the companion work <cite>Searching For Music Mixing Graphs: A Pruning Approach</cite> <span id="id7">[<a class="reference internal" href="reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
+Its motivation was, unlike the previous work <span id="id8">[<a class="reference internal" href="reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>, we wanted to find graphs and their parameters
 that matches the real-world music mixture so that we do not need to rely on the previous synthetic data when training the neural networks.</p>
 </section>
 </section>
@@ -315,14 +335,14 @@ that matches the real-world music mixture so that we do not need to rely on the 
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../processor_api/containers.html">
+          <a class="prev-page" href="../processor_api/container.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">grafx.processors.containers</div>
+                <div class="title">grafx.processors.container</div>
                 
               </div>
             </a>
@@ -357,6 +377,7 @@ that matches the real-world music mixture so that we do not need to rely on the 
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">History</a><ul>
+<li><a class="reference internal" href="#v0-6-0">v0.6.0</a></li>
 <li><a class="reference internal" href="#v0-5-0">v0.5.0</a></li>
 <li><a class="reference internal" href="#pre-release">Pre-Release</a></li>
 </ul>

@@ -47,12 +47,13 @@ Contents
    :maxdepth: 1
    :caption: Processor API
 
+   processor_api/filter
    processor_api/eq
    processor_api/stereo
    processor_api/dynamics
    processor_api/reverb
    processor_api/delay
-   processor_api/containers
+   processor_api/container
 
 .. toctree::
    :maxdepth: 1
