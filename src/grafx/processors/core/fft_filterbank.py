@@ -2,7 +2,7 @@ import warnings
 
 import torch
 
-from grafx.processors.core.scale import bark_to_hz
+from grafx.processors.core.scale import from_scale, to_scale
 
 
 def _create_triangular_filterbank(
@@ -73,30 +73,9 @@ def fft_triangular_filterbank(
     all_freqs = torch.linspace(0, sample_rate // 2, n_freqs)
 
     # calculate bark freq bins
-    match scale:
-        case "bark_traunmuller" | "bark_schroeder" | "bark_wang":
-            bark_scale = scale.split("_")[1]
-            b_min = _hz_to_bark(f_min, bark_scale=bark_scale)
-            b_max = _hz_to_bark(f_max, bark_scale=bark_scale)
-            b_pts = torch.linspace(b_min, b_max, n_filters + 2)
-            f_pts = _bark_to_hz(b_pts, bark_scale=bark_scale)
-
-        case "mel_htk" | "mel_slaney":
-            mel_scale = scale.split("_")[1]
-            m_min = _hz_to_mel(f_min, mel_scale=mel_scale)
-            m_max = _hz_to_mel(f_max, mel_scale=mel_scale)
-            m_pts = torch.linspace(m_min, m_max, n_filters + 2)
-            f_pts = _mel_to_hz(m_pts, mel_scale=mel_scale)
-
-        case "linear":
-            f_pts = torch.linspace(f_min, f_max, n_filters + 2)
-            fb = _create_triangular_filterbank(all_freqs, f_pts)
-
-        case "log":
-            l_min = _hz_to_log(f_min)
-            l_max = _hz_to_log(f_max)
-            l_pts = torch.linspace(l_min, l_max, n_filters + 2)
-            f_pts = _log_to_hz(l_pts)
+    s_min, s_max = to_scale(f_min, scale), to_scale(f_max, scale)
+    s_pts = torch.linspace(s_min, s_max, n_filters + 2)
+    f_pts = from_scale(s_pts, scale)
 
     # create filterbank
     fb = _create_triangular_filterbank(all_freqs, f_pts)

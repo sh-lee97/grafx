@@ -145,3 +145,31 @@ def hz_to_log(freqs):
 def log_to_hz(logs):
     if isinstance(logs, torch.Tensor):
         return torch.exp(logs)
+
+
+def to_scale(freqs, scale):
+    match scale:
+        case "bark_traunmuller" | "bark_schroeder" | "bark_wang":
+            return hz_to_bark(freqs, bark_scale=scale.split("_")[1])
+        case "mel_htk" | "mel_slaney":
+            return hz_to_mel(freqs, mel_scale=scale.split("_")[1])
+        case "linear":
+            return freqs
+        case "log":
+            return hz_to_log(freqs)
+        case _:
+            raise ValueError(f"Unsupported scale: {scale}")
+
+
+def from_scale(freqs, scale):
+    match scale:
+        case "bark_traunmuller" | "bark_schroeder" | "bark_wang":
+            return bark_to_hz(freqs, bark_scale=scale.split("_")[1])
+        case "mel_htk" | "mel_slaney":
+            return mel_to_hz(freqs, mel_scale=scale.split("_")[1])
+        case "linear":
+            return freqs
+        case "log":
+            return log_to_hz(freqs)
+        case _:
+            raise ValueError(f"Unsupported scale: {scale}")
