@@ -138,3 +138,83 @@ def expand_tensor_or_tensor_dict(x, expand=2, dim=0):
 def flatten_batch_and_node(x):
     shape = x.shape
     return x.reshape(-1, *shape[2:])
+
+
+class NestedParameterDict(nn.Module):
+    def __init__(self, param_dict=None):
+        super().__init__()
+        self._param_dict = nn.ParameterDict(param_dict if param_dict else {})
+
+    def __setitem__(self, key, value):
+        if isinstance(value, (nn.Parameter, NestedParameterDict)):
+            self._param_dict[key] = value
+        else:
+            raise TypeError("Value must be a nn.Parameter or NestedParameterDict")
+
+    def __getitem__(self, key):
+        return self._param_dict[key]
+
+    def __delitem__(self, key):
+        del self._param_dict[key]
+
+    def keys(self):
+        return self._param_dict.keys()
+
+    def items(self):
+        return self._param_dict.items()
+
+    def values(self):
+        return self._param_dict.values()
+
+    def forward(self):
+        pass  # No forward pass needed for a container
+
+    def flatten_parameters(self, prefix=""):
+        """Recursively flatten all nested parameters into a single dictionary."""
+        flat_dict = {}
+        for name, param in self._param_dict.items():
+            full_name = f"{prefix}.{name}" if prefix else name
+            if isinstance(param, NestedParameterDict):
+                nested_flat_dict = param.flatten_parameters(prefix=full_name)
+                flat_dict.update(nested_flat_dict)
+            else:
+                flat_dict[full_name] = param
+        return flat_dict
+
+
+# def get_smoother_params(parameter_dict):
+#    energy_params, gain_params = {}, {}
+#    for k, v in smoother_params.items():
+#        k1, k2 = k.split("_", 1)
+#        match k1:
+#            case "energy":
+#                energy_params[k2] = v
+#            case "gain":
+#                gain_params[k2] = v
+#    return energy_params, gain_params
+
+if __name__ == "__main__":
+    nested_params = NestedParameterDict(
+        {
+            "block1": NestedParameterDict(
+                {
+                    "layer1": NestedParameterDict(
+                        {
+                            "weight": nn.Parameter(torch.randn(3, 3)),
+                            "bias": nn.Parameter(torch.randn(3)),
+                        }
+                    ),
+                    "layer2": nn.Parameter(torch.randn(3, 3)),
+                }
+            ),
+            "block2": NestedParameterDict(
+                {
+                    "subblock1": NestedParameterDict(
+                        {"layer1": nn.Parameter(torch.randn(3, 3))}
+                    )
+                }
+            ),
+            "param": nn.Parameter(torch.randn(5)),
+        }
+    )
+    print(nested_params)
