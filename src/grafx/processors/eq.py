@@ -2,6 +2,8 @@ import torch.nn as nn
 
 from grafx.processors.core.convolution import convolve
 from grafx.processors.core.fir import ZeroPhaseFilterBankFIR, ZeroPhaseFIR
+from grafx.processors.core.geq import GraphicEqualizerBiquad
+from grafx.processors.core.iir import BiquadFilter
 
 
 class ZeroPhaseFIREqualizer(nn.Module):
@@ -153,3 +155,77 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
         return {"log_energy": self.num_energy_bins}
+
+
+class GraphicEqualizer(nn.Module):
+    r"""
+    A graphic equalizer (GEQ) based on second-order peaking filters :cite:`liski2017quest`.
+
+        We cascade $K$ biquad filters to form a graphic equalizer,
+        whose transfer function is given as $H(z) = \prod_{k=1}^{K} H_k(z)$ where each biquad $H_k(z)$ is as follows,
+        $$
+        H_k(z)=\frac{1+g_k \beta_k-2 \cos (\omega_k) z^{-1}+(1-g_k \beta_k) z^{-2}}{1+\beta_k-2 \cos (\omega_k) z^{-1}+(1-\beta_k) z^{-2}}.
+        $$
+
+        Here, $g_k$ is the linear gain and $\omega_k$ is the center frequency.
+        $\beta_k$ is given as
+        $$
+        \beta_k = \sqrt{\frac{\left|\tilde{g}_k^2-1\right|}{\left|g_k^2-\tilde{g}_k^2\right|}} \tan {\frac{B_k}{2}}
+        $$
+
+        where $B_k$ is the bandwidth frequency and $\tilde{g}_k$ is the gain at the neighboring band frequency,
+        pre-determined to be $\tilde{g}_k = g_k^{0.4}$.
+        The frequency values ($\omega_k$ and $B_k$) and the number of bands $K$ are also determined by the frequency scale.
+        The learnable parameter is a concatenation of the log-magnitudes, i.e., $\smash{p = \{ \mathbf{g}^{\mathrm{log}} \}}$ where $\smash{g_k = \exp g_k^{\mathrm{log}}}$.
+
+        Note that the log-gain parameters are different to the equalizer's log-magnitude response values at the center frequencies known as "control points".
+        To set the log-gains to match the control points, we can use least-square optimization methods :cite:`liski2017quest, valimaki2019neurally`.
+
+
+    Args:
+        scale (:python:`str`, *optional*):
+            The frequency scale to use, which can be:
+            24-band :python:`"bark"` and 31-band :python:`"third_oct"` (default: :python:`"bark"`).
+        sr (:python:`int`, *optional*):
+            The underlying sampling rate of the input signal (default: :python:`44100`).
+        backend (:python:`str`, *optional*):
+            The backend to use for the filtering, which can either be the frequency-sampling method
+            :python:`"fsm"` or exact time-domain filter :python:`"lfilter"` (default: :python:`"fsm"`).
+        fsm_fir_len (:python:`int`, *optional*):
+            The length of FIR approximation when :python:`backend == "fsm"` (default: :python:`8192`).
+    """
+
+    def __init__(
+        self,
+        scale="bark",
+        sr=44100,
+        backend="fsm",
+        fsm_fir_len=8192,
+    ):
+        super().__init__()
+        self.geq = GraphicEqualizerBiquad(scale=scale, sr=sr)
+        self.biquad = BiquadFilter(backend="fsm")
+
+    def forward(self, input_signal, log_gains):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            log_gains (:python:`FloatTensor`, :math:`B \times K \:\!`):
+                A batch of log-gain vectors of the GEQ.
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+        """
+        Bs, As = self.geq(log_gains)
+        output_signal = self.biquad(input_signal, Bs, As)
+        return output_signal
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+        return {"log_gains": self.geq.num_bands}
