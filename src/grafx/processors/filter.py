@@ -8,7 +8,11 @@ import torch.nn.functional as F
 from torchaudio.functional import lfilter
 
 from grafx.processors.core.convolution import CausalConvolution
-from grafx.processors.core.iir import FrequencySampledStateVariableFilter, svf_to_biquad
+from grafx.processors.core.iir import (
+    BiquadFilter,
+    FrequencySampledStateVariableFilter,
+    svf_to_biquad,
+)
 
 HALF_PI = math.pi / 2
 TWOR_SCALE = 2 / math.log(2)
