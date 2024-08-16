@@ -9,13 +9,39 @@ from torchaudio.functional import lfilter
 
 from grafx.processors.core.convolution import CausalConvolution
 from grafx.processors.core.iir import (
-    BiquadFilter,
+    BiquadFilterBackend,
     FrequencySampledStateVariableFilter,
     svf_to_biquad,
 )
 
 HALF_PI = math.pi / 2
 TWOR_SCALE = 2 / math.log(2)
+
+
+class BiquadFilter(nn.Module):
+    r"""
+    A bank of second-order filters (biquads) with the given coefficients.
+    """
+
+    def __init__(
+        self,
+        num_biquads=1,
+        backend="fsm",
+        fsm_fir_len=4000,
+    ):
+        super().__init__()
+        self.num_biquads = num_biquads
+        self.biquad = BiquadFilterBackend(backend=backend, fsm_fir_len=fsm_fir_len)
+
+    def forward(self, input_signal, Bs, As):
+        output_signal = self.biquad(input_signal, Bs, As)
+        return output_signal
+
+    def parameter_size(self):
+        return {
+            "Bs": (self.num_biquads, 3),
+            "As": (self.num_biquads, 3),
+        }
 
 
 class SVFFilter(nn.Module):
@@ -53,21 +79,13 @@ class SVFFilter(nn.Module):
     ):
         super().__init__()
         self.num_svfs = num_svfs
-        self.backend = backend
-        self.fsm_fir_len = fsm_fir_len
-
-        match backend:
-            case "fsm":
-                self.svf = FrequencySampledStateVariableFilter(fir_len=fsm_fir_len)
-                self.conv = CausalConvolution(fsm_fir_len)
-            case "lfilter":
-                pass
-            case _:
-                raise ValueError(f"Unsupported backend: {backend}")
+        self.biquad = BiquadFilterBackend(backend=backend, fsm_fir_len=fsm_fir_len)
 
     def forward(self, input_signal, twoR, G, c_hp, c_bp, c_lp):
         G = torch.tan(HALF_PI * torch.sigmoid(G))
         twoR = TWOR_SCALE * F.softplus(twoR) + 1e-2
+        Bs, As = svf_to_biquad(twoR, G, c_hp, c_bp, c_lp)
+        output_signal = self.biquad(input_signal, Bs, As)
 
         match self.backend:
             case "fsm":

@@ -105,12 +105,109 @@ class FrequencySampledStateVariableFilter(nn.Module):
         return svf
 
 
+class BiquadFilterBackend(nn.Module):
+    def __init__(
+        self,
+        backend="fsm",
+        fsm_fir_len=4000,
+    ):
+        super().__init__()
+        self.backend = backend
+        self.fsm_fir_len = fsm_fir_len
+
+        match backend:
+            case "fsm":
+                self.svf = FrequencySampledStateVariableFilter(fir_len=fsm_fir_len)
+                self.conv = CausalConvolution(fsm_fir_len)
+            case "lfilter":
+                pass
+            case _:
+                raise ValueError(f"Unsupported backend: {backend}")
+
+    def forward(self, input_signal, Bs, As):
+        match self.backend:
+            case "fsm":
+                fsm_response = self.fsm(input_signal, twoR, G, c_hp, c_bp, c_lp)
+                fsm_response = fsm_response.prod(-2)
+                fsm_fir = torch.fft.irfft(fsm_response, dim=-1, n=self.fsm_fir_len)
+                output_signal = self.conv(input_signal, fsm_fir)
+            case "lfilter":
+                output_signal = input
+                num_filters = Bs.shape[-2]
+                for i in range(num_filters):
+                    output_signal = lfilter(
+                        output_signal,
+                        b_coeffs=Bs[..., i, :],
+                        a_coeffs=As[..., i, :],
+                        batching=True,
+                    )
+
+        return output_signal
+
+
+def peaking(gain_db, cutoff_freq, q_factor, sample_rate=44100):
+    A = 10 ** (gain_db / 40.0)
+    w0 = 2 * math.pi * (cutoff_freq / sample_rate)
+    alpha = torch.sin(w0) / (2 * q_factor)
+    cos_w0 = torch.cos(w0)
+
+    b0 = 1 + alpha * A
+    b1 = -2 * cos_w0
+    b2 = 1 - alpha * A
+    a0 = 1 + (alpha / A)
+    a1 = -2 * cos_w0
+    a2 = 1 - (alpha / A)
+
+    Bs = torch.stack([b0, b1, b2], -1)
+    As = torch.stack([a0, a1, a2], -1)
+    return Bs, As
+
+
+def get_magnitude_resposne(Bs, As):
+    arange = torch.arange(3)
+    fir_length = 2**15
+    faxis = torch.linspace(0, 22050, fir_length // 2 + 1)
+    delays = delay(arange, fir_length=fir_length)
+    fsm = iir_fsm(Bs, As, delays=delays)
+    fsm_magnitude = torch.abs(fsm)
+    fsm_db = torch.log(fsm_magnitude + 1e-7)
+    return faxis, fsm_db
+
+
 if __name__ == "__main__":
-    svf = FrequencySampledStateVariableFilter()
-    twoR = torch.rand(16, 1)
-    G = torch.rand(16, 1)
-    c_hp = torch.rand(16, 1)
-    c_bp = torch.rand(16, 1)
-    c_lp = torch.rand(16, 1)
-    response = svf(twoR, G, c_hp, c_bp, c_lp)
-    print(response.shape)
+    import matplotlib.pyplot as plt
+
+    from grafx.processors.core.iir import delay, iir_fsm
+
+    sr = 44100
+    gain_db = torch.tensor([6.0])
+    cutoff_freq = torch.tensor([1000.0])
+    q_factor = torch.tensor([3.0])
+    G = torch.tan(math.pi * cutoff_freq / sr)
+    twoR = 1 / q_factor / np.sqrt(2)
+    c = 10 ** (gain_db / 20)
+
+    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+
+    Bs, As = peak_to_biquad(G, c, twoR)
+    faxis, peak_1 = get_magnitude_resposne(Bs, As)
+    ax.plot(faxis, peak_1[0])
+    Bs, As = peaking(gain_db, cutoff_freq, q_factor, sample_rate=sr)
+    faxis, peak_2 = get_magnitude_resposne(Bs, As)
+    ax.plot(faxis, peak_2[0])
+
+    ax.set_xlim(10, 22050)
+    ax.set_xscale("symlog", linthresh=10, linscale=0.1)
+
+    fig.savefig("peak.pdf", bbox_inches="tight")
+
+
+# if __name__ == "__main__":
+#    svf = FrequencySampledStateVariableFilter()
+#    twoR = torch.rand(16, 1)
+#    G = torch.rand(16, 1)
+#    c_hp = torch.rand(16, 1)
+#    c_bp = torch.rand(16, 1)
+#    c_lp = torch.rand(16, 1)
+#    response = svf(twoR, G, c_hp, c_bp, c_lp)
+#    print(response.shape)

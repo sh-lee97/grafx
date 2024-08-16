@@ -3,7 +3,7 @@ import torch.nn as nn
 from grafx.processors.core.convolution import convolve
 from grafx.processors.core.fir import ZeroPhaseFilterBankFIR, ZeroPhaseFIR
 from grafx.processors.core.geq import GraphicEqualizerBiquad
-from grafx.processors.core.iir import BiquadFilter
+from grafx.processors.core.iir import BiquadFilterBackend
 
 
 class ZeroPhaseFIREqualizer(nn.Module):
@@ -204,7 +204,7 @@ class GraphicEqualizer(nn.Module):
     ):
         super().__init__()
         self.geq = GraphicEqualizerBiquad(scale=scale, sr=sr)
-        self.biquad = BiquadFilter(backend="fsm")
+        self.biquad = BiquadFilterBackend(backend=backend, fsm_fir_len=fsm_fir_len)
 
     def forward(self, input_signal, log_gains):
         r"""
