@@ -1,5 +1,9 @@
+import math
+
 import torch
 import torch.nn as nn
+
+INV_SQRT_2 = 1 / math.sqrt(2)
 
 
 class StereoGain(nn.Module):
@@ -95,6 +99,7 @@ class SideGainImager(nn.Module):
         """
         return {"log_gain": 1}
 
+
 class MonoToStereo(nn.Module):
     r"""
     A simple mono-to-stereo conversion.
@@ -112,7 +117,7 @@ class MonoToStereo(nn.Module):
                 A batch of input audio signals; must be mono.
 
         Returns:
-            A batch of output signals in :python:`FloatTensor` of shape :math:`B \times C \times L`.
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         b, c, t = input_signals.shape
         assert c == 1
@@ -122,6 +127,43 @@ class MonoToStereo(nn.Module):
     def parameter_size(self):
         """
         Returns:
-            A dictionary that contains each parameter tensor's shape.
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+        return {}
+
+
+class StereoToMidSide(nn.Module):
+    r"""
+    A simple stereo-to-mid-side conversion.
+    """
+
+    def __init__(self, normalize=True):
+        super().__init__()
+
+        self.normalize = normalize
+
+    def forward(self, input_signals):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times 2 \times L`):
+                A batch of input audio signals; must be stereo.
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
+        """
+        _, c, _ = input_signals.shape
+        assert c == 2
+        if self.normalize:
+            input_signals = input_signals * INV_SQRT_2
+        left, right = input_signals[:, :1, :], input_signals[:, 1:, :]
+        mid, side = left + right, left - right
+        return mid, side
+
+    def parameter_size(self):
+        """
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
         return {}
