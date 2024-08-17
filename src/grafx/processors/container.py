@@ -140,7 +140,7 @@ class DryWet(nn.Module):
     def parameter_size(self):
         r"""
         Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: The wrapped processor's :python:`parameter_size()`, 
+            :python:`Dict[str, Tuple[int, ...]]`: The wrapped processor's :python:`parameter_size()`,
             optionally added with the dry/wet weight when :python:`external_param` is set to :python:`False`.
         """
         param_size = self.processor.parameter_size()
@@ -149,44 +149,109 @@ class DryWet(nn.Module):
         return param_size
 
 
-# class SequentialChain(nn.Module):
-#    r"""
-#    An utility module that serially connects the provided processors $f_1, \cdots, f_K$ in a sequential order.
-#    $$
-#    y[n] = (1 - w)u[n]  + w y{_\mathrm{processor}} [n].
-#    $$
-#
-#    .. note::
-#        This processor currently only works with single-input single-output (SISO) processors.
-#    """
-#    def __init__(self, processors):
-#        super().__init__()
-#        self.processors = nn.ModuleList(processors)
-#
-#    def forward(self, input_signals, **processors_kwargs):
-#        r"""
-#        Args:
-#            *input_signals: Input signals passed to the processor.
-#            **parameters (optional): Parameters passed to the processor.
-#
-#        Returns:
-#            Output signals of `(FloatTensor, B x C x T)`
-#        """
-#        out = self.processor(input_signals, **processor_kwargs)
-#        if isinstance(out, tuple):
-#            output_signals, intermediates = out
-#        else:
-#            output_signals, intermediates = out, {}
-#        drywet_weight = drywet_weight.view(-1, 1, 1)
-#        output_signals = (
-#            drywet_weight * output_signals + (1 - drywet_weight) * input_signals
-#        )
-#        return output_signals, intermediates
-#
-#    def parameter_size(self):
-#        """
-#        Returns:
-#            The wrapped processors' :python:`parameter_size()`.
-#        """
-#        return {k: v.parameter_size() for k, v in self.processors.items()}
-#
+class SerialChain(nn.Module):
+    r"""
+    An utility module that serially connects the provided processors in a sequential order.
+
+        For processors $f_1, \cdots, f_K$, its output is defined
+        $$
+        y[n] = (f_K \circ \cdots \circ f_1)(s[n]; p_1, \cdots, p_K) = f_K(\cdots f_1(s[n]; p_1); p_K).
+        $$
+    """
+
+    def __init__(self, processors):
+        super().__init__()
+        self.processors = nn.ModuleDict(processors)
+
+    def forward(self, input_signals, **processors_kwargs):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            **processors_kwargs (*optional*):
+                Keyword arguments (i.e., mostly parameters) that will be passed to the processor.
+
+        Returns:
+            :python:`Tuple[FloatTensor, Dict[str, Any]]`:
+                A batch of output signals of shape :math:`B \times C \times L`.
+        """
+
+        output_signals = input_signals
+        intermediates = {}
+
+        for k, processor in self.processors.items():
+            out = processor(output_signals, **processors_kwargs[k])
+            if isinstance(out, tuple):
+                output_signals, intermediates[k] = out
+            else:
+                output_signals = out
+        return output_signals, intermediates
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A nested dictionary that contains each parameter tensor's shape.
+        """
+        return {k: v.parameter_size() for k, v in self.processors.items()}
+
+
+class ParallelMix(nn.Module):
+    r"""
+    Differentiable architecture search (DARTS) :cite:`liu2018darts`
+
+        For processors $f_1, \cdots, f_K$, its output is defined as a weighted sum of the processors' outputs,
+        $$
+        y[n] = \underbrace{w_0 s[n]}_{\mathrm{optional}} + \sum_{k=1}^K w_k f_k(s[n]; p_k)
+        $$
+
+        where each weight is defined as a function of learnable parameters $\alpha_0, \cdots, \alpha_K$ as follows,
+        $$
+        w_k = \frac{\exp(\alpha_k)}{\sum_{i=0}^K \exp(\alpha_i)}
+        $$
+
+        $p = \{\boldsymbol{\alpha}\} \cup p_1 \cup \cdots \cup p_K\}$ is the set of all learnable parameters.
+    """
+
+    def __init__(self, processors):
+        super().__init__()
+        self.processors = nn.ModuleDict(processors)
+
+    def forward(self, input_signals, **processors_kwargs):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            log_gains (:python:`FloatTensor`, :math:`B \times K \:\!`):
+                A batch of log-gain vectors of the GEQ.
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+        """
+
+        out = self.processor(input_signals, **processor_kwargs)
+        if isinstance(out, tuple):
+            output_signals, intermediates = out
+        else:
+            output_signals, intermediates = out, {}
+        drywet_weight = drywet_weight.view(-1, 1, 1)
+        output_signals = (
+            drywet_weight * output_signals + (1 - drywet_weight) * input_signals
+        )
+        return output_signals, intermediates
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A nested dictionary that contains each parameter tensor's shape.
+        """
+        return {k: v.parameter_size() for k, v in self.processors.items()}
+
+
+if __name__ == "__main__":
+    serialchain = SerialChain(
+        processors={"gain": GainStagingRegularization(), "drywet": DryWet()}
+    )
