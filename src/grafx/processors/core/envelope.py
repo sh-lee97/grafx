@@ -47,8 +47,8 @@ class Ballistics(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self, signal, z_ts):
-        ts = torch.sigmoid(z_ts)
+    def forward(self, signal, z_alpha):
+        ts = torch.sigmoid(z_alpha)
         zi = torch.ones(signal.shape[0], device=signal.device)
         at, rt = ts[..., 0], ts[..., 1]
         smoothed = compressor_core(signal, zi, at, rt)
@@ -56,7 +56,7 @@ class Ballistics(nn.Module):
         return smoothed
 
     def parameter_size(self):
-        return {"z_ts": 2}
+        return {"z_alpha": 2}
 
 
 # class FramewiseBallistics(nn.Module):
