@@ -1,4 +1,8 @@
+import math
+
+import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from grafx.processors.core.utils import rms_difference
 
@@ -151,12 +155,24 @@ class DryWet(nn.Module):
 
 class SerialChain(nn.Module):
     r"""
-    An utility module that serially connects the provided processors in a sequential order.
+    An utility module that serially connects the provided processors.
 
-        For processors $f_1, \cdots, f_K$, its output is defined
+        For processors $f_1, \cdots, f_K$ with their respective parameters $p_1, \cdots, p_K$,
+        the serial chain $f = f_K \circ \cdots \circ f_1$
+        applies each processor in order, where the output of the previous processor is fed to the next one.
         $$
-        y[n] = (f_K \circ \cdots \circ f_1)(s[n]; p_1, \cdots, p_K) = f_K(\cdots f_1(s[n]; p_1); p_K).
+        y[n] = (f_K \circ \cdots \circ f_1)(s[n]; p_1, \cdots, p_K).
         $$
+
+        The set of all learnable parameters is given as $p = \{p_1, \cdots, p_K\}$.
+
+    Args:
+        processors (:python:`Dict[str, Module]`):
+            A dictionary of processors with their names as keys.
+            The order of the processors will be the same as the dictionary order.
+            We assume that each processor has :python:`forward()` and :python:`parameter_size()`
+            method implemented properly.
+
     """
 
     def __init__(self, processors):
@@ -192,33 +208,45 @@ class SerialChain(nn.Module):
     def parameter_size(self):
         r"""
         Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A nested dictionary that contains each parameter tensor's shape.
+            :python:`Dict[str, Dict[str, Union[dict, Tuple[int, ...]]]]`:
+                A nested dictionary of depth at least 2 that contains each processor name as key and its :python:`parameter_size()` as value.
         """
         return {k: v.parameter_size() for k, v in self.processors.items()}
 
 
 class ParallelMix(nn.Module):
     r"""
-    Differentiable architecture search (DARTS) :cite:`liu2018darts`
+    A container that mixes the multiple processor outputs.
 
-        For processors $f_1, \cdots, f_K$, its output is defined as a weighted sum of the processors' outputs,
+        We create a single processor with $K$ processors $f_1, \cdots, f_K$, mixing their outputs with weights $w_1, \cdots, w_K$.
         $$
-        y[n] = \underbrace{w_0 s[n]}_{\mathrm{optional}} + \sum_{k=1}^K w_k f_k(s[n]; p_k)
-        $$
-
-        where each weight is defined as a function of learnable parameters $\alpha_0, \cdots, \alpha_K$ as follows,
-        $$
-        w_k = \frac{\exp(\alpha_k)}{\sum_{i=0}^K \exp(\alpha_i)}
+        y[n] = \sum_{k=1}^K w_k f_k(s[n]; p_k).
         $$
 
-        $p = \{\boldsymbol{\alpha}\} \cup p_1 \cup \cdots \cup p_K\}$ is the set of all learnable parameters.
+        By default, we take the pre-activation weights $\tilde{w}_1, \cdots, \tilde{w}_K$ as input.
+        Then, for each $\tilde{w}_k$, we apply
+        $w_k = \log (1 + \exp(\tilde{w}_k)) / K \log{2}$,
+        making it non-negative and have value of $1/K$ if the pre-activation input is near zero.
+        Also, we can force the weights to have a sum of 1 by applying softmax,
+        $w_k = \exp(\tilde{w}_k)/\sum_{i=1}^K \exp(\tilde{w}_i)$.
+        This resembles the Differentiable architecture search (DARTS) :cite:`liu2018darts`,
+        if our aim is to select the best one among the $K$ processors.
+        The set of all learnable parameters is given as $p = \{\tilde{\mathbf{w}}, p_1, \cdots, p_K\}$.
     """
 
-    def __init__(self, processors):
+    def __init__(self, processors, activation="softmax"):
         super().__init__()
         self.processors = nn.ModuleDict(processors)
+        match activation:
+            case "softmax":
+                self.get_weight = self._get_softmax_weight
+            case "softplus":
+                self.get_weight = self._get_softplus_weight
+                self.mult = 1 / (math.log(2) * len(self.processors))
+            case _:
+                raise ValueError(f"Unsupported activation: {activation}")
 
-    def forward(self, input_signals, **processors_kwargs):
+    def forward(self, input_signals, parallel_weights, **processors_kwargs):
         r"""
         Processes input audio with the processor and given parameters.
 
@@ -232,23 +260,31 @@ class ParallelMix(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
 
-        out = self.processor(input_signals, **processor_kwargs)
-        if isinstance(out, tuple):
-            output_signals, intermediates = out
-        else:
-            output_signals, intermediates = out, {}
-        drywet_weight = drywet_weight.view(-1, 1, 1)
-        output_signals = (
-            drywet_weight * output_signals + (1 - drywet_weight) * input_signals
-        )
+        weights = self.get_weight(parallel_weights)
+        output_signals, intermediates = [], {}
+        for k, processor in self.processors.items():
+            out = processor(input_signals, **processors_kwargs[k])
+            if isinstance(out, tuple):
+                out, intermediates[k] = out
+            out = out * weights[..., k, None, None]
+            output_signals.append(out)
         return output_signals, intermediates
+
+    def _get_softmax_weight(self, weights):
+        return torch.softmax(weights, dim=-1)
+
+    def _get_softplus_weight(self, weights):
+        return F.softplus(weights) * self.mult
 
     def parameter_size(self):
         r"""
         Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A nested dictionary that contains each parameter tensor's shape.
+            :python:`Dict[str, Dict[str, Union[dict, Tuple[int, ...]]]]`:
+                A nested dictionary of depth at least 2 that contains each processor name as key and its :python:`parameter_size()` as value.
         """
-        return {k: v.parameter_size() for k, v in self.processors.items()}
+        size = {k: v.parameter_size() for k, v in self.processors.items()}
+        size["parallel_weights"] = len(self.processors)
+        return size
 
 
 if __name__ == "__main__":
