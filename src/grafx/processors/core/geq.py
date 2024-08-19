@@ -170,6 +170,8 @@ class GraphicEqualizerBiquad(nn.Module):
         self.register_buffer("tan_B_half", tan_B_half)
         self.register_buffer("c", torch.tensor(c))
 
+        self.num_bands = len(fc)
+
     def forward(self, log_gains):
         # gains = torch.exp(log_gains)
         gains = torch.exp(log_gains)
