@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 
-def compressor_gain_minimum(log_energy, log_threshold, log_ratio):
+def compressor_gain_hard_knee(log_energy, log_threshold, log_ratio, log_knee=None):
     ratio = 1 + torch.exp(log_ratio)
     log_energy_out = torch.minimum(
         log_energy, log_threshold + (log_energy - log_threshold) / ratio
