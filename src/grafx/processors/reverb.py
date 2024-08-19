@@ -5,6 +5,8 @@ import torch.nn.functional as F
 from einops import rearrange
 
 from grafx.processors.core.convolution import CausalConvolution
+from grafx.processors.core.midside import lr_to_ms, ms_to_lr
+from grafx.processors.core.noise import get_filtered_noise
 from grafx.processors.core.utils import normalize_impulse
 
 
@@ -53,6 +55,7 @@ class MidSideFilteredNoiseReverb(nn.Module):
     def __init__(
         self,
         ir_len=60000,
+        reverb_channel="pseudo_midside",
         n_fft=384,
         hop_length=192,
         fixed_noise=True,
@@ -82,6 +85,15 @@ class MidSideFilteredNoiseReverb(nn.Module):
             flashfftconv=flashfftconv,
             max_input_len=max_input_len,
         )
+
+        self.reverb_channel = reverb_channel
+        match self.reverb_channel:
+            case "mono" | "stereo":
+                self.process = self._process_mono_stereo
+            case "midside":
+                self.process = self._process_midside
+            case "pseudo_midside":
+                self.process = self._process_pseudo_midside
 
     def get_fixed_noise(self):
         rng = np.random.RandomState(0)
@@ -141,7 +153,7 @@ class MidSideFilteredNoiseReverb(nn.Module):
         ir = self.compute_ir(
             init_log_magnitude, delta_log_magnitude, gain_env_log_magnitude
         )
-        output_signals = self.conv(input_signals, ir)
+        output_signals = self.process(input_signals, ir)
         return output_signals
 
     def compute_ir(
@@ -169,8 +181,7 @@ class MidSideFilteredNoiseReverb(nn.Module):
         )
         ir = rearrange(ir, "(b c) t -> b c t", c=2)
 
-        ir = self.ms_to_lr(ir)
-        ir = normalize_impulse(ir)
+        # ir = self.ms_to_lr(ir)
         return ir
 
     def compute_stft_mask(
@@ -186,12 +197,6 @@ class MidSideFilteredNoiseReverb(nn.Module):
         mask = torch.exp(mask_log_magnitude / 8)
         return mask
 
-    def ms_to_lr(self, ir):
-        mid, side = torch.split(ir, (1, 1), -2)
-        left, right = mid + side, mid - side
-        ir = torch.cat([left, right], -2)
-        return ir
-
     def parameter_size(self):
         r"""
         Returns:
@@ -203,4 +208,139 @@ class MidSideFilteredNoiseReverb(nn.Module):
         }
         if self.gain_envelope:
             size["gain_env_log_magnitude"] = (2, self.num_frames)
+        return size
+
+    def _process_mono_stereo(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        return self.conv(input_signals, fir)
+
+    def _process_midside(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        input_signals = lr_to_ms(input_signals)
+        output_signals = self.conv(input_signals, fir)
+        return ms_to_lr(output_signals)
+
+    def _process_pseudo_midside(self, input_signals, fir):
+        fir = ms_to_lr(fir)
+        fir = normalize_impulse(fir)
+        return self.conv(input_signals, fir)
+
+
+class FilteredNoiseShapingReverb(nn.Module):
+    r"""
+    A time-domain FIR filter
+    :cite:`steinmetz2021filtered`
+    """
+
+    def __init__(
+        self,
+        fir_len=60000,
+        num_bands=12,
+        reverb_channel="midside",
+        f_min=31.5,
+        f_max=16000,
+        scale="log",
+        sr=44100,
+        zerophase=True,
+        order=2,
+        filtered_noise="pseudo-random",
+        use_fade_in=False,
+        min_decay_ms=50,
+        max_decay_ms=1000,
+        flashfftconv=True,
+        max_input_len=2**17,
+    ):
+        super().__init__()
+
+        self.num_bands = num_bands
+        self.reverb_channel = reverb_channel
+
+        match self.reverb_channel:
+            case "midside":
+                self.num_channels = 2
+            case "stereo":
+                self.num_channels = 2
+            case "mono":
+                self.num_channels = 1
+            case _:
+                raise ValueError(f"Unknown channel type: {self.channel}")
+
+        self.fir_len = fir_len
+        self.filtered_noise = filtered_noise
+        match self.filtered_noise:
+            case "pseudo-random" | "fixed":
+                noise_len = (
+                    self.fir_len if self.filtered_noise == "fixed" else self.fir_len * 5
+                )
+                filtered_noise = get_filtered_noise(
+                    noise_len,
+                    num_channels=self.num_channels,
+                    num_bands=self.num_bands,
+                    f_min=f_min,
+                    f_max=f_max,
+                    scale=scale,
+                    sr=sr,
+                    zerophase=zerophase,
+                    order=order,
+                )
+                self.register_buffer("filtered_noise", filtered_noise)
+            case "random":
+                assert False  # TODO
+            case _:
+                raise ValueError(
+                    f"Invalid filtered_noise argument: {self.filtered_noise}"
+                )
+
+        self.conv = CausalConvolution(
+            flashfftconv=flashfftconv,
+            max_input_len=max_input_len,
+        )
+
+        self.use_fade_in = use_fade_in
+
+    def forward(
+        self, input_signals, log_decay, log_gain, log_fade_in=None, z_fade_in_gain=None
+    ):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B\times C\times L`):
+            log_decay (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K \:\!`):
+            log_gain (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K \:\!`):
+            log_fade_in (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K`, *optional*):
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+
+        """
+
+        # bound log decay to self.min_decay and self.max_decay
+        log_decay = (
+            torch.sigmoid(log_decay) * (self.max_decay - self.min_decay)
+            + self.min_decay
+        )
+        decay = torch.exp(self.arange * log_decay)
+
+        log_fade_in = (
+            torch.sigmoid(log_fade_in) * (log_decay - self.min_decay) + self.min_decay
+        )
+        log_fade_in = log_fade_in / 2
+
+        fade_in = torch.exp(self.arange * log_fade_in)
+        fade_in_gain = torch.sigmoid(z_fade_in_gain)
+
+        envelope = decay - fade_in * fade_in_gain
+        filtered_noise = self.get_filtered_noise()
+        ir = filtered_noise * envelope
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+        shape = (self.num_channels, self.num_bands)
+        size = {"log_decay": shape, "log_gain": shape}
+        if self.fade_in:
+            size["log_fade_in"] = shape
         return size
