@@ -4,11 +4,12 @@ from grafx.processors.core.convolution import convolve
 from grafx.processors.core.fir import ZeroPhaseFilterBankFIR, ZeroPhaseFIR
 from grafx.processors.core.geq import GraphicEqualizerBiquad
 from grafx.processors.core.iir import BiquadFilterBackend
+from grafx.processors.core.midside import lr_to_ms, ms_to_lr
 
 
 class ZeroPhaseFIREqualizer(nn.Module):
     r"""
-    A single-channel zero-phase finite impulse response (FIR) filter.
+    A single-channel zero-phase finite impulse response (FIR) filter :cite:`smith2007introduction, smith2011spectral, engel2020ddsp`.
 
         From the input log-magnitude $H_{\mathrm{log}}$,
         we compute inverse FFT (IFFT) of the magnitude response
@@ -63,9 +64,20 @@ class ZeroPhaseFIREqualizer(nn.Module):
         return {"log_magnitude": self.num_magnitude_bins}
 
 
-class ZeroPhaseFilterBankFIREqualizer(nn.Module):
+class NewZeroPhaseFIREqualizer(nn.Module):
     r"""
-    A zero-phase FIR filter parameterized with a filterbank log-magnitudes.
+    A single-channel zero-phase finite impulse response (FIR) filter :cite:`smith2007introduction, smith2011spectral, engel2020ddsp`.
+
+        From the input log-magnitude $H_{\mathrm{log}}$,
+        we compute inverse FFT (IFFT) of the magnitude response
+        and multiply it with a zero-centered window $w[n]$.
+        Each input channel is convolved with the following FIR.
+        $$
+        h[n] = w[n] \cdot \frac{1}{N} \sum_{k=0}^{N-1} \exp H_{\mathrm{log}}[k] \cdot  z_{N}^{kn}.
+        $$
+
+        Here, $-(N+1)/2 \leq n \leq (N+1)/2$ and $z_{N} = \exp(j\cdot 2\pi/N)$.
+        This equalizer's learnable parameter is $p = \{ H_{\mathrm{log}} \}$.
 
         From the input log-energy $H_{\mathrm{fb}} \in \mathbb{R}^{K_{\mathrm{fb}}}$,
         we compute the FFT magnitudes as
@@ -80,8 +92,21 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
         This equalizer's learnable parameter is $p = \{ H_{\mathrm{fb}} \}$.
 
     Args:
-        num_energy_bins (:python:`int`, *optional*):
+        n_frequency_bins (:python:`int`, *optional*):
             The number of FFT energy bins (default: :python:`1024`).
+        eq_channel (:python:`str`, *optional*):
+            The channel configuration of the equalizer,
+            which can be :python:`"mono"`, :python:`"stereo"`, :python:`"midside"`, or :python:`"pseudo_midside"`
+            (default: :python:`"mono"`).
+        use_filterbank (:python:`bool`, *optional*):
+            Whether to use the filterbank (default: :python:`False`).
+        scale (:python:`str`, *optional*):
+            The frequency scale to use, which can be:
+            :python:`"bark_traunmuller"`, :python:`"bark_schroeder"`, :python:`"bark_wang"`,
+            :python:`"mel_htk"`, :python:`"mel_slaney"`, :python:`"linear"`, and :python:`"log"`
+            (default: :python:`"bark_traunmuller"`).
+        n_filters (:python:`int`, *optional*):
+            Number of filterbank bins (default: :python:`80`).
         f_min (:python:`float`, *optional*):
             Minimum frequency in Hz. (default: :python:`40`).
         f_max (:python:`float` or :python:`None`, *optional*):
@@ -89,14 +114,8 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
             If :python:`None`, the sampling rate :python:`sr` must be provided
             and we use the half of the sampling rate (default: :python:`None`).
         sr (:python:`float` or :python:`None`, *optional*):
-            The underlying sampling rate of the input signal (default: :python:`None`).
-        n_filters (:python:`int`, *optional*):
-            Number of filterbank bins (default: :python:`80`).
-        scale (:python:`str`, *optional*):
-            The frequency scale to use, which can be:
-            :python:`"bark_traunmuller"`, :python:`"bark_schroeder"`, :python:`"bark_wang"`,
-            :python:`"mel_htk"`, :python:`"mel_slaney"`, :python:`"linear"`, and :python:`"log"`
-            (default: :python:`"bark_traunmuller"`).
+            The underlying sampling rate. Only used when using the filterbank
+            (default: :python:`None`).
         window (:python:`str` or :python:`FloatTensor`, *optional*):
             The window function to use for the FIR filter.
             If :python:`str` is given, we create the window internally.
@@ -108,7 +127,9 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
 
     def __init__(
         self,
-        num_energy_bins=1024,
+        n_frequency_bins=1024,
+        eq_channel="mono",
+        use_filterbank=False,
         scale="bark_traunmuller",
         n_filters=80,
         f_min=40,
@@ -119,18 +140,31 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
         **window_kwargs,
     ):
         super().__init__()
-        self.num_energy_bins = num_energy_bins
+        self.n_frequency_bins = n_frequency_bins
+        self.n_filters = n_filters
+        self.eq_channel = eq_channel
         self.eps = eps
-        self.fir = ZeroPhaseFilterBankFIR(
-            num_energy_bins=num_energy_bins,
-            scale=scale,
-            n_filters=n_filters,
-            f_min=f_min,
-            f_max=f_max,
-            sr=sr,
-            window=window,
-            **window_kwargs,
-        )
+        if use_filterbank:
+            self.fir = ZeroPhaseFilterBankFIR(
+                num_energy_bins=n_frequency_bins,
+                scale=scale,
+                n_filters=n_filters,
+                f_min=f_min,
+                f_max=f_max,
+                sr=sr,
+                window=window,
+                **window_kwargs,
+            )
+        else:
+            self.fir = ZeroPhaseFIR(n_frequency_bins, window, **window_kwargs)
+
+        match self.eq_channel:
+            case "mono" | "stereo":
+                self.process = self._process_mono_stereo
+            case "midside":
+                self.process = self._process_midside
+            case "pseudo_midside":
+                self.process = self._process_pseudo_midside
 
     def forward(self, input_signals, log_magnitude):
         r"""
@@ -139,14 +173,14 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
         Args:
             input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
-            log_magnitude (:python:`FloatTensor`, :math:`B \times K_{\mathrm{fb}}`):
+            log_magnitude (:python:`FloatTensor`, :math:`B \times C_\mathrm{eq} \times K` *or* :math:`B \times C_\mathrm{eq} \times K_\mathrm{fb}`):
                 A batch of log-magnitude vectors of the FIR filter.
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
-        fir = self.fir(log_magnitude)[:, None, :]
-        output_signals = convolve(input_signals, fir, mode="zerophase")
+        fir = self.fir(log_magnitude)
+        output_signals = self.process(input_signals, fir)
         return output_signals
 
     def parameter_size(self):
@@ -154,7 +188,31 @@ class ZeroPhaseFilterBankFIREqualizer(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        return {"log_energy": self.num_energy_bins}
+        n_bins = self.n_filters if self.use_filterbank else self.n_frequency_bins
+        match self.eq_channel:
+            case "mono":
+                n_channels = 1
+            case "stereo" | "midside":
+                n_channels = 2
+        return {"log_energy": (n_channels, n_bins)}
+
+    def _process_mono_stereo(self, input_signals, fir):
+        return convolve(input_signals, fir, mode="zerophase")
+
+    def _process_midside(self, input_signals, fir):
+        input_signals = lr_to_ms(input_signals)
+        output_signals = convolve(input_signals, fir, mode="zerophase")
+        return ms_to_lr(output_signals)
+
+    def _process_pseudo_midside(self, input_signals, fir):
+        fir = ms_to_lr(fir)
+        return convolve(input_signals, fir, mode="zerophase")
+
+
+class ParametricEqualizer(nn.Module):
+    r"""
+    A parametric equalizer (PEQ) based on second-order filters.
+    """
 
 
 class GraphicEqualizer(nn.Module):
@@ -228,4 +286,6 @@ class GraphicEqualizer(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        return {"log_gains": self.geq.num_bands}
+        num_bands = self.geq.num_bands
+        channel = 2
+        return {"log_gains": (channel, num_bands)}
