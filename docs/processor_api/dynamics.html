@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -215,16 +215,17 @@
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.dynamics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -260,12 +261,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="grafx-processors-dynamics">
-<h1>grafx.processors.dynamics<a class="headerlink" href="#grafx-processors-dynamics" title="Link to this heading"></a></h1>
+          <section id="module-grafx.processors.dynamics">
+<span id="grafx-processors-dynamics"></span><h1>grafx.processors.dynamics<a class="headerlink" href="#module-grafx.processors.dynamics" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.dynamics.ApproxCompressor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ApproxCompressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.ApproxCompressor" title="Link to this definition"></a></dt>
-<dd><p>A feed-forward dynamic range compressor <span id="id1">[<a class="reference internal" href="../references/reference.html#id51" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A feed-forward dynamic range compressor <span id="id1">[<a class="reference internal" href="../references/reference.html#id50" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
 <blockquote>
 <div><p>First, for a given input audio, we sum the left and right channels to obtain a mid <span class="math notranslate nohighlight">\(u_\mathrm{m}[n]\)</span>.
 Then, we calculate its energy envelope <span class="math notranslate nohighlight">\(G_u[n]\)</span> as follows,
@@ -280,7 +282,7 @@ g_u[n] &amp;= \alpha[n] g_u[n-1]+(1-\alpha[n]) u_{\mathrm{m}}^2[n].
 <p>Here, the coefficient <span class="math notranslate nohighlight">\(\alpha[n]\)</span> is typically set to a different constant for an “attack”
 (where <span class="math notranslate nohighlight">\(g_u[n]\)</span> increases) and “release” (where <span class="math notranslate nohighlight">\(g_u[n]\)</span> decreases) phase.
 As this part (also known as ballistics) bottlenecks the computation speed in GPU,
-we follow the recent work <span id="id2">[<a class="reference internal" href="../references/reference.html#id78" title="Christian J Steinmetz, Nicholas J Bryan, and Joshua D Reiss. Style transfer of audio effects with differentiable signal processing. JAES, 70(9):708–721, 2022.">SBR22</a>]</span> and
+we follow the recent work <span id="id2">[<a class="reference internal" href="../references/reference.html#id77" title="Christian J Steinmetz, Nicholas J Bryan, and Joshua D Reiss. Style transfer of audio effects with differentiable signal processing. JAES, 70(9):708–721, 2022.">SBR22</a>]</span> and
 restrict the coefficients to the same value <span class="math notranslate nohighlight">\(\alpha\)</span>.
 By doing so, the above equation simplifies to a one-pole IIR filter,
 whose impulse response <span class="math notranslate nohighlight">\(h^\mathrm{env}[n]\)</span> can be approximated to a certain length <span class="math notranslate nohighlight">\(N\)</span>.
@@ -332,7 +334,7 @@ Finally, the knee width is obtained with <span class="math notranslate nohighlig
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The legnth of the smoothing FIR (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">16384</span></code>).</p></li>
-<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id3">[<a class="reference internal" href="../references/reference.html#id150" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id3">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
 to perform the causal convolution in the gain smoothing stage efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
 the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
@@ -380,7 +382,8 @@ the max input length must be also given (default: <code class="code highlight py
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.dynamics.ApproxNoiseGate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ApproxNoiseGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq_sample_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.ApproxNoiseGate" title="Link to this definition"></a></dt>
-<dd><p>A feed-forward noisegate <span id="id4">[<a class="reference internal" href="../references/reference.html#id51" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A feed-forward noisegate <span id="id4">[<a class="reference internal" href="../references/reference.html#id50" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
 <blockquote>
 <div><p>It is identical to the above <code class="code highlight python docutils literal highlight-python"><span class="n">ApproxCompressor</span></code> except for the output gain computation.
 Instead of compressing the signal above the threshold, it compresses below the threshold.
@@ -399,7 +402,7 @@ G_y^\mathrm{below}[n] &amp;= T+R(G_u[n]-T).
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The legnth of the smoothing FIR (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">16384</span></code>).</p></li>
-<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id5">[<a class="reference internal" href="../references/reference.html#id150" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id5">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
 to perform the causal convolution in the gain smoothing stage efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
 the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
@@ -442,6 +445,307 @@ the max input length must be also given (default: <code class="code highlight py
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Compressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_smooth_in_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quadratic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A feed-forward dynamic range compressor <span id="id6">[<a class="reference internal" href="../references/reference.html#id50" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
+<blockquote>
+<div><p>We first calculate the mean input energy <span class="math notranslate nohighlight">\(e[n]\)</span> across all channels.
+Then, we optionally calculate its log-energy envelope <span class="math notranslate nohighlight">\(G_u[n] = \log g_u[n]\)</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+g_u[n] = \alpha[n] g_u[n-1]+(1-\alpha[n]) e[n].
+\]</div>
+</div>
+</p>
+<p>There are two options for this smoothing.
+If we use the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;ballistics&quot;</span></code> mode, the coefficient <span class="math notranslate nohighlight">\(\alpha[n]\)</span> is set to a different constant for an “attack”
+(where <span class="math notranslate nohighlight">\(g_u[n]\)</span> increases) and “release” (where <span class="math notranslate nohighlight">\(g_u[n]\)</span> decreases).
+For such a case, we use an optimized backend <code class="code highlight python docutils literal highlight-python"><span class="n">diffcomp</span></code> <span id="id7">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.
+To achieve further speedup, we can use the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;iir&quot;</span></code> mode,
+restricting the coefficients to the same value <span class="math notranslate nohighlight">\(\alpha\)</span> <span id="id8">[<a class="reference internal" href="../references/reference.html#id77" title="Christian J Steinmetz, Nicholas J Bryan, and Joshua D Reiss. Style transfer of audio effects with differentiable signal processing. JAES, 70(9):708–721, 2022.">SBR22</a>]</span>.
+This simplifies the above equation to a one-pole IIR filter
+so that we can compute the impulse response up to a certain length <span class="math notranslate nohighlight">\(N\)</span> and convolve it to approximate the envelope.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+g_u[n] \approx e[n] * (1-\alpha)\alpha^n.
+\]</div>
+</div>
+
+Or, we can omit this part and simply use <span class="math notranslate nohighlight">\(G_u[n] = \log e[n]\)</span>.</p>
+<p>Next, we compute the output (compressed) envelope <span class="math notranslate nohighlight">\(G_y[n]\)</span>.
+We provide three options for the knee shape: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;quadratic&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hard&quot;</span></code>, and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;exponential&quot;</span></code>.
+First, the quadratic knee gives the following output envelope,
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+G_y[n] = \begin{cases}
+G_y^\mathrm{above}[n] &amp; G_u[n] \geq T+W,  \\
+G_y^\mathrm{mid}[n]   &amp; T-W \leq G_u[n] &lt; T+W, \\
+G_y^\mathrm{below}[n] &amp; G_u[n] &lt; T-W
+\end{cases}
+\end{split}\]</div>
+</div>
+</p>
+<p>where <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(W\)</span> is a threshold and knee width (both in the log domain), respectively.
+The output envelopes are computed as</p>
+<p><div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+G_y^\mathrm{above}[n] &amp;= T+\frac{G_u[n]-T}{R}, \\
+G_y^\mathrm{mid}[n]   &amp;= G_u[n] + \Big(\frac{1}{R}-1\Big)\frac{(G_u[n]-T+W)^2}{4W}, \\
+G_y^\mathrm{below}[n] &amp;= G_u[n].
+\end{split}\]</div>
+</div>
+</p>
+<p>From the quadratic knee, we can obtain the hard knee by setting <span class="math notranslate nohighlight">\(W = 0\)</span>.
+If we use the exponential knee,
+there is no conditional branch and the output envelope is given as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+G_y[n] = G_u[n] + (1 - R) \frac{\log (1 + \exp(W \cdot (T - G_u[n]))}{W}.
+\]</div>
+</div>
+</p>
+<p>Finally, we compute the gain reduction curve
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+g[n] = \exp(G_y[n] - G_u[n]).
+\]</div>
+</div>
+</p>
+<p>Before multiplying it to all channels, we can optionally smooth it (like the energy smoothing)
+with a one-pole IIR or ballistics filter.</p>
+<p>This compressor’s learnable parameter is
+<span class="math notranslate nohighlight">\(p = \{ z_{\alpha}^{\mathrm{pre}}, z_{\alpha}^{\mathrm{post}}, T, \bar{R}, W_{\mathrm{log}} \}\)</span>.
+The smoothing filter coefficients are recovered with a logistic sigmoid <span class="math notranslate nohighlight">\(\alpha = \sigma (z_{\alpha})\)</span>.
+The ratio is recovered with <span class="math notranslate nohighlight">\(R = 1 + \exp (\bar{R})\)</span>.
+Finally, the knee width is obtained with <span class="math notranslate nohighlight">\(W = \exp (W_{\mathrm{log}})\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy_smoother</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – The type of energy smoother to use.
+It can be either “iir” or “ballistics”, and if set to <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>,
+the energy envelope is computed without any smoothing (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;iir&quot;</span></code>).</p></li>
+<li><p><strong>gain_smoother</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – The type of gain smoother to use.
+It can be either “iir” or “ballistics”, and if set to <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>,
+the gain reduction is computed without any smoothing (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+<li><p><strong>gain_smooth_in_log</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to smooth the gain reduction in the log domain (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
+<li><p><strong>knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The type of knee shape to use.
+It can be either “hard”, “quadratic”, or “exponential” (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;quadratic&quot;</span></code>).</p></li>
+<li><p><strong>iir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The legnth of the smoothing FIR (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">16384</span></code>).</p></li>
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id9">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
+to perform the causal convolution in the gain smoothing stage efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
+the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha_pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha_post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – IIR coefficients before applying the sigmoid.</p></li>
+<li><p><strong>log_threshold</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Compression threshold in log scale.</p></li>
+<li><p><strong>log_ratio</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Unconstrained ratio values, which will be transformed into the range of <span class="math notranslate nohighlight">\([1, \infty)\)</span>.</p></li>
+<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee that operates on the log scale.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor.gain_hard_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_hard_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor.gain_hard_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the hard knee.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor.gain_quad_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_quad_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor.gain_quad_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the quadratic knee.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.Compressor.gain_exp_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_exp_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.Compressor.gain_exp_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the quadratic knee.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NoiseGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_smooth_in_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quadratic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A feed-forward noisegate <span id="id10">[<a class="reference internal" href="../references/reference.html#id50" title="Dimitrios Giannoulis, Michael Massberg, and Joshua D Reiss. Digital dynamic range compressor design—a tutorial and analysis. JAES, 60(6):399–408, 2012.">GMR12</a>]</span>.</p>
+<blockquote>
+<div><p>This processor is identical to the <a class="reference internal" href="#grafx.processors.dynamics.Compressor" title="grafx.processors.dynamics.Compressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compressor</span></code></a> except for the output gain computation.
+Instead of compressing the signal above the threshold, it compresses below the threshold.
+For the quadratic knee, the output envelopes are computed as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+G_y^\mathrm{above}[n] &amp;= G_u[n], \\
+G_y^\mathrm{mid}[n]   &amp;= G_u[n] + (1-R)\frac{(G_u[n]-T-W)^2}{4W}, \\
+G_y^\mathrm{below}[n] &amp;= T+R(G_u[n]-T).
+\end{split}\]</div>
+</div>
+</p>
+<p>Or, if we use the exponential knee, the output envelope is given as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+G_y[n] = G_u[n] + \Big(1 - R\Big) \frac{\log (1 + \exp(W \cdot (G_u[n] - T))}{W}.
+\]</div>
+</div>
+</p>
+<p>Again, this processor’s learnable parameter is
+<span class="math notranslate nohighlight">\(p = \{ z_{\alpha}^{\mathrm{pre}}, z_{\alpha}^{\mathrm{post}}, T, \bar{R}, W_{\mathrm{log}} \}\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy_smoother</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – The type of energy smoother to use.
+It can be either “iir” or “ballistics”, and if set to <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>,
+the energy envelope is computed without any smoothing (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;iir&quot;</span></code>).</p></li>
+<li><p><strong>gain_smoother</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>, <em>optional</em>) – The type of gain smoother to use.
+It can be either “iir” or “ballistics”, and if set to <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>,
+the gain reduction is computed without any smoothing (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+<li><p><strong>gain_smooth_in_log</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to smooth the gain reduction in the log domain (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
+<li><p><strong>knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The type of knee shape to use.
+It can be either “hard”, “quadratic”, or “exponential” (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;quadratic&quot;</span></code>).</p></li>
+<li><p><strong>iir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The legnth of the smoothing FIR (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">16384</span></code>).</p></li>
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id11">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
+to perform the causal convolution in the gain smoothing stage efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
+the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha_pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha_post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – IIR coefficients before applying the sigmoid.</p></li>
+<li><p><strong>log_threshold</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Compression threshold in log scale.</p></li>
+<li><p><strong>log_ratio</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Unconstrained ratio values, which will be transformed into the range of <span class="math notranslate nohighlight">\([1, \infty)\)</span>.</p></li>
+<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee that operates on the log scale.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate.gain_hard_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_hard_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate.gain_hard_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the hard knee.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate.gain_quad_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_quad_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate.gain_quad_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the quadratic knee.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.NoiseGate.gain_exp_knee">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gain_exp_knee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_knee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.NoiseGate.gain_exp_knee" title="Link to this definition"></a></dt>
+<dd><p>Compute log-compression gain with the quadratic knee.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.FactorizedCompressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FactorizedCompressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain_smooth_in_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_knee</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.FactorizedCompressor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.BaseEnvelopeFollower">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseEnvelopeFollower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoother</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.BaseEnvelopeFollower" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.BaseEnvelopeFollower.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.BaseEnvelopeFollower.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.IIREnvelopeFollower">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IIREnvelopeFollower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detect_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.IIREnvelopeFollower" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#grafx.processors.dynamics.BaseEnvelopeFollower" title="grafx.processors.dynamics.BaseEnvelopeFollower"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEnvelopeFollower</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.dynamics.BallisticsEnvelopeFollower">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BallisticsEnvelopeFollower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detect_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.dynamics.BallisticsEnvelopeFollower" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#grafx.processors.dynamics.BaseEnvelopeFollower" title="grafx.processors.dynamics.BaseEnvelopeFollower"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEnvelopeFollower</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -504,6 +808,12 @@ the max input length must be also given (default: <code class="code highlight py
 <li><a class="reference internal" href="#">grafx.processors.dynamics</a><ul>
 <li><a class="reference internal" href="#grafx.processors.dynamics.ApproxCompressor"><code class="docutils literal notranslate"><span class="pre">ApproxCompressor</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.dynamics.ApproxNoiseGate"><code class="docutils literal notranslate"><span class="pre">ApproxNoiseGate</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.Compressor"><code class="docutils literal notranslate"><span class="pre">Compressor</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.NoiseGate"><code class="docutils literal notranslate"><span class="pre">NoiseGate</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.FactorizedCompressor"><code class="docutils literal notranslate"><span class="pre">FactorizedCompressor</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.BaseEnvelopeFollower"><code class="docutils literal notranslate"><span class="pre">BaseEnvelopeFollower</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.IIREnvelopeFollower"><code class="docutils literal notranslate"><span class="pre">IIREnvelopeFollower</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.dynamics.BallisticsEnvelopeFollower"><code class="docutils literal notranslate"><span class="pre">BallisticsEnvelopeFollower</span></code></a></li>
 </ul>
 </li>
 </ul>

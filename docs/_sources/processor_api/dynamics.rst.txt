@@ -8,19 +8,6 @@
 grafx.processors.dynamics
 ============================
 
-..
-    True Ballistics
-    ----------------------------
-
-    Approximated Ballistics
-    ----------------------------
-
-.. ----------------------------
-
-.. autoclass:: grafx.processors.dynamics.ApproxCompressor
+.. automodule:: grafx.processors.dynamics
    :members:
-
-.. ----------------------------
-
-.. autoclass:: grafx.processors.dynamics.ApproxNoiseGate
-   :members:
+   :show-inheritance:

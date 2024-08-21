@@ -47,6 +47,7 @@ Contents
    :maxdepth: 1
    :caption: Processor API
 
+   processor_api/core
    processor_api/filter
    processor_api/eq
    processor_api/stereo

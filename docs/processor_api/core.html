@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.filter" href="filter.html" /><link rel="prev" title="grafx.utils" href="../graph_api/utils.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>grafx.processors.core - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -213,18 +213,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../graph_api/utils.html">grafx.utils</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.core</a></li>
 <li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -260,174 +261,306 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-grafx.processors.core.convolution">
-<span id="grafx-processors-core"></span><h1>grafx.processors.core<a class="headerlink" href="#module-grafx.processors.core.convolution" title="Link to this heading"></a></h1>
+          <section id="grafx-processors-core">
+<h1>grafx.processors.core<a class="headerlink" href="#grafx-processors-core" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.core.convolution.CausalConvolution">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CausalConvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.convolution.CausalConvolution" title="Link to this definition"></a></dt>
-<dd><p>CausalConvolution module that performs convolution operation in a causal manner.</p>
+<dt class="sig sig-object py" id="grafx.processors.core.convolution.FIRConvolution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FIRConvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'causal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.convolution.FIRConvolution" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A FIR convolution backend, which can use either native FFT-based convolution or <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id1">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span>.
+Allows for causal and zero-phase convolution modes.</p>
+<blockquote>
+<div><p>For an input <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> and</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flashfftconv</strong> (<em>bool</em>) – Flag indicating whether to use FlashFFTConv for convolution.</p></li>
-<li><p><strong>max_input_len</strong> (<em>int</em>) – Maximum input length for FlashFFTConv.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Variables<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>flashfftconv</strong> (<em>bool</em>) – Flag indicating whether to use FlashFFTConv for convolution.</p></li>
-<li><p><strong>conv</strong> (<em>FlashFFTConv</em>) – FlashFFTConv instance for convolution.</p></li>
+<li><p><strong>mode</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The convolution mode, either <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;causal&quot;</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;zerophase&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;causal&quot;</span></code>).</p></li>
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> as a backend
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
+the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.convolution.CausalConvolution.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.convolution.CausalConvolution.forward" title="Link to this definition"></a></dt>
-<dd><p>Forward pass of the CausalConvolution module.</p>
+<dt class="sig sig-object py" id="grafx.processors.core.convolution.FIRConvolution.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.convolution.FIRConvolution.forward" title="Link to this definition"></a></dt>
+<dd><p>Performs the convolution operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Input tensor.</p></li>
-<li><p><strong>h</strong> (<em>torch.Tensor</em>) – Convolution kernel.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{in} \times L_\mathrm{in}\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>fir</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{filter} \times L_\mathrm{filter}\)</span>) – A batch of FIR filters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Output tensor.</p>
+<dd class="field-even"><p>A batch of convolved signals of shape <span class="math notranslate nohighlight">\(B \times C_\mathrm{out} \times L_\mathrm{in}\)</span> where <span class="math notranslate nohighlight">\(C_\mathrm{out} = \max (C_\mathrm{in}, C_\mathrm{filter})\)</span>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class" id="module-grafx.processors.core.delay">
-<dt class="sig sig-object py" id="grafx.processors.core.delay.NormalizedGradient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NormalizedGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.NormalizedGradient" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.delay.NormalizedGradient.forward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.NormalizedGradient.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the forward of the custom autograd Function.</p>
-<p>This function is to be overridden by all subclasses.
-There are two ways to define forward:</p>
-<p>Usage 1 (Combined forward and ctx):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="k">pass</span>
-</pre></div>
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.core.fft_filterbank.TriangularFilterBank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TriangularFilterBank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frequency_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark_traunmuller'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_half_triangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fft_filterbank.TriangularFilterBank" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Creates a triangular filterbank for the given frequency range.
+Code adapted from <a class="reference external" href="https://pytorch.org/audio/stable/generated/torchaudio.functional.melscale_fbanks.html#torchaudio.functional.melscale_fbanks">torchaudio</a>
+and <a class="reference external" href="https://github.com/sai-soum/Diff-MST/blob/main/mst/filter.py">Diff-MST</a>.</p>
+<blockquote>
+<div><p>We provide both analysis and synthesis mode.
+For the synthesis mode, we expand the input energy <span class="math notranslate nohighlight">\(\mathbf{E}_\mathrm{fb} \in \mathbb{R}^{B \times F_{\mathrm{fb}}}\)</span>
+with the number of filterbanks <span class="math notranslate nohighlight">\(F_\mathrm{fb}\)</span> to the linear FFT scale <span class="math notranslate nohighlight">\(\mathbf{E} \in \mathbb{R}^{B \times F}\)</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\mathbf{E} = \mathbf{E}_\mathrm{fb} \mathbf{W}_\mathrm{fb}
+\]</div>
 </div>
-<ul class="simple">
-<li><p>It must accept a context ctx as the first argument, followed by any
-number of arguments (tensors or other types).</p></li>
-<li><p>See <span class="xref std std-ref">combining-forward-context</span> for more details</p></li>
+</p>
+<p><span class="math notranslate nohighlight">\(\smash{\mathbf{W}_\mathrm{fb} \in \mathbb{R}^{F \times F_{\mathrm{fb}}}}\)</span> is the standard trainagular filterbank matrix.
+The analysis mode downsamples the frequency axis by multiplying the normalized filterbank matrix
+(sum of each filterbank is 1; hence an adaptive weighted average pooling).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_frequency_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>) – Number of frequency bins from linear FFT.</p></li>
+<li><p><strong>num_filters</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>) – Number of the filterbank filters.</p></li>
+<li><p><strong>scale</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – Frequency scale to use: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_schroeder&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_wang&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_htk&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_slaney&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;linear&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;log&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>).</p></li>
+<li><p><strong>f_min</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – Minimum frequency (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">40</span></code>).</p></li>
+<li><p><strong>f_max</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – Maximum frequency (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+<li><p><strong>low_half_triangle</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Attach the remaining low-freq parts (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 </ul>
-<p>Usage 2 (Separate forward and ctx):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="k">pass</span>
-
-<span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">output</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">pass</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>The forward no longer accepts a ctx argument.</p></li>
-<li><p>Instead, you must also override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.autograd.Function.setup_context()</span></code>
-staticmethod to handle setting up the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> object.
-<code class="docutils literal notranslate"><span class="pre">output</span></code> is the output of the forward, <code class="docutils literal notranslate"><span class="pre">inputs</span></code> are a Tuple of inputs
-to the forward.</p></li>
-<li><p>See <span class="xref std std-ref">extending-autograd</span> for more details</p></li>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.core.fft_filterbank.TriangularFilterBank.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'synthesis'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fft_filterbank.TriangularFilterBank.forward" title="Link to this definition"></a></dt>
+<dd><p>Apply the filterbank to the energy tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times F \:\!\)</span>) – A batch of energy tensors.</p></li>
+<li><p><strong>mode</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – Mode of operation: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;analysis&quot;</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;synthesis&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;synthesis&quot;</span></code>).</p></li>
 </ul>
-<p>The context can be used to store arbitrary data that can be then
-retrieved during the backward pass. Tensors should not be stored
-directly on <cite>ctx</cite> (though this is not currently enforced for
-backward compatibility). Instead, tensors should be saved either with
-<code class="xref py py-func docutils literal notranslate"><span class="pre">ctx.save_for_backward()</span></code> if they are intended to be used in
-<code class="docutils literal notranslate"><span class="pre">backward</span></code> (equivalently, <code class="docutils literal notranslate"><span class="pre">vjp</span></code>) or <code class="xref py py-func docutils literal notranslate"><span class="pre">ctx.save_for_forward()</span></code>
-if they are intended to be used for in <code class="docutils literal notranslate"><span class="pre">jvp</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The energy tensor after applying the filterbank.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.delay.NormalizedGradient.backward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.NormalizedGradient.backward" title="Link to this definition"></a></dt>
-<dd><p>Define a formula for differentiating the operation with backward mode automatic differentiation.</p>
-<p>This function is to be overridden by all subclasses.
-(Defining this function is equivalent to defining the <code class="docutils literal notranslate"><span class="pre">vjp</span></code> function.)</p>
-<p>It must accept a context <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx</span></code> as the first argument, followed by
-as many outputs as the <a class="reference internal" href="#grafx.processors.core.delay.NormalizedGradient.forward" title="grafx.processors.core.delay.NormalizedGradient.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> returned (None will be passed in
-for non tensor outputs of the forward function),
-and it should return as many tensors, as there were inputs to
-<a class="reference internal" href="#grafx.processors.core.delay.NormalizedGradient.forward" title="grafx.processors.core.delay.NormalizedGradient.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a>. Each argument is the gradient w.r.t the given output,
-and each returned value should be the gradient w.r.t. the
-corresponding input. If an input is not a Tensor or is a Tensor not
-requiring grads, you can just pass None as a gradient for that input.</p>
-<p>The context can be used to retrieve tensors saved during the forward
-pass. It also has an attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx.needs_input_grad</span></code> as a tuple
-of booleans representing whether each input needs gradient. E.g.,
-<a class="reference internal" href="#grafx.processors.core.delay.NormalizedGradient.backward" title="grafx.processors.core.delay.NormalizedGradient.backward"><code class="xref py py-func docutils literal notranslate"><span class="pre">backward()</span></code></a> will have <code class="docutils literal notranslate"><span class="pre">ctx.needs_input_grad[0]</span> <span class="pre">=</span> <span class="pre">True</span></code> if the
-first input to <a class="reference internal" href="#grafx.processors.core.delay.NormalizedGradient.forward" title="grafx.processors.core.delay.NormalizedGradient.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> needs gradient computed w.r.t. the
-output.</p>
+<dt class="sig sig-object py" id="grafx.processors.core.fft_filterbank.TriangularFilterBank.compute_matrix">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frequency_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_half_triangle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fft_filterbank.TriangularFilterBank.compute_matrix" title="Link to this definition"></a></dt>
+<dd><p>Compute the triangular filterbank matrix
+<span class="math notranslate nohighlight">\(\smash{\mathbf{W}_\mathrm{fb} \in \mathbb{R}^{F \times F_{\mathrm{fb}}}}\)</span>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-grafx.processors.core.iir">
+<dt class="sig sig-object py" id="grafx.processors.core.iir.IIRFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IIRFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_setup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stereo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsm_fir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsm_flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsm_max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsm_regularization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.iir.IIRFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A serial stack of second-order filters (biquads) with the given coefficients.</p>
+<blockquote>
+<div><p>The transfer function of the <span class="math notranslate nohighlight">\(K\)</span> stacked biquads <span class="math notranslate nohighlight">\(H(z)\)</span> is given as <span id="id2">[<a class="reference internal" href="../references/reference.html#id160" title="Julius Orion Smith. Introduction to digital filters: with audio applications. Volume 2. Julius Smith, 2007.">Smi07b</a>]</span>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+H(z) = \prod_{k=1}^K H_k(z) = \prod_k \frac{ b_{k, 0} + b_{k, 1} z^{-1} + b_{i, 2} z^{-2}}{a_{i, 0} + a_{i, 1} z^{-1} + a_{i, 2} z^{-2}}.
+\]</div>
+</div>
+</p>
+<p>We provide two backends for the filtering.
+The first one, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code>, is the time-domain method that computes the difference equation exactly.
+It uses <code class="code highlight python docutils literal highlight-python"><span class="n">torchaudio</span><span class="o">.</span><span class="n">lfilter</span></code>, which uses the direct form I implementation
+(the bar denotes the normalized coefficients by <span class="math notranslate nohighlight">\(a_{i, 0}\)</span>) <span id="id3">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+x[n] &amp;= \bar{b}_{i, 0} s[n] + \bar{b}_{i, 1} s[n-1] + \bar{b}_{i, 2} s[n-2], \\
+y_i[n] &amp;= x[n] - \bar{a}_{i, 1} y[n-1] - \bar{a}_{i, 2} y[n-2]
+\end{split}\]</div>
+</div>
+</p>
+<p>The second one, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code>, is the frequency-sampling method (FSM) that approximates the filter with a finite impulse response (FIR)
+by sampling the discrete-time Fourier transform (DTFT) of the filter <span class="math notranslate nohighlight">\(H(e^{j\omega})\)</span> at a finite number of points <span class="math notranslate nohighlight">\(N\)</span> uniformly
+<span id="id4">[<a class="reference internal" href="../references/reference.html#id74" title="Boris Kuznetsov, Julian D Parker, and Fabián Esqueda. Differentiable iir filters for machine learning applications. In Proc. Int. Conf. Digital Audio Effects (eDAFx-20), 297–303. 2020.">KPE20</a>, <a class="reference internal" href="../references/reference.html#id12" title="L. Rabiner, B. Gold, and C. McGonegal. An approach to the approximation problem for nonrecursive digital filters. IEEE Transactions on Audio and Electroacoustics, 18(2):83-106, 1970.">RGM70</a>]</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+H_N[k]
+= \prod_{i=1}^K (H_i)_N[k]
+= \prod_{i=1}^K \frac{b_{i, 0} + b_{i, 1} z_N^{-1} + b_{i, 2} z_N^{-2}}{a_{i, 0} + a_{i, 1} z_N^{-1} + a_{i, 2} z_N^{-2}}.
+\]</div>
+</div>
+</p>
+<p>Here, <span class="math notranslate nohighlight">\(z_N = \exp(j\cdot 2\pi/N)\)</span> so that <span class="math notranslate nohighlight">\(z_N^k\)</span> becomes the <span class="math notranslate nohighlight">\(k\)</span>-th <span class="math notranslate nohighlight">\(N\)</span>-point discrete Fourier transform (DFT) bin.
+Then, the FIR filter <span class="math notranslate nohighlight">\(h_N[n]\)</span> is obtained by taking the inverse DFT of the sampled DTFT <span class="math notranslate nohighlight">\(H_N[k]\)</span>
+and the final output signal is computed by convolving the input signal with the FIR filter as <span class="math notranslate nohighlight">\(y[n] = h_N[n] * s[n]\)</span>.
+This <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code> backend is faster than the former <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code> but only an approximation.
+This error is called time-domain aliasing; the frequency-sampled FIR is given as follows <span id="id5">[<a class="reference internal" href="../references/reference.html#id162" title="Julius O Smith. Mathematics of the discrete Fourier transform (DFT): with audio applications. Julius Smith, 2007.">Smi07a</a>]</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+h_N[n] = \sum_{m=0}^\infty h[n+mN].
+\]</div>
+</div>
+</p>
+<p>where <span class="math notranslate nohighlight">\(h[n]\)</span> is the true infinite impulse response (IIR). Clearly, increasing the number of samples <span class="math notranslate nohighlight">\(N\)</span> reduces the error.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_filters</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – Number of biquads to use (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1</span></code>).</p></li>
+<li><p><strong>normalized</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the filter coefficients are assumed to be normalized by <span class="math notranslate nohighlight">\(a_{i, 0}\)</span>,
+making the number of learnable parameters <span class="math notranslate nohighlight">\(5\)</span> per biquad instead of <span class="math notranslate nohighlight">\(6\)</span>
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
+<li><p><strong>backend</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The backend to use for the filtering, which can either be the frequency-sampling method
+<code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code> or exact time-domain filter <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code>).</p></li>
+<li><p><strong>fsm_fir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The length of FIR approximation when <code class="code highlight python docutils literal highlight-python"><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;fsm&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">8192</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.core.iir.IIRFilter.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">As</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.iir.IIRFilter.forward" title="Link to this definition"></a></dt>
+<dd><p>Apply the IIR filter to the input signal and the given coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{in} \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>Bs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{filter} \times K \times 3\)</span>) – A batch of biquad coefficients, <span class="math notranslate nohighlight">\(b_{i, 0}, b_{i, 1}, b_{i, 2}\)</span>, stacked in the last dimension.</p></li>
+<li><p><strong>As</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{filter} \times K \times 3\)</span>) – A batch of biquad coefficients, <span class="math notranslate nohighlight">\(b_{i, 0}, b_{i, 1}, b_{i, 2}\)</span>, stacked in the last dimension.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.core.delay.SurrogateDelay">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SurrogateDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">straight_through</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.SurrogateDelay" title="Link to this definition"></a></dt>
-<dd><p>A module that represents a surrogate delay line.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SurrogateDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">straight_through</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii_loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_gradients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.SurrogateDelay" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A surrogate FIR processor for a learnable delay line.</p>
+<blockquote>
+<div><p>A single delay can be represented as a FIR filter
+<span class="math notranslate nohighlight">\(
+h[n] = \delta[n-d]
+\)</span>
+where <span class="math notranslate nohighlight">\(0\leq d &lt; N\)</span> is a delay length we want to optimize and <span class="math notranslate nohighlight">\(\delta[n]\)</span> denotes a unit impulse.
+We exploit the fact that each delay corresponds to a complex sinusoid in the frequency domain.
+Such a sinusoid’s angular frequency <span class="math notranslate nohighlight">\(z \in \mathbb{C}\)</span> can be optimized with the gradient descent
+if we allow it to be inside the unit disk, i.e., <span class="math notranslate nohighlight">\(|z| \leq 1\)</span> <span id="id6">[<a class="reference internal" href="../references/reference.html#id85" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>.
+We first start with an unconstrained complex parameter <span class="math notranslate nohighlight">\(\tilde{z} \in \mathbb{C}\)</span>
+and restrict it to be inside the unit disk (in the same way of restricting the poles <span id="id7">[<a class="reference internal" href="../references/reference.html#id11" title="Shahan Nercessian, Andy Sarroff, and Kurt James Werner. Lightweight and interpretable neural modeling of an audio distortion effect using hyperconditioned differentiable biquads. In ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 890–894. IEEE, 2021.">NSW21</a>]</span>)
+with the following activation function.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+z = \tilde{z}_k \cdot \frac{\tanh( | \tilde{z}_k | )}{ | \tilde{z}_k | + \epsilon}.
+\]</div>
+</div>
+</p>
+<p>Then, we compute a damped sinusoid with the normalized frequency <span class="math notranslate nohighlight">\(z\)</span> then use its inverse FFT as a surrogate of the delay.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\tilde{h}[n] = \frac{1}{N} \sum_{k=0}^{N-1} z^k z_N^{kn}.
+\]</div>
+</div>
+</p>
+<p>where <span class="math notranslate nohighlight">\(z_{N} = \exp(j\cdot 2\pi/N)\)</span>.
+Clearly, it is not a sparse delay line unless <span class="math notranslate nohighlight">\(z\)</span> is an integer power of <span class="math notranslate nohighlight">\(z_N\)</span> (on the unit circle with an exact angle).
+Instead it becomes a time-aliased and low-passed sinc kernel.
+We can use this soft delay as is, or we can use straight-through estimation (STE) <span id="id8">[<a class="reference internal" href="../references/reference.html#id13" title="Yoshua Bengio, Nicholas Leonard, and Aaron Courville. Estimating or propagating gradients through stochastic neurons for conditional computation. arXiv:1308.3432, 2013.">BLC13</a>]</span>
+so that the forward pass uses the hard delays <span class="math notranslate nohighlight">\(h[n]\)</span> and the backward pass uses the soft delays <span class="math notranslate nohighlight">\(\smash{\tilde{h}[n]}\)</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\frac{\partial L}{\partial z^*} \leftarrow \sum_{n=0}^{N-1} \frac{\partial L}{\partial h[n]} \frac{\partial \tilde{h}[n]}{\partial z^*}
+\]</div>
+</div>
+</p>
+<p>For a stable and faster convergence, we provide two additional options.
+The first one is to normalize the gradients of the complex conjugate to have a unit norm.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\frac{\partial L}{\partial z^*} \leftarrow \frac{\partial L}{\partial z^*}/ \left|\frac{\partial L}{\partial z^*} \right|.
+\]</div>
+</div>
+</p>
+<p>The second one is to use the radii loss
+<span class="math notranslate nohighlight">\(L_{\mathrm{radii}} = (1 - | z | )^2\)</span>
+to encourage complex angluar frequency <span class="math notranslate nohighlight">\(z\)</span> to be near the unit circle, making the delays to be “sharp.”
+We empirically found this regularization to be helpful especially when we use the STE as it alleviates the discrepancy between the hard and soft delays
+while still having the benefits of the soft FIR.</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N</strong> (<em>int</em>) – The size of the delay line. Default is 2048.</p></li>
-<li><p><strong>straight_through</strong> (<em>bool</em>) – Whether to use straight-through gradient estimator during training. Default is True.</p></li>
+<li><p><strong>N</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>) – The length surrogate FIR, which is also the largest delay length minus one.</p></li>
+<li><p><strong>straight_through</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Use hard delays for the forward passes and surrogate soft delays for the backward passes
+with straight-through estimation
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>normalize_gradients</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Normalize the complex conjugate gradients to unit norm
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>radii_loss</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Use the radii loss to encourage the delays to be close to the unit circle
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.core.delay.SurrogateDelay.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.SurrogateDelay.forward" title="Link to this definition"></a></dt>
-<dd><p>Forward pass of the surrogate delay line.</p>
+<dd><p>Computes the surrogate delay FIRs from the complex angular frequencies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>z</strong> (<em>torch.Tensor</em>) – The input tensor.</p>
+<dd class="field-odd"><p><strong>z</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">ComplexTensor</span></code>, <em>any shape</em>) – The unnormalized complex angular frequencies.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The output tensor representing the delay line.
-torch.Tensor: The radii loss.</p>
+<dd class="field-even"><p>A batch of FIRs either hard (when using the straight-through estimation) of soft surrogate delays.
+The returned tensor has an additional dimension (last) for the FIR taps.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> <em>or</em> <code class="code highlight python docutils literal highlight-python"><span class="n">Tuple</span><span class="p">[</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="n">FloatTensor</span><span class="p">]</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TruncatedOnePoleIIRFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">backend_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A one-pole IIR filter with a truncated impulse response.</p>
+<blockquote>
+<div><p>Then, we optionally calculate its log-energy envelope <span class="math notranslate nohighlight">\(G_u[n] = \log g_u[n]\)</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+g_u[n] \approx e[n] * (1-\alpha)\alpha^n.
+\]</div>
+</div>
+</p>
+</div></blockquote>
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.delay.SurrogateDelay.get_hard_irs">
-<span class="sig-name descname"><span class="pre">get_hard_irs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">irs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.delay.SurrogateDelay.get_hard_irs" title="Link to this definition"></a></dt>
-<dd><p>Get the hard impulse responses.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>irs</strong> (<em>torch.Tensor</em>) – The input tensor.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The hard impulse responses.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class" id="module-grafx.processors.core.envelope">
-<span id="module-grafx.processors.core.nonlinear"></span><dt class="sig sig-object py" id="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TruncatedOnePoleIIRFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -444,121 +577,37 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.core.envelope.Ballistics">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ballistics</span></span><a class="headerlink" href="#grafx.processors.core.envelope.Ballistics" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.envelope.Ballistics.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.Ballistics.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A ballistics processor that smooths the input signal with a recursive filter.</p>
+<blockquote>
+<div><p>An input signal <span class="math notranslate nohighlight">\(u[n]\)</span> is smoothed with recursively, with a different coefficient for an “attack” and “release”.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+y[n] = \begin{cases}
+\alpha_\mathrm{R} y[n-1]+(1-\alpha_\mathrm{R}) u[n] &amp; u[n] &lt; y[n-1], \\
+\alpha_\mathrm{A} y[n-1]+(1-\alpha_\mathrm{A}) u[n] &amp; u[n] \geq y[n-1]. \\
+\end{cases}
+\end{split}\]</div>
 </div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function" id="module-grafx.processors.core.scale">
-<dt class="sig sig-object py" id="grafx.processors.core.scale.hz_to_bark">
-<span class="sig-name descname"><span class="pre">hz_to_bark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bark_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'traunmuller'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#grafx.processors.core.scale.hz_to_bark" title="Link to this definition"></a></dt>
-<dd><p>Convert Hz to Barks.</p>
+</p>
+<p>We calculate the coefficients from the inputs with the sigmoid function, i.e.,
+<span class="math notranslate nohighlight">\(\alpha_\mathrm{A} = \sigma(z_{\mathrm{A}})\)</span> and <span class="math notranslate nohighlight">\(\alpha_\mathrm{R} = \sigma(z_{\mathrm{R}})\)</span>.
+We use <code class="code highlight python docutils literal highlight-python"><span class="n">diffcomp</span></code> for the optimized forward and backward computation <span id="id9">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.core.envelope.Ballistics.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.Ballistics.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given coefficients.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>freqs</strong> (<em>float</em>) – Frequencies in Hz</p></li>
-<li><p><strong>bark_scale</strong> (<em>str</em><em>, </em><em>optional</em>) – Scale to use: <code class="docutils literal notranslate"><span class="pre">traunmuller</span></code>, <code class="docutils literal notranslate"><span class="pre">schroeder</span></code> or <code class="docutils literal notranslate"><span class="pre">wang</span></code>. (Default: <code class="docutils literal notranslate"><span class="pre">traunmuller</span></code>)</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 2\)</span>) – A batch of attack and release coefficients stacked in the last dimension.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Frequency in Barks</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>barks (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="grafx.processors.core.scale.bark_to_hz">
-<span class="sig-name descname"><span class="pre">bark_to_hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bark_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'traunmuller'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#grafx.processors.core.scale.bark_to_hz" title="Link to this definition"></a></dt>
-<dd><p>Convert bark bin numbers to frequencies.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>barks</strong> (<em>torch.Tensor</em>) – Bark frequencies</p></li>
-<li><p><strong>bark_scale</strong> (<em>str</em><em>, </em><em>optional</em>) – Scale to use: <code class="docutils literal notranslate"><span class="pre">traunmuller</span></code>,``schroeder`` or <code class="docutils literal notranslate"><span class="pre">wang</span></code>. (Default: <code class="docutils literal notranslate"><span class="pre">traunmuller</span></code>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Barks converted in Hz</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>freqs (torch.Tensor)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="grafx.processors.core.scale.hz_to_mel">
-<span class="sig-name descname"><span class="pre">hz_to_mel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'htk'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#grafx.processors.core.scale.hz_to_mel" title="Link to this definition"></a></dt>
-<dd><p>Convert Hz to Mels.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>freqs</strong> (<em>float</em>) – Frequencies in Hz</p></li>
-<li><p><strong>mel_scale</strong> (<em>str</em><em>, </em><em>optional</em>) – Scale to use: <code class="docutils literal notranslate"><span class="pre">htk</span></code> or <code class="docutils literal notranslate"><span class="pre">slaney</span></code>. (Default: <code class="docutils literal notranslate"><span class="pre">htk</span></code>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Frequency in Mels</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>mels (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="grafx.processors.core.scale.mel_to_hz">
-<span class="sig-name descname"><span class="pre">mel_to_hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mel_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'htk'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#grafx.processors.core.scale.mel_to_hz" title="Link to this definition"></a></dt>
-<dd><p>Convert mel bin numbers to frequencies.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mels</strong> (<em>Tensor</em>) – Mel frequencies</p></li>
-<li><p><strong>mel_scale</strong> (<em>str</em><em>, </em><em>optional</em>) – Scale to use: <code class="docutils literal notranslate"><span class="pre">htk</span></code> or <code class="docutils literal notranslate"><span class="pre">slaney</span></code>. (Default: <code class="docutils literal notranslate"><span class="pre">htk</span></code>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Mels converted in Hz</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>freqs (Tensor)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function" id="module-grafx.processors.core.fft_filterbank">
-<dt class="sig sig-object py" id="grafx.processors.core.fft_filterbank.fft_triangular_filterbank">
-<span class="sig-name descname"><span class="pre">fft_triangular_filterbank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark_traunmuller'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attach_remaining</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#grafx.processors.core.fft_filterbank.fft_triangular_filterbank" title="Link to this definition"></a></dt>
-<dd><p>Creates a triangular filterbank for the given frequency range.
-Code adapted from <a class="reference external" href="https://pytorch.org/audio/stable/generated/torchaudio.functional.melscale_fbanks.html#torchaudio.functional.melscale_fbanks">torchaudio</a>
-and <a class="reference external" href="https://github.com/sai-soum/Diff-MST/blob/main/mst/filter.py">Diff-MST</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_freqs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>) – Number of frequency bins.</p></li>
-<li><p><strong>f_min</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>) – Minimum frequency.</p></li>
-<li><p><strong>f_max</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>) – Maximum frequency.</p></li>
-<li><p><strong>n_filters</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>) – Number of filters.</p></li>
-<li><p><strong>scale</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – Scale to use: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_schroeder&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_wang&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_htk&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mel_slaney&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;linear&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;log&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bark_traunmuller&quot;</span></code>).</p></li>
-<li><p><strong>attach_remaining</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Attach the remaining low-freq parts (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Filterbank of size <code class="code highlight python docutils literal highlight-python"><span class="p">(</span><span class="n">n_freqs</span><span class="p">,</span> <span class="n">n_filters</span><span class="p">)</span></code>.</p>
+<dd class="field-even"><p>A batch of smoothed signals of shape <span class="math notranslate nohighlight">\(B \times L\)</span>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
@@ -566,87 +615,35 @@ and <a class="reference external" href="https://github.com/sai-soum/Diff-MST/blo
 </dl>
 </dd></dl>
 
-<dl class="py class" id="module-grafx.processors.core.fir">
-<dt class="sig sig-object py" id="grafx.processors.core.fir.ZeroPhaseFIR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeroPhaseFIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_magnitude_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">window_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fir.ZeroPhaseFIR" title="Link to this definition"></a></dt>
-<dd><p>Creates a simple zero-phase FIR from a log-magnitude response.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.fir.ZeroPhaseFIR.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_magnitude</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fir.ZeroPhaseFIR.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.core.fir.ZeroPhaseFilterBankFIR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeroPhaseFilterBankFIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_energy_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark_traunmuller'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">window_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fir.ZeroPhaseFilterBankFIR" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.fir.ZeroPhaseFilterBankFIR.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filterbank_log_energy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.fir.ZeroPhaseFilterBankFIR.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<p id="module-grafx.processors.core.iir">IIR and frequency-sampled IIR filters</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="grafx.processors.core.iir.delay">
-<span class="sig-name descname"><span class="pre">delay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fir_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.iir.delay" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delay_length</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">LongTensor</span></code>) – Delay lengths</p></li>
-<li><p><strong>fir_length</strong> (<em>int</em>) – length of the FIR filter</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.core.iir.FrequencySampledStateVariableFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FrequencySampledStateVariableFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fir_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.iir.FrequencySampledStateVariableFilter" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.core.iir.FrequencySampledStateVariableFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twoR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_hp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_bp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_lp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.iir.FrequencySampledStateVariableFilter.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<span class="target" id="module-grafx.processors.core.utils"></span></section>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="filter.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">grafx.processors.filter</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../graph_api/utils.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">grafx.utils</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -678,20 +675,12 @@ registered hooks while the latter silently ignores them.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.core</a><ul>
-<li><a class="reference internal" href="#grafx.processors.core.convolution.CausalConvolution"><code class="docutils literal notranslate"><span class="pre">CausalConvolution</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.delay.NormalizedGradient"><code class="docutils literal notranslate"><span class="pre">NormalizedGradient</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.core.convolution.FIRConvolution"><code class="docutils literal notranslate"><span class="pre">FIRConvolution</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.core.fft_filterbank.TriangularFilterBank"><code class="docutils literal notranslate"><span class="pre">TriangularFilterBank</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.core.iir.IIRFilter"><code class="docutils literal notranslate"><span class="pre">IIRFilter</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.core.delay.SurrogateDelay"><code class="docutils literal notranslate"><span class="pre">SurrogateDelay</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter"><code class="docutils literal notranslate"><span class="pre">TruncatedOnePoleIIRFilter</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.core.envelope.Ballistics"><code class="docutils literal notranslate"><span class="pre">Ballistics</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.scale.hz_to_bark"><code class="docutils literal notranslate"><span class="pre">hz_to_bark()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.scale.bark_to_hz"><code class="docutils literal notranslate"><span class="pre">bark_to_hz()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.scale.hz_to_mel"><code class="docutils literal notranslate"><span class="pre">hz_to_mel()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.scale.mel_to_hz"><code class="docutils literal notranslate"><span class="pre">mel_to_hz()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.fft_filterbank.fft_triangular_filterbank"><code class="docutils literal notranslate"><span class="pre">fft_triangular_filterbank()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.fir.ZeroPhaseFIR"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIR</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.fir.ZeroPhaseFilterBankFIR"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFilterBankFIR</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.iir.delay"><code class="docutils literal notranslate"><span class="pre">delay()</span></code></a></li>
-<li><a class="reference internal" href="#grafx.processors.core.iir.FrequencySampledStateVariableFilter"><code class="docutils literal notranslate"><span class="pre">FrequencySampledStateVariableFilter</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -709,5 +698,6 @@ registered hooks while the latter silently ignores them.</p>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

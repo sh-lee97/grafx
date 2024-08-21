@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,16 +214,18 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/dynamics.html">grafx.processors.dynamics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -262,7 +264,7 @@
           <section id="audio-processing-graphs">
 <span id="id1"></span><h1>Audio Processing Graphs<a class="headerlink" href="#audio-processing-graphs" title="Link to this heading"></a></h1>
 <p>Domain practitioners (e.g., musicians and audio engineers) sculpt and transform their sounds by combining multiple processors,
-forming an <em>audio processing graph</em> <span id="id2">[<a class="reference internal" href="../references/reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.</p>
+forming an <em>audio processing graph</em> <span id="id2">[<a class="reference internal" href="../references/reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.</p>
 <blockquote>
 <div><p>Audio processing graphs are everywhere — guitar pedalboards, modular synthesizers, and mixing consoles, to name a few.
 The popular JUCE framework has <a class="reference external" href="https://docs.juce.com/master/classAudioProcessorGraph.html">AudioProcessorGraph</a> class.
@@ -275,16 +277,16 @@ assuming fixed processing chains or relying on end-to-end neural network-based m
 <code class="code highlight python docutils literal highlight-python"><span class="n">GRAFX</span></code> aims to close this gap — it provides a collection of functionalities for creating, manipulating, and rendering audio processing graphs.
 Especially, it provides the following distinctive features.</p>
 <ol class="arabic simple">
-<li><p>Our graphs can be converted into <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code> tensor representations <span id="id3">[<a class="reference internal" href="../references/reference.html#id116" title="Adam Paszke and others. PyTorch: an imperative style, high-performance deep learning library. NeurIPS, 2019.">P+19</a>]</span>,
-which can be used for graph representation learning, i.e., as input of graph neural networks (GNNs) <span id="id4">[<a class="reference internal" href="../references/reference.html#id144" title="Matthias Fey and Jan Eric Lenssen. Fast graph representation learning with pytorch geometric. arXiv:1903.02428, 2019.">FL19</a>]</span>.</p></li>
+<li><p>Our graphs can be converted into <code class="code highlight python docutils literal highlight-python"><span class="n">PyTorch</span></code> tensor representations <span id="id3">[<a class="reference internal" href="../references/reference.html#id115" title="Adam Paszke and others. PyTorch: an imperative style, high-performance deep learning library. NeurIPS, 2019.">P+19</a>]</span>,
+which can be used for graph representation learning, i.e., as input of graph neural networks (GNNs) <span id="id4">[<a class="reference internal" href="../references/reference.html#id143" title="Matthias Fey and Jan Eric Lenssen. Fast graph representation learning with pytorch geometric. arXiv:1903.02428, 2019.">FL19</a>]</span>.</p></li>
 <li><p>We provide a collection of various <a class="reference internal" href="processors.html#differentiable-processors"><span class="std std-ref">differentiable audio processors</span></a>, including equalizers, dynamic range compressors, reverb, and many more.</p></li>
 <li><p>We provide an <a class="reference internal" href="render.html#batched-audio-processing"><span class="std std-ref">efficient and flexible method</span></a> for calculating output audio from graphs in GPU.
 Combined with the differentiable processors,
 we can optimize the graph structure and parameters (or their neural predictors)
-via gradient descent end-to-end <span id="id5">[<a class="reference internal" href="../references/reference.html#id7" title="Joseph T. Colonel and Joshua Reiss. Reverse engineering of a recording mix with differentiable digital signal processing. JASA, 150(1):608-619, 2021.">CR21</a>, <a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>, <a class="reference internal" href="../references/reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.</p></li>
+via gradient descent end-to-end <span id="id5">[<a class="reference internal" href="../references/reference.html#id6" title="Joseph T. Colonel and Joshua Reiss. Reverse engineering of a recording mix with differentiable digital signal processing. JASA, 150(1):608-619, 2021.">CR21</a>, <a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>, <a class="reference internal" href="../references/reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span>.</p></li>
 </ol>
 <p>This short series of introductions will share the core concepts of <code class="code highlight python docutils literal highlight-python"><span class="n">GRAFX</span></code>.
-While it generally follows our paper <span id="id6">[<a class="reference internal" href="../references/reference.html#id152" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. GRAFX: an open-source library for audio processing graphs in Pytorch. In DAFx. 2024.">LMRL+24b</a>]</span>,
+While it generally follows our paper <span id="id6">[<a class="reference internal" href="../references/reference.html#id151" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. GRAFX: an open-source library for audio processing graphs in Pytorch. In DAFx. 2024.">LMRL+24b</a>]</span>,
 we extend the discussion to the latest updates and provide practical examples.</p>
 <section id="definitions-and-notations">
 <h2>Definitions and Notations<a class="headerlink" href="#definitions-and-notations" title="Link to this heading"></a></h2>
@@ -331,7 +333,7 @@ aggregating those, and processing the sums with the parameters.</p>
 Finally, <em>multigraph</em> means that multiple edges can exist between the same pair of nodes unless their types are identical.
 The following figure shows an example of a valid graph used in
 (different letters denote different node types)
-<span id="id7">[<a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.</p>
+<span id="id7">[<a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="../_images/cambridge_RememberDecember_CUNextTime.svg"><img alt="../_images/cambridge_RememberDecember_CUNextTime.svg" src="../_images/cambridge_RememberDecember_CUNextTime.svg" style="width: 768.02px; height: 273.68px;" />
 </a>
@@ -362,7 +364,7 @@ This simplifies the above equation to <span class="math notranslate nohighlight"
 <p>For creating and manipulating the audio processing graphs,
 we provide a mutable data structure <a class="reference internal" href="../graph_api/data.html#grafx.data.graph.GRAFX" title="grafx.data.graph.GRAFX"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFX</span></code></a>
 (same as the library name).
-It inherits <code class="code highlight python docutils literal highlight-python"><span class="n">MultiDiGraph</span></code> class from <code class="code highlight python docutils literal highlight-python"><span class="n">networkx</span></code> <span id="id8">[<a class="reference internal" href="../references/reference.html#id151" title="Aric Hagberg, Pieter J Swart, and Daniel A Schult. Exploring network structure, dynamics, and function using networkx. Technical Report, Los Alamos National Laboratory (LANL), Los Alamos, NM (United States), 2008.">HSS08</a>]</span>
+It inherits <code class="code highlight python docutils literal highlight-python"><span class="n">MultiDiGraph</span></code> class from <code class="code highlight python docutils literal highlight-python"><span class="n">networkx</span></code> <span id="id8">[<a class="reference internal" href="../references/reference.html#id150" title="Aric Hagberg, Pieter J Swart, and Daniel A Schult. Exploring network structure, dynamics, and function using networkx. Technical Report, Los Alamos National Laboratory (LANL), Los Alamos, NM (United States), 2008.">HSS08</a>]</span>
 and provides additional functionalities, e.g., adding a serial chain of processors.</p>
 <section id="node-configurations">
 <h3>Node Configurations<a class="headerlink" href="#node-configurations" title="Link to this heading"></a></h3>
@@ -463,7 +465,7 @@ Now, our graph is as follows.</p>
 <p>Once the graphs are created, they can be used to compute output audio or fed into a GNN.
 In such cases, representing each graph as a collection of tensors is more convenient and efficient.
 Therefore, we provide a <a class="reference internal" href="../graph_api/data.html#grafx.data.tensor.GRAFXTensor" title="grafx.data.tensor.GRAFXTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFXTensor</span></code></a> class,
-which is compatible with <code class="code highlight python docutils literal highlight-python"><span class="n">Data</span></code> class from <code class="code highlight python docutils literal highlight-python"><span class="n">torch_geometric</span></code> <span id="id9">[<a class="reference internal" href="../references/reference.html#id144" title="Matthias Fey and Jan Eric Lenssen. Fast graph representation learning with pytorch geometric. arXiv:1903.02428, 2019.">FL19</a>]</span>.
+which is compatible with <code class="code highlight python docutils literal highlight-python"><span class="n">Data</span></code> class from <code class="code highlight python docutils literal highlight-python"><span class="n">torch_geometric</span></code> <span id="id9">[<a class="reference internal" href="../references/reference.html#id143" title="Matthias Fey and Jan Eric Lenssen. Fast graph representation learning with pytorch geometric. arXiv:1903.02428, 2019.">FL19</a>]</span>.
 The processor types are assigned with integer values,
 The following are the tensors we use to describe each graph.</p>
 <ol class="arabic simple">
@@ -517,14 +519,14 @@ This is because one of our main applications is to estimate the parameters from 
 by direct parameter optimization or training a neural network as a predictor.
 In this scenario, we only have the connectivity information <span class="math notranslate nohighlight">\((\mathbf{T}_V, \mathbf{E}, \mathbf{T}_E)\)</span>,
 i.e., <em>what is connected to what</em>.
-A previous work <span id="id10">[<a class="reference internal" href="../references/reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span> named it a <em>prototype graph</em> (and denoted with <span class="math notranslate nohighlight">\(G_0\)</span>).
+A previous work <span id="id10">[<a class="reference internal" href="../references/reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>]</span> named it a <em>prototype graph</em> (and denoted with <span class="math notranslate nohighlight">\(G_0\)</span>).
 Many existing works assume that this prototype graph is given (fixed in many cases)
 and predict its parameters <span class="math notranslate nohighlight">\(\mathbf{P}\)</span>
-<span id="id11">[<a class="reference internal" href="../references/reference.html#id140" title="Franco Caspe, Andrew McPherson, and Mark Sandler. DDX7: differentiable FM synthesis of musical instrument sounds. In ISMIR. 2022.">CMS22</a>, <a class="reference internal" href="../references/reference.html#id71" title="J Colonel. Music production behaviour modelling. 2023.">Col23</a>, <a class="reference internal" href="../references/reference.html#id141" title="Marco A Martinez-Ramirez, Oliver Wang, Paris Smaragdis, and Nicholas J Bryan. Differentiable signal processing with black-box audio effects. In IEEE ICASSP. 2021.">MRWSB21</a>, <a class="reference internal" href="../references/reference.html#id4" title="Christian J. Steinmetz, Jordi Pons, Santiago Pascual, and Joan Serrà. Automatic multitrack mixing with a differentiable mixing console of neural audio effects. In IEEE ICASSP, volume, 71-75. 2021.">SPPS21</a>, <a class="reference internal" href="../references/reference.html#id135" title="Noy Uzrad and others. DiffMoog: a differentiable modular synthesizer for sound matching. arXiv:2401.12570, 2024.">U+24</a>]</span>,
+<span id="id11">[<a class="reference internal" href="../references/reference.html#id139" title="Franco Caspe, Andrew McPherson, and Mark Sandler. DDX7: differentiable FM synthesis of musical instrument sounds. In ISMIR. 2022.">CMS22</a>, <a class="reference internal" href="../references/reference.html#id70" title="J Colonel. Music production behaviour modelling. 2023.">Col23</a>, <a class="reference internal" href="../references/reference.html#id140" title="Marco A Martinez-Ramirez, Oliver Wang, Paris Smaragdis, and Nicholas J Bryan. Differentiable signal processing with black-box audio effects. In IEEE ICASSP. 2021.">MRWSB21</a>, <a class="reference internal" href="../references/reference.html#id4" title="Christian J. Steinmetz, Jordi Pons, Santiago Pascual, and Joan Serrà. Automatic multitrack mixing with a differentiable mixing console of neural audio effects. In IEEE ICASSP, volume, 71-75. 2021.">SPPS21</a>, <a class="reference internal" href="../references/reference.html#id134" title="Noy Uzrad and others. DiffMoog: a differentiable modular synthesizer for sound matching. arXiv:2401.12570, 2024.">U+24</a>]</span>,
 Of course, there are a few exceptions where the connectivity is also estimated
 (albeit, in most cases, the underlying connectivity <span class="math notranslate nohighlight">\(G_0\)</span> is a simple serial chain)
-<span id="id12">[<a class="reference internal" href="../references/reference.html#id133" title="Jinyue Guo and Brian McFee. Automatic recognition of cascaded guitar effects. In DAFx. 2023.">GM23</a>, <a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>, <a class="reference internal" href="../references/reference.html#id66" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>, <a class="reference internal" href="../references/reference.html#id19" title="Christopher Mitcheltree and Hideki Koike. SerumRNN: step by step audio VST effect programming. In Artificial Intelligence in Music, Sound, Art and Design, pages 218–234. 2021.">MK21</a>, <a class="reference internal" href="../references/reference.html#id96" title="Zhen Ye, Wei Xue, Xu Tan, Qifeng Liu, and Yike Guo. NAS-FM: neural architecture search for tunable and interpretable sound synthesis based on frequency modulation. arXiv:2305.12868, 2023.">YXT+23</a>]</span>.
-Refer to Appendix A of <span id="id13">[<a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span> for a comparative review on this matter.
+<span id="id12">[<a class="reference internal" href="../references/reference.html#id132" title="Jinyue Guo and Brian McFee. Automatic recognition of cascaded guitar effects. In DAFx. 2023.">GM23</a>, <a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>, <a class="reference internal" href="../references/reference.html#id65" title="Sungho Lee, Jaehyun Park, Seungryeol Paik, and Kyogu Lee. Blind estimation of audio processing graph. In IEEE ICASSP, 1–5. 2023.">LPPL23</a>, <a class="reference internal" href="../references/reference.html#id18" title="Christopher Mitcheltree and Hideki Koike. SerumRNN: step by step audio VST effect programming. In Artificial Intelligence in Music, Sound, Art and Design, pages 218–234. 2021.">MK21</a>, <a class="reference internal" href="../references/reference.html#id95" title="Zhen Ye, Wei Xue, Xu Tan, Qifeng Liu, and Yike Guo. NAS-FM: neural architecture search for tunable and interpretable sound synthesis based on frequency modulation. arXiv:2305.12868, 2023.">YXT+23</a>]</span>.
+Refer to Appendix A of <span id="id13">[<a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span> for a comparative review on this matter.
 Throughout this series of posts, we will not distinguish the prototype from the <em>full</em> graph
 <span class="math notranslate nohighlight">\((\mathbf{T}_V, \mathbf{E}, \mathbf{T}_E, \mathbf{P})\)</span> as it is mostly clear from the context.
 More details on the parameters will be in the following posts on the

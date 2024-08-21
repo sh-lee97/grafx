@@ -1,3 +1,9 @@
 pre {                                 
     white-space: pre-wrap !important; 
 }
+
+@media(min-width:0em) {
+    html {
+        font-size: 100%
+    }
+}

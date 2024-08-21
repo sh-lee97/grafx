@@ -8,29 +8,34 @@
 grafx.processors.core
 ============================
 
-.. automodule:: grafx.processors.core.convolution
-   :members:
+.. 
+     Equalizers (EQs) that modify input audio's magnitude response.
+     We currently have a single FIR EQ, but others will be added soon.
 
-.. automodule:: grafx.processors.core.delay
-   :members:
 
-.. automodule:: grafx.processors.core.nonlinear
-   :members:
+.. FIR Equalizers 
+     ----------------------------
 
-.. automodule:: grafx.processors.core.envelope
+.. autoclass:: grafx.processors.core.convolution.FIRConvolution
    :members:
+   :show-inheritance:
 
-.. automodule:: grafx.processors.core.scale
+.. autoclass:: grafx.processors.core.fft_filterbank.TriangularFilterBank
    :members:
-
-.. automodule:: grafx.processors.core.fft_filterbank
-   :members:
-
-.. automodule:: grafx.processors.core.fir
-   :members:
+   :show-inheritance:
 
 .. automodule:: grafx.processors.core.iir
    :members:
+   :show-inheritance:
 
-.. automodule:: grafx.processors.core.utils
+.. autoclass:: grafx.processors.core.delay.SurrogateDelay
    :members:
+   :show-inheritance:
+
+.. autoclass:: grafx.processors.core.envelope.TruncatedOnePoleIIRFilter
+   :members:
+   :show-inheritance:
+
+.. autoclass:: grafx.processors.core.envelope.Ballistics
+   :members:
+   :show-inheritance:

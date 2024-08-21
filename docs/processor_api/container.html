@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="History" href="../references/history.html" /><link rel="prev" title="grafx.processors.delay" href="delay.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Versions" href="../references/history.html" /><link rel="prev" title="grafx.processors.delay" href="delay.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>grafx.processors.container - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,6 +214,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
 <li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
@@ -224,7 +225,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -260,12 +261,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="grafx-processors-container">
-<h1>grafx.processors.container<a class="headerlink" href="#grafx-processors-container" title="Link to this heading"></a></h1>
+          <section id="module-grafx.processors.container">
+<span id="grafx-processors-container"></span><h1>grafx.processors.container<a class="headerlink" href="#module-grafx.processors.container" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GainStagingRegularization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gain_reg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization" title="Link to this definition"></a></dt>
-<dd><p>An regularization module that wraps an audio processor and calculates
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>An regularization module that wraps an audio processor and calculates
 the energy differences between the input and output audio.
 It can be used guide the processors to mimic <em>gain-staging,</em>
 a practice that aims to keep the signal energy
@@ -337,7 +339,8 @@ and dictionary of intermediate/auxiliary results added with the regularization l
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.container.DryWet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DryWet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.DryWet" title="Link to this definition"></a></dt>
-<dd><p>An utility module that mixes the <em>dry</em> input with the wrapped processor’s <em>wet</em> output.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>An utility module that mixes the <em>dry</em> input with the wrapped processor’s <em>wet</em> output.</p>
 <blockquote>
 <div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
 where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
@@ -404,6 +407,126 @@ optionally added with the dry/wet weight when <code class="code highlight python
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.container.SerialChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SerialChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.SerialChain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>An utility module that serially connects the provided processors.</p>
+<blockquote>
+<div><p>For processors <span class="math notranslate nohighlight">\(f_1, \cdots, f_K\)</span> with their respective parameters <span class="math notranslate nohighlight">\(p_1, \cdots, p_K\)</span>,
+the serial chain <span class="math notranslate nohighlight">\(f = f_K \circ \cdots \circ f_1\)</span>
+applies each processor in order, where the output of the previous processor is fed to the next one.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+y[n] = (f_K \circ \cdots \circ f_1)(s[n]; p_1, \cdots, p_K).
+\]</div>
+</div>
+</p>
+<p>The set of all learnable parameters is given as <span class="math notranslate nohighlight">\(p = \{p_1, \cdots, p_K\}\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>processors</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Module</span><span class="p">]</span></code>) – A dictionary of processors with their names as keys.
+The order of the processors will be the same as the dictionary order.
+We assume that each processor has <code class="code highlight python docutils literal highlight-python"><span class="n">forward</span><span class="p">()</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code>
+method implemented properly.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.SerialChain.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processors_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.SerialChain.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>**processors_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters) that will be passed to the processor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Tuple</span><span class="p">[</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.SerialChain.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.SerialChain.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A nested dictionary of depth at least 2 that contains each processor name as key and its <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code> as value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.container.ParallelMix">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParallelMix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'softmax'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.ParallelMix" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A container that mixes the multiple processor outputs.</p>
+<blockquote>
+<div><p>We create a single processor with <span class="math notranslate nohighlight">\(K\)</span> processors <span class="math notranslate nohighlight">\(f_1, \cdots, f_K\)</span>, mixing their outputs with weights <span class="math notranslate nohighlight">\(w_1, \cdots, w_K\)</span>.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+y[n] = \sum_{k=1}^K w_k f_k(s[n]; p_k).
+\]</div>
+</div>
+</p>
+<p>By default, we take the pre-activation weights <span class="math notranslate nohighlight">\(\tilde{w}_1, \cdots, \tilde{w}_K\)</span> as input.
+Then, for each <span class="math notranslate nohighlight">\(\tilde{w}_k\)</span>, we apply
+<span class="math notranslate nohighlight">\(w_k = \log (1 + \exp(\tilde{w}_k)) / K \log{2}\)</span>,
+making it non-negative and have value of <span class="math notranslate nohighlight">\(1/K\)</span> if the pre-activation input is near zero.
+Also, we can force the weights to have a sum of 1 by applying softmax,
+<span class="math notranslate nohighlight">\(w_k = \exp(\tilde{w}_k)/\sum_{i=1}^K \exp(\tilde{w}_i)\)</span>.
+This resembles the Differentiable architecture search (DARTS) <span id="id1">[<a class="reference internal" href="../references/reference.html#id89" title="Hanxiao Liu, Karen Simonyan, and Yiming Yang. DARTS: differentiable architecture search. In ICLR. 2019.">LSY19</a>]</span>,
+if our aim is to select the best one among the <span class="math notranslate nohighlight">\(K\)</span> processors.
+The set of all learnable parameters is given as <span class="math notranslate nohighlight">\(p = \{\tilde{\mathbf{w}}, p_1, \cdots, p_K\}\)</span>.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.ParallelMix.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_weights</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processors_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.ParallelMix.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>log_gains</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \:\!\)</span>) – A batch of log-gain vectors of the GEQ.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.ParallelMix.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.ParallelMix.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A nested dictionary of depth at least 2 that contains each processor name as key and its <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code> as value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -416,7 +539,7 @@ optionally added with the dry/wet weight when <code class="code highlight python
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">History</div>
+                <div class="title">Versions</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -464,6 +587,8 @@ optionally added with the dry/wet weight when <code class="code highlight python
 <li><a class="reference internal" href="#">grafx.processors.container</a><ul>
 <li><a class="reference internal" href="#grafx.processors.container.GainStagingRegularization"><code class="docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.container.DryWet"><code class="docutils literal notranslate"><span class="pre">DryWet</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.container.SerialChain"><code class="docutils literal notranslate"><span class="pre">SerialChain</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.container.ParallelMix"><code class="docutils literal notranslate"><span class="pre">ParallelMix</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -215,16 +215,17 @@
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -265,7 +266,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.stereo.StereoGain">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StereoGain</span></span><a class="headerlink" href="#grafx.processors.stereo.StereoGain" title="Link to this definition"></a></dt>
-<dd><p>A simple stereo-to-stereo or mono-to-stereo gain.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A simple stereo-to-stereo or mono-to-stereo gain.</p>
 <blockquote>
 <div><p>We use simple channel-wise constant multiplication with a gain vector.
 The gain is assumed to be in log scale, so we apply exponentiation before multiplying it to the stereo signal.
@@ -316,7 +318,8 @@ y[n] = \exp (g_{\mathrm{log}}) \cdot u[n].
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.stereo.SideGainImager">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SideGainImager</span></span><a class="headerlink" href="#grafx.processors.stereo.SideGainImager" title="Link to this definition"></a></dt>
-<dd><p>Stereo imager with side-channel loudness control.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Stereo imager with side-channel loudness control.</p>
 <blockquote>
 <div><p>We multiply the input’s side signal <span class="math notranslate nohighlight">\(u_{\mathrm{s}}[n]\)</span>,
 i.e., left <span class="math notranslate nohighlight">\(u_{\mathrm{l}}[n]\)</span> minus right <span class="math notranslate nohighlight">\(u_{\mathrm{r}}[n]\)</span>,
@@ -370,7 +373,8 @@ y_{\mathrm{s}}[n] &amp;= \exp (g) \cdot (u_{\mathrm{l}}[n] - u_{\mathrm{r}}[n]).
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.stereo.MonoToStereo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MonoToStereo</span></span><a class="headerlink" href="#grafx.processors.stereo.MonoToStereo" title="Link to this definition"></a></dt>
-<dd><p>A simple mono-to-stereo conversion.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A simple mono-to-stereo conversion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.stereo.MonoToStereo.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.MonoToStereo.forward" title="Link to this definition"></a></dt>
@@ -380,7 +384,10 @@ y_{\mathrm{s}}[n] &amp;= \exp (g) \cdot (u_{\mathrm{l}}[n] - u_{\mathrm{r}}[n]).
 <dd class="field-odd"><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1 \times L\)</span>) – A batch of input audio signals; must be mono.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A batch of output signals in <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times 2 \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -391,6 +398,86 @@ y_{\mathrm{s}}[n] &amp;= \exp (g) \cdot (u_{\mathrm{l}}[n] - u_{\mathrm{r}}[n]).
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.stereo.StereoToMidSide">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StereoToMidSide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.StereoToMidSide" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A simple stereo-to-mid-side conversion.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.stereo.StereoToMidSide.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.StereoToMidSide.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 2 \times L\)</span>) – A batch of input audio signals; must be stereo.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times 2 \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.stereo.StereoToMidSide.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.StereoToMidSide.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.stereo.MidSideToStereo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MidSideToStereo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.MidSideToStereo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A simple mid-side-to-stereo conversion.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.stereo.MidSideToStereo.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.MidSideToStereo.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mid</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1 \times L\)</span>) – A batch of mid audio signals.</p></li>
+<li><p><strong>side</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1 \times L\)</span>) – A batch of side audio signals.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times 2 \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.stereo.MidSideToStereo.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.stereo.MidSideToStereo.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -458,6 +545,8 @@ y_{\mathrm{s}}[n] &amp;= \exp (g) \cdot (u_{\mathrm{l}}[n] - u_{\mathrm{r}}[n]).
 <li><a class="reference internal" href="#grafx.processors.stereo.StereoGain"><code class="docutils literal notranslate"><span class="pre">StereoGain</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.stereo.SideGainImager"><code class="docutils literal notranslate"><span class="pre">SideGainImager</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.stereo.MonoToStereo"><code class="docutils literal notranslate"><span class="pre">MonoToStereo</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.stereo.StereoToMidSide"><code class="docutils literal notranslate"><span class="pre">StereoToMidSide</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.stereo.MidSideToStereo"><code class="docutils literal notranslate"><span class="pre">MidSideToStereo</span></code></a></li>
 </ul>
 </li>
 </ul>
