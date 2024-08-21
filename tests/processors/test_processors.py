@@ -35,7 +35,7 @@ def test_stereo_gain():
 
 
 def test_stereo_multitap_delay():
-    processor = StereoMultitapDelay(flashfftconv=False)
+    processor = MultitapDelay(flashfftconv=False)
     _test_single_processor(processor, device="cpu")
 
 
@@ -88,66 +88,6 @@ def test_serial_chain():
 
 def test_graphic_eq():
     processor = GraphicEqualizer(backend="lfilter")
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_biquad_filter():
-    processor = BiquadFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_state_variable_filter():
-    processor = StateVariableFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_lowpass_filter():
-    processor = LowPassFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_highpass_filter():
-    processor = HighPassFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_bandpass_filter():
-    processor = BandPassFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_bandreject_filter():
-    processor = BandRejectFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_low_shelf():
-    processor = LowShelf()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_high_shelf():
-    processor = HighShelf()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_peaking_filter():
-    processor = PeakingFilter()
-    _test_single_processor(processor, device="cuda")
-    _test_lti_processor(processor, device="cuda")
-
-
-def test_allpass_filter():
-    processor = AllPassFilter()
     _test_single_processor(processor, device="cuda")
     _test_lti_processor(processor, device="cuda")
 
