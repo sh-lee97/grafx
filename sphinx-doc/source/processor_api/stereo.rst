@@ -10,4 +10,5 @@ grafx.processors.stereo
 
 .. automodule:: grafx.processors.stereo
    :members:
+   :show-inheritance:
 

@@ -10,3 +10,8 @@ grafx.processors.filter
 
 .. automodule:: grafx.processors.filter
    :members:
+   :undoc-members:
+   :show-inheritance:
+
+   .. 
+     :undoc-members:

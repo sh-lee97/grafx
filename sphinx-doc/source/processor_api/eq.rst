@@ -18,4 +18,5 @@ grafx.processors.eq
 
 .. automodule:: grafx.processors.eq
    :members:
+   :show-inheritance:
 
