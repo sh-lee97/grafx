@@ -3,29 +3,34 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from grafx.processors.core.convolution import CausalConvolution
+from grafx.processors.core.convolution import FIRConvolution
 from torchcomp import compressor_core
 
 
 class TruncatedOnePoleIIRFilter(nn.Module):
+    r"""
+    A one-pole IIR filter with a truncated impulse response.
+
+        Then, we optionally calculate its log-energy envelope $G_u[n] = \log g_u[n]$.
+        $$
+        g_u[n] \approx e[n] * (1-\alpha)\alpha^n.
+        $$
+    """
+
     def __init__(
         self,
         iir_len=16384,
-        flashfftconv=True,
-        max_input_len=2**17,
+        **backend_kwargs,
     ):
         super().__init__()
         arange = torch.arange(iir_len)[None, :]
         self.register_buffer("arange", arange)
 
-        self.conv = CausalConvolution(
-            flashfftconv=flashfftconv,
-            max_input_len=max_input_len,
-        )
+        self.conv = FIRConvolution(mode="causal", **backend_kwargs)
 
-    def forward(self, signal, z_alpha):
+    def forward(self, input_signals, z_alpha):
         h = self.compute_impulse(z_alpha)
-        smoothed = self.conv(signal, h)
+        smoothed = self.conv(input_signals, h)
         smoothed = F.relu(smoothed)
         return smoothed
 
@@ -39,24 +44,46 @@ class TruncatedOnePoleIIRFilter(nn.Module):
         h = (1 - alpha) * decay
         return h
 
-    def parameter_size(self):
-        return {"z_alpha": 1}
-
 
 class Ballistics(nn.Module):
+    r"""
+    A ballistics processor that smooths the input signal with a recursive filter.
+
+        An input signal $u[n]$ is smoothed with recursively, with a different coefficient for an "attack" and "release".
+        $$
+        y[n] = \begin{cases}
+        \alpha_\mathrm{R} y[n-1]+(1-\alpha_\mathrm{R}) u[n] & u[n] < y[n-1], \\
+        \alpha_\mathrm{A} y[n-1]+(1-\alpha_\mathrm{A}) u[n] & u[n] \geq y[n-1]. \\
+        \end{cases}
+        $$
+
+        We calculate the coefficients from the inputs with the sigmoid function, i.e., 
+        $\alpha_\mathrm{A} = \sigma(z_{\mathrm{A}})$ and $\alpha_\mathrm{R} = \sigma(z_{\mathrm{R}})$.
+        We use :python:`diffcomp` for the optimized forward and backward computation :cite:`yu2024differentiable`.
+
+    """
+
     def __init__(self):
         super().__init__()
 
-    def forward(self, signal, z_alpha):
-        ts = torch.sigmoid(z_alpha)
-        zi = torch.ones(signal.shape[0], device=signal.device)
-        at, rt = ts[..., 0], ts[..., 1]
-        smoothed = compressor_core(signal, zi, at, rt)
-        # smoothed = signal
-        return smoothed
+    def forward(self, input_signals, z_alpha):
+        r"""
+        Processes input audio with the processor and given coefficients.
 
-    def parameter_size(self):
-        return {"z_alpha": 2}
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times L`):
+                A batch of input audio signals.
+            z_alpha (:python:`FloatTensor`, :math:`B \times 2`):
+                A batch of attack and release coefficients stacked in the last dimension.
+
+        Returns:
+            :python:`FloatTensor`: A batch of smoothed signals of shape :math:`B \times L`.
+        """
+        ts = torch.sigmoid(z_alpha)
+        zi = torch.ones(input_signals.shape[0], device=input_signals.device)
+        at, rt = ts[..., 0], ts[..., 1]
+        smoothed = compressor_core(input_signals, zi, at, rt)
+        return smoothed
 
 
 # class FramewiseBallistics(nn.Module):
