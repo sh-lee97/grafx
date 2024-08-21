@@ -353,77 +353,7 @@ class LowPassFilter(BaseParametricFilter):
         return Bs, As
 
 
-# class LowPassFilter(nn.Module):
-#    r"""
-#    Compute a simple second-order low-pass filter.
-#
-#        $$
-#        \mathbf{b} &= \left[ \frac{1 - \cos(\omega_0)}{2}, 1 - \cos(\omega_0), \frac{1 - \cos(\omega_0)}{2} \right], \\
-#        \mathbf{a} &= \left[ 1 + \alpha, -2 \cos(\omega_0), 1 - \alpha \right].
-#        $$
-#
-#        These coefficients are calculated with the following pre-activations:
-#        $\omega_0 = \pi \cdot \sigma(\tilde{w}_0)$ and
-#        $\alpha = \sin(\omega_0) / 2q$ where the inverse of the quality factor is simply parameterized as $1 / q = \exp(\tilde{q})$.
-#        This processor has two learnable parameters: $p = \{\tilde{w}_0, \tilde{q}\}$.
-#
-#    Args:
-#        **backend_kwargs:
-#            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
-#    """
-#
-#    def __init__(self, **backend_kwargs):
-#        super().__init__()
-#        self.biquad = IIRFilter(order=2, **backend_kwargs)
-#
-#    def forward(self, input_signal, w0, q_inv):
-#        r"""
-#        Processes input audio with the processor and given parameters.
-#
-#        Args:
-#            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-#                A batch of input audio signals.
-#            w0 (:python:`FloatTensor`, :math:`B \times 1`):
-#                A batch of cutoff frequencies.
-#            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
-#                A batch of the inverse of quality factors (or resonance).
-#
-#        Returns:
-#            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-#        """
-#        w0 = PI * torch.sigmoid(w0)
-#        cos_w0 = torch.cos(w0)
-#        sin_w0 = torch.sin(w0)
-#        q_inv = torch.exp(q_inv)
-#        alpha = sin_w0 * q_inv * ALPHA_SCALE
-#
-#        Bs, As = LowPassFilter.get_biquad_coefficients(cos_w0, alpha)
-#        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-#        output_signal = self.biquad(input_signal, Bs, As)
-#        return output_signal
-#
-#    def parameter_size(self):
-#        r"""
-#        Returns:
-#            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-#        """
-#        return {"w0": 1, "q_inv": 1}
-#
-#    @staticmethod
-#    def get_biquad_coefficients(cos_w0, alpha):
-#        cos_w0_m_1 = cos_w0 - 1
-#        b0 = cos_w0_m_1 / 2
-#        b1 = cos_w0_m_1
-#        b2 = b0
-#        a0 = 1 + alpha
-#        a1 = -2 * cos_w0
-#        a2 = 1 - alpha
-#        Bs = torch.stack([b0, b1, b2], -1)
-#        As = torch.stack([a0, a1, a2], -1)
-#        return Bs, As
-
-
-class HighPassFilter(nn.Module):
+class HighPassFilter(BaseParametricFilter):
     r"""
     Compute a simple second-order high-pass filter.
 
@@ -441,41 +371,7 @@ class HighPassFilter(nn.Module):
     """
 
     def __init__(self, **backend_kwargs):
-        super().__init__()
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of quality factors (or resonance).
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-
-        Bs, As = HighPassFilter.get_biquad_coefficients(cos_w0, alpha)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-        return {"w0": 1, "q_inv": 1}
+        super().__init__(**backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha):
@@ -494,13 +390,13 @@ class HighPassFilter(nn.Module):
         return Bs, As
 
 
-class BandPassFilter(nn.Module):
+class BandPassFilter(BaseParametricFilter):
     r"""
     Compute a simple second-order band-pass filter.
 
         The feedforward coefficients are given as
         $$
-        \mathbf{b} = \left[ \frac{\sin \omega_0 }{2}, 0, -\frac{\sin \omega_0 }{2} \right],
+        \mathbf{b} = \left[\alpha, 0, -\alpha \right],
         $$
 
         and the remainings are the same as the :class:`~grafx.processors.filter.LowPassFilter`.
@@ -510,65 +406,11 @@ class BandPassFilter(nn.Module):
             Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
-    def __init__(self, constant_skirt=False, **backend_kwargs):
-        super().__init__()
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-        if constant_skirt:
-            self.get_biquad_coefficients = (
-                BandPassFilter.get_biquad_coefficients_constant_skirt
-            )
-        else:
-            self.get_biquad_coefficients = BandPassFilter.get_biquad_coefficients
-
-    def forward(self, input_signal, w0, q_inv):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of quality factors (or resonance).
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        q = 1 / q_inv
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-
-        Bs, As = self.get_biquad_coefficients(cos_w0, alpha, q)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-        return {"w0": 1, "q_inv": 1}
+    def __init__(self, **backend_kwargs):
+        super().__init__(**backend_kwargs)
 
     @staticmethod
-    def get_biquad_coefficients(cos_w0, alpha, q):
-        b0 = q * alpha
-        b1 = torch.zeros_like(b0)
-        b2 = -b0
-        a0 = 1 + alpha
-        a1 = -2 * cos_w0
-        a2 = 1 - alpha
-        Bs = torch.stack([b0, b1, b2], -1)
-        As = torch.stack([a0, a1, a2], -1)
-        return Bs, As
-
-    @staticmethod
-    def get_biquad_coefficients_constant_skirt(cos_w0, alpha, q):
+    def get_biquad_coefficients(cos_w0, alpha):
         b0 = alpha
         b1 = torch.zeros_like(b0)
         b2 = -alpha
@@ -580,7 +422,7 @@ class BandPassFilter(nn.Module):
         return Bs, As
 
 
-class BandRejectFilter(nn.Module):
+class BandRejectFilter(BaseParametricFilter):
     r"""
     Compute a simple second-order band-reject filter.
 
@@ -597,42 +439,7 @@ class BandRejectFilter(nn.Module):
     """
 
     def __init__(self, **backend_kwargs):
-        super().__init__()
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of quality factors (or resonance).
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-
-        Bs, As = BandRejectFilter.get_biquad_coefficients(cos_w0, alpha)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-
-        return {"w0": 1, "q_inv": 1}
+        super().__init__(**backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha):
@@ -647,16 +454,16 @@ class BandRejectFilter(nn.Module):
         return Bs, As
 
 
-class AllPassFilter(nn.Module):
+class AllPassFilter(BaseParametricFilter):
     r"""
     Compute a simple second-order all-pass filter.
 
         The feedforward coefficients are given as
         $$
-        \mathbf{b} = \left[ -\sin \omega_0, 1 - \cos \omega_0, -\sin \omega_0 \right],
+        \mathbf{b} = \left[a_2, a_1, a_0 \right],
         $$
 
-        and the remainings are the same as the :class:`~grafx.processors.filter.LowPassFilter`.
+    and the remainings are the same as the :class:`~grafx.processors.filter.LowPassFilter`.
 
     Args:
         **backend_kwargs:
@@ -664,42 +471,7 @@ class AllPassFilter(nn.Module):
     """
 
     def __init__(self, **backend_kwargs):
-        super().__init__()
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
-                A batch of quality factors (or resonance).
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-
-        Bs, As = AllPassFilter.get_biquad_coefficients(cos_w0, alpha)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-
-        return {"w0": 1, "q_inv": 1}
+        super().__init__(**backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha):
@@ -711,7 +483,67 @@ class AllPassFilter(nn.Module):
         return Bs, As
 
 
-class PeakingFilter(nn.Module):
+class BaseParametricEqualizerFilter(nn.Module):
+    def __init__(self, num_filters=1, **backend_kwargs):
+        super().__init__()
+        self.num_filters = num_filters
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
+
+    def forward(self, input_signal, w0, q_inv, log_gain):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            w0 (:python:`FloatTensor`, :math:`B \times 1`):
+                A batch of cutoff frequencies.
+            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
+                A batch of the inverse of quality factors (or resonance).
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+        """
+        w0, alpha, A = self.filter_parameter_activations(w0, q_inv, log_gain)
+        cos_w0, alpha = self.compute_common_filter_parameters(w0, alpha)
+
+        Bs, As = self.get_biquad_coefficients(cos_w0, alpha, A)
+        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
+        output_signal = self.biquad(input_signal, Bs, As)
+        return output_signal
+
+    @staticmethod
+    def get_biquad_coefficients(cos_w0, alpha, A):
+        raise NotImplementedError
+
+    @staticmethod
+    def filter_parameter_activations(w0, q_inv, log_gain):
+        w0 = PI * torch.sigmoid(w0)
+        q_inv = torch.exp(q_inv)
+        A = torch.exp(log_gain)
+        return w0, q_inv, A
+
+    @staticmethod
+    def compute_common_filter_parameters(w0, q_inv):
+        cos_w0 = torch.cos(w0)
+        sin_w0 = torch.sin(w0)
+        alpha = sin_w0 * q_inv * ALPHA_SCALE
+        return cos_w0, alpha
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+
+        return {
+            "w0": self.num_filters,
+            "q_inv": self.num_filters,
+            "log_gain": self.num_filters,
+        }
+
+
+class PeakingFilter(BaseParametricEqualizerFilter):
     r"""
     A second-order peaking filter.
 
@@ -734,51 +566,7 @@ class PeakingFilter(nn.Module):
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
-        super().__init__()
-        self.num_filters = num_filters
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv, log_gain):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of quality factors (or resonance).
-            log_gain (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of log-gains.
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-        A = torch.exp(log_gain)
-
-        Bs, As = PeakingFilter.get_biquad_coefficients(cos_w0, alpha, A)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-
-        return {
-            "w0": self.num_filters,
-            "q_inv": self.num_filters,
-            "log_gain": self.num_filters,
-        }
+        super().__init__(num_filters=num_filters, **backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha, A):
@@ -795,7 +583,7 @@ class PeakingFilter(nn.Module):
         return Bs, As
 
 
-class LowShelf(nn.Module):
+class LowShelf(BaseParametricEqualizerFilter):
     r"""
     A second-order low-shelf filter.
 
@@ -820,51 +608,7 @@ class LowShelf(nn.Module):
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
-        super().__init__()
-        self.num_filters = num_filters
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv, log_gain):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of quality factors (or resonance).
-            log_gain (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of log-gains.
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-        A = torch.exp(log_gain)
-
-        Bs, As = LowShelf.get_biquad_coefficients(cos_w0, alpha, A)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-
-        return {
-            "w0": self.num_filters,
-            "q_inv": self.num_filters,
-            "log_gain": self.num_filters,
-        }
+        super().__init__(num_filters=num_filters, **backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha, A):
@@ -888,7 +632,7 @@ class LowShelf(nn.Module):
         return Bs, As
 
 
-class HighShelf(nn.Module):
+class HighShelf(BaseParametricEqualizerFilter):
     r"""
     A second-order high-shelf filter.
 
@@ -913,51 +657,7 @@ class HighShelf(nn.Module):
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
-        super().__init__()
-        self.num_filters = num_filters
-        self.biquad = IIRFilter(order=2, **backend_kwargs)
-
-    def forward(self, input_signal, w0, q_inv, log_gain):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals.
-            w0 (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of cutoff frequencies.
-            q_inv (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of quality factors (or resonance).
-            log_gain (:python:`FloatTensor`, :math:`B \times K`):
-                A batch of log-gains.
-
-        Returns:
-            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
-        """
-
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-        A = torch.exp(log_gain)
-
-        Bs, As = HighShelf.get_biquad_coefficients(cos_w0, alpha, A)
-        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
-        return output_signal
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
-        """
-
-        return {
-            "w0": self.num_filters,
-            "q_inv": self.num_filters,
-            "log_gain": self.num_filters,
-        }
+        super().__init__(num_filters=num_filters, **backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha, A):
