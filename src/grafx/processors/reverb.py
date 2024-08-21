@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from grafx.processors.core.convolution import CausalConvolution
+from grafx.processors.core.convolution import FIRConvolution
 from grafx.processors.core.midside import lr_to_ms, ms_to_lr
 from grafx.processors.core.noise import get_filtered_noise
 from grafx.processors.core.utils import normalize_impulse
@@ -81,7 +81,8 @@ class MidSideFilteredNoiseReverb(nn.Module):
 
         self.gain_envelope = gain_envelope
 
-        self.conv = CausalConvolution(
+        self.conv = FIRConvolution(
+            mode="causal",
             flashfftconv=flashfftconv,
             max_input_len=max_input_len,
         )
@@ -291,7 +292,8 @@ class FilteredNoiseShapingReverb(nn.Module):
                     f"Invalid filtered_noise argument: {self.filtered_noise}"
                 )
 
-        self.conv = CausalConvolution(
+        self.conv = FIRConvolution(
+            mode="causal",
             flashfftconv=flashfftconv,
             max_input_len=max_input_len,
         )

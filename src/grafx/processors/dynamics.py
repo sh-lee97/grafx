@@ -431,16 +431,25 @@ class Compressor(nn.Module):
         size = {"log_threshold": 1, "log_ratio": 1}
         if self.knee != "hard":
             size["log_knee"] = 1
-        if self.energy_smoother is not None:
-            pre_size = self.energy_smoother_module.parameter_size()
-            size["z_alpha_pre"] = pre_size["z_alpha"]
-        if self.gain_smoother is not None:
-            post_size = self.gain_smoother_module.parameter_size()
-            size["z_alpha_post"] = post_size["z_alpha"]
+
+        match self.energy_smoother:
+            case "iir":
+                size["z_alpha_pre"] = 1
+            case "ballistics":
+                size["z_alpha_pre"] = 2
+
+        match self.gain_smoother:
+            case "iir":
+                size["z_alpha_post"] = 1
+            case "ballistics":
+                size["z_alpha_post"] = 2
         return size
 
     @staticmethod
     def gain_hard_knee(log_energy, log_threshold, log_ratio):
+        r"""
+        Compute log-compression gain with the hard knee.
+        """
         ratio = 1 + torch.exp(log_ratio)
         log_energy_out = torch.minimum(
             log_energy, log_threshold + (log_energy - log_threshold) / ratio
@@ -450,6 +459,9 @@ class Compressor(nn.Module):
 
     @staticmethod
     def gain_quad_knee(log_energy, log_threshold, log_ratio, log_knee):
+        r"""
+        Compute log-compression gain with the quadratic knee.
+        """
         ratio = 1 + torch.exp(log_ratio)
         log_knee = torch.exp(log_knee) / 2
 
@@ -469,6 +481,9 @@ class Compressor(nn.Module):
 
     @staticmethod
     def gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee):
+        r"""
+        Compute log-compression gain with the quadratic knee.
+        """
         ratio = 1 + torch.exp(log_ratio)
         log_knee = torch.exp(log_knee)
         log_gain = (
@@ -652,16 +667,25 @@ class NoiseGate(nn.Module):
         size = {"log_threshold": 1, "log_ratio": 1}
         if self.knee != "hard":
             size["log_knee"] = 1
-        if self.energy_smoother is not None:
-            pre_size = self.energy_smoother_module.parameter_size()
-            size["z_alpha_pre"] = pre_size["z_alpha"]
-        if self.gain_smoother is not None:
-            post_size = self.gain_smoother_module.parameter_size()
-            size["z_alpha_post"] = post_size["z_alpha"]
+
+        match self.energy_smoother:
+            case "iir":
+                size["z_alpha_pre"] = 1
+            case "ballistics":
+                size["z_alpha_pre"] = 2
+
+        match self.gain_smoother:
+            case "iir":
+                size["z_alpha_post"] = 1
+            case "ballistics":
+                size["z_alpha_post"] = 2
         return size
 
     @staticmethod
     def gain_hard_knee(log_energy, log_threshold, log_ratio):
+        r"""
+        Compute log-compression gain with the hard knee.
+        """
         ratio = 1 + torch.exp(log_ratio)
         log_energy_out = torch.minimum(
             log_energy, ratio * (log_energy - log_threshold) + log_threshold
@@ -671,6 +695,9 @@ class NoiseGate(nn.Module):
 
     @staticmethod
     def gain_quad_knee(log_energy, log_threshold, log_ratio, log_knee):
+        r"""
+        Compute log-compression gain with the quadratic knee.
+        """
         ratio = 1 + torch.exp(log_ratio)
         log_knee = torch.exp(log_knee) / 2
 
@@ -690,6 +717,9 @@ class NoiseGate(nn.Module):
 
     @staticmethod
     def gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee):
+        r"""
+        Compute log-compression gain with the quadratic knee.
+        """
         one_minus_ratio = -torch.exp(log_ratio)
         log_knee = torch.exp(log_knee)
         log_gain = (

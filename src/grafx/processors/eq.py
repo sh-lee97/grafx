@@ -1,10 +1,25 @@
+import math
+
+import torch
 import torch.nn as nn
 
 from grafx.processors.core.convolution import convolve
 from grafx.processors.core.fir import ZeroPhaseFilterBankFIR, ZeroPhaseFIR
 from grafx.processors.core.geq import GraphicEqualizerBiquad
-from grafx.processors.core.iir import BiquadFilterBackend
+from grafx.processors.core.iir import IIRFilter
 from grafx.processors.core.midside import lr_to_ms, ms_to_lr
+from grafx.processors.filter import (
+    BaseParametricEqualizerFilter,
+    HighShelf,
+    LowShelf,
+    PeakingFilter,
+)
+
+PI = math.pi
+TWO_PI = 2 * math.pi
+HALF_PI = math.pi / 2
+TWOR_SCALE = 1 / math.log(2)
+ALPHA_SCALE = 1 / 2
 
 
 class ZeroPhaseFIREqualizer(nn.Module):
@@ -88,17 +103,16 @@ class NewZeroPhaseFIREqualizer(nn.Module):
         where $M \in \mathbb{R}^{K \times K_{\mathrm{fb}}}$ is the filterbank matrix
         ($K$ and $K_{\mathrm{fb}}$ are the number of FFT magnitude bins and filterbank bins, respectively).
         We use the standard triangular filterbank.
-        After obtaining the log-magnitude response, the remaining process is the same as :class:`~grafx.processors.eq.ZeroPhaseFIREqualizer`.
         This equalizer's learnable parameter is $p = \{ H_{\mathrm{fb}} \}$.
 
     Args:
-        n_frequency_bins (:python:`int`, *optional*):
+        num_frequency_bins (:python:`int`, *optional*):
             The number of FFT energy bins (default: :python:`1024`).
-        eq_channel (:python:`str`, *optional*):
+        processor_channel (:python:`str`, *optional*):
             The channel configuration of the equalizer,
             which can be :python:`"mono"`, :python:`"stereo"`, :python:`"midside"`, or :python:`"pseudo_midside"`
             (default: :python:`"mono"`).
-        use_filterbank (:python:`bool`, *optional*):
+        filterbank (:python:`bool`, *optional*):
             Whether to use the filterbank (default: :python:`False`).
         scale (:python:`str`, *optional*):
             The frequency scale to use, which can be:
@@ -127,44 +141,35 @@ class NewZeroPhaseFIREqualizer(nn.Module):
 
     def __init__(
         self,
-        n_frequency_bins=1024,
-        eq_channel="mono",
+        num_frequency_bins=1024,
+        processor_channel="mono",
         use_filterbank=False,
-        scale="bark_traunmuller",
-        n_filters=80,
-        f_min=40,
-        f_max=None,
-        sr=None,
-        eps=1e-7,
+        filterbank_kwargs={},
         window="hann",
-        **window_kwargs,
+        window_kwargs={},
+        eps=1e-7,
+        flashfftconv=False,
     ):
         super().__init__()
-        self.n_frequency_bins = n_frequency_bins
-        self.n_filters = n_filters
-        self.eq_channel = eq_channel
-        self.eps = eps
-        if use_filterbank:
-            self.fir = ZeroPhaseFilterBankFIR(
-                num_energy_bins=n_frequency_bins,
-                scale=scale,
-                n_filters=n_filters,
-                f_min=f_min,
-                f_max=f_max,
-                sr=sr,
-                window=window,
-                **window_kwargs,
-            )
-        else:
-            self.fir = ZeroPhaseFIR(n_frequency_bins, window, **window_kwargs)
+        self.num_frequency_bins = num_frequency_bins
+        self.processor_channel = processor_channel
+        self.fir = ZeroPhaseFilterBankFIR(
+            num_frequency_bins=num_frequency_bins,
+            use_filterbank=use_filterbank,
+            filterbank_kwargs=filterbank_kwargs,
+            window=window,
+            window_kwargs=window_kwargs,
+            eps=eps,
+        )
+        self.use_filterbank = use_filterbank
 
-        match self.eq_channel:
+        match self.processor_channel:
             case "mono" | "stereo":
                 self.process = self._process_mono_stereo
             case "midside":
                 self.process = self._process_midside
-            case "pseudo_midside":
-                self.process = self._process_pseudo_midside
+            case _:
+                raise ValueError(f"Invalid processor_channel: {self.processor_channel}")
 
     def forward(self, input_signals, log_magnitude):
         r"""
@@ -188,13 +193,17 @@ class NewZeroPhaseFIREqualizer(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        n_bins = self.n_filters if self.use_filterbank else self.n_frequency_bins
-        match self.eq_channel:
+        n_bins = (
+            self.fir.filterbank.num_filters
+            if self.use_filterbank
+            else self.num_frequency_bins
+        )
+        match self.processor_channel:
             case "mono":
                 n_channels = 1
             case "stereo" | "midside":
                 n_channels = 2
-        return {"log_energy": (n_channels, n_bins)}
+        return {"log_magnitude": (n_channels, n_bins)}
 
     def _process_mono_stereo(self, input_signals, fir):
         return convolve(input_signals, fir, mode="zerophase")
@@ -204,15 +213,120 @@ class NewZeroPhaseFIREqualizer(nn.Module):
         output_signals = convolve(input_signals, fir, mode="zerophase")
         return ms_to_lr(output_signals)
 
-    def _process_pseudo_midside(self, input_signals, fir):
-        fir = ms_to_lr(fir)
-        return convolve(input_signals, fir, mode="zerophase")
-
 
 class ParametricEqualizer(nn.Module):
     r"""
     A parametric equalizer (PEQ) based on second-order filters.
+
+        We cascade $K$ biquad filters to form a parametric equalizer,
+        $$
+        H(z) = \prod_{k=1}^{K} H_k(z)
+        $$
+
+        By default, $k=1$ and $k=K$ are low-shelf and high-shelf filters, respectively, and the remainings are peaking filters.
+        See :class:`~grafx.processors.filter.LowShelf`, :class:`~grafx.processors.filter.PeakingFilter`, and :class:`~grafx.processors.filter.HighShelf` for the filter details.
+
+    Args:
+        num_filters (:python:`int`, *optional*):
+            The number of filters to use (default: :python:`10`).
+        processor_channel (:python:`str`, *optional*):
+            The channel configuration of the equalizer,
+            which can be :python:`"mono"`, :python:`"stereo"`, or :python:`"midside"` (default: :python:`"mono"`).
+        use_shelving_filters (:python:`bool`, *optional*):
+            Whether to use a low-shelf and high-shelf filter.
+            If false, we use only peaking filters (default: :python:`True`)
+            (default: :python:`True`).
+        **backend_kwargs (:python:`Dict[str, Any]`, *optional*):
+            Additional keyword arguments for the backend.
     """
+
+    def __init__(
+        self,
+        num_filters=10,
+        processor_channel="mono",
+        use_shelving_filters=True,
+        **backend_kwargs,
+    ):
+        super().__init__()
+
+        self.num_filters = num_filters
+        self.use_shelving_filters = use_shelving_filters
+        if self.use_shelving_filters:
+            self.split = [1, self.num_filters - 2, 1]
+            self.get_biquad_coefficients = (
+                self.get_biquad_coefficients_with_shelving_filters
+            )
+        else:
+            self.get_biquad_coefficients = PeakingFilter.get_biquad_coefficients
+
+        self.biquad = IIRFilter(
+            order=2, channel_setup=processor_channel, **backend_kwargs
+        )
+
+        match self.processor_channel:
+            case "mono" | "stereo":
+                self.process = self._process_mono_stereo
+            case "midside":
+                self.process = self._process_midside
+            case _:
+                raise ValueError(f"Invalid processor_channel: {self.processor_channel}")
+
+    def forward(self, input_signal, w0, q_inv, log_gain):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            w0 (:python:`FloatTensor`, :math:`B \times K`):
+                A batch of cutoff frequencies.
+            q_inv (:python:`FloatTensor`, :math:`B \times K`):
+                A batch of quality factors (or resonance).
+            log_gain (:python:`FloatTensor`, :math:`B \times K`):
+                A batch of log-gains.
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+        """
+        w0, q_inv, A = BaseParametricEqualizerFilter.filter_parameter_activations(
+            w0, q_inv, log_gain
+        )
+        cos_w0, alpha = BaseParametricEqualizerFilter.compute_common_filter_parameters(
+            w0, q_inv
+        )
+        Bs, As = self.get_biquad_coefficients(cos_w0, alpha, A)
+        output_signal = self.biquad(input_signal, Bs, As)
+        return output_signal
+
+    def get_biquad_coefficients_with_shelving_filters(self, cos_w0, alpha, A):
+        cos_w0_ls, cos_w0_peak, cos_w0_hs = torch.split(cos_w0, self.split, dim=2)
+        alpha_ls, alpha_peak, alpha_hs = torch.split(alpha, self.split, dim=2)
+        A_ls, A_peak, A_hs = torch.split(A, self.split, dim=2)
+
+        Bs_ls, As_ls = LowShelf.get_biquad_coefficients(cos_w0_ls, alpha_ls, A_ls)
+        Bs_peak, As_peak = PeakingFilter.get_biquad_coefficients(
+            cos_w0_peak, alpha_peak, A_peak
+        )
+        Bs_hs, As_hs = HighShelf.get_biquad_coefficients(cos_w0_hs, alpha_hs, A_hs)
+
+        Bs = torch.cat([Bs_ls, Bs_peak, Bs_hs], dim=2)
+        As = torch.cat([As_ls, As_peak, As_hs], dim=2)
+
+        return Bs, As
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+        match self.processor_channel:
+            case "mono":
+                n_channels = 1
+            case "stereo" | "midside":
+                n_channels = 2
+
+        size = (n_channels, self.num_filters)
+        return {k: size for k in ["w0", "q_inv", "log_gain"]}
 
 
 class GraphicEqualizer(nn.Module):
@@ -262,7 +376,7 @@ class GraphicEqualizer(nn.Module):
     ):
         super().__init__()
         self.geq = GraphicEqualizerBiquad(scale=scale, sr=sr)
-        self.biquad = BiquadFilterBackend(backend=backend, fsm_fir_len=fsm_fir_len)
+        self.biquad = IIRFilter(backend=backend, fsm_fir_len=fsm_fir_len)
 
     def forward(self, input_signal, log_gains):
         r"""

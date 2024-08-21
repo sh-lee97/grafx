@@ -3,13 +3,13 @@ import torch.nn as nn
 from einops import rearrange
 from torch.fft import irfft
 
-from grafx.processors.core.convolution import CausalConvolution, convolve
-from grafx.processors.core.utils import normalize_impulse
-from grafx.processors.core.fir import ZeroPhaseFIR
+from grafx.processors.core.convolution import FIRConvolution, convolve
 from grafx.processors.core.delay import SurrogateDelay
+from grafx.processors.core.fir import ZeroPhaseFIR
+from grafx.processors.core.utils import normalize_impulse
 
 
-class StereoMultitapDelay(nn.Module):
+class MultitapDelay(nn.Module):
     r"""
     A stereo delay module comprising feed-forward delays, each with learnable delay length.
 
@@ -20,19 +20,10 @@ class StereoMultitapDelay(nn.Module):
         $$
 
         where $\delta[n]$ denotes a unit impulse and $c_m[n]$ is an optional coloration filter.
-
-        Here, we aim to optimize each *discrete* delay length $d_m \in \mathbb{N}$ using gradient descent.
-        To this end, we exploit the fact that each delay $\delta[n-d_m]$ corresponds to a complex sinusoid in the frequency domain.
-        Such a sinusoid's angular frequency $z_m \in \mathbb{C}$ can be optimized with the gradient descent if we allow it to be inside the unit disk, i.e., $|z_m| \leq 1$ :cite:`hayes2023sinusoidal`.
-        Hence, for each delay, we compute a damped sinusoid with the *continuous* frequency $z_m$ then use its IFFT as a surrogate soft delay.
-        $$
-        \delta[n-d_m] \approx \frac{1}{N} \sum_{k=0}^{N-1} z_m^k w_N^{kn}.
-        $$
-
-        where $0 \leq n < N$ and $w_{N} = \exp(j\cdot 2\pi/N)$.
-        Note that, instead of allowing the delays to have the full range (from $0$ to $N-1$),
-        we can restrict them to have a smaller range and then concatenate them to form a longer multitap delay
-        (see the arguments, e.g., :python:`segment_len` and :python:`num_segments` below).
+        The delays lengths are optimized with the surrogate delay lines: see :class:`~grafx.processors.core.delay.SurrogateDelay`.
+        Instead of allowing the delays to have the full range (from $0$ to $N-1$),
+        we can restrict them to have a smaller range and then concatenate them to form a multitap delay;
+        see the arguments :python:`segment_len` and :python:`num_segments` below.
         This multitap delay's learnable parameter is $p = \{\mathbf{z}, \mathbf{H}\}$ where the latter is optional
         log-magnitude responses of the coloration filters.
 
@@ -60,10 +51,10 @@ class StereoMultitapDelay(nn.Module):
             with straight-through estimation :cite:`bengio2013estimating`
             (default: :python:`True`).
         flashfftconv (:python:`bool`, *optional*):
-            An option to use :python:`FlashFFTConv` :cite:`fu2023flashfftconv` as a backend 
+            An option to use :python:`FlashFFTConv` :cite:`fu2023flashfftconv` as a backend
             to perform the causal convolution efficiently (default: :python:`True`).
         max_input_len (:python:`int`, *optional*):
-            When :python:`flashfftconv` is set to :python:`True`, 
+            When :python:`flashfftconv` is set to :python:`True`,
             the max input length must be also given (default: :python:`2**17`).
     """
 
@@ -89,7 +80,6 @@ class StereoMultitapDelay(nn.Module):
         if self.zp_filter_per_tap:
             self.zp_filter = ZeroPhaseFIR(zp_filter_bins)
 
-
         self.zp_filter_bins = zp_filter_bins
         self.zp_filter_len = zp_filter_bins * 2 - 1
         window = torch.hann_window(self.zp_filter_len)
@@ -101,7 +91,7 @@ class StereoMultitapDelay(nn.Module):
             straight_through=straight_through,
         )
 
-        self.conv = CausalConvolution(
+        self.conv = FIRConvolution(
             flashfftconv=flashfftconv,
             max_input_len=max_input_len,
         )
@@ -111,11 +101,11 @@ class StereoMultitapDelay(nn.Module):
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signals (:python:`FloatTensor`, :math:`B \times 2 \times L`): 
+            input_signals (:python:`FloatTensor`, :math:`B \times 2 \times L`):
                 A batch of input audio signals.
-            delay_z (:python:`FloatTensor`, :math:`B \times M \times 2`): 
+            delay_z (:python:`FloatTensor`, :math:`B \times M \times 2`):
                 A log-magnitude vector of the FIR filter.
-            log_fir_magnitude (:python:`FloatTensor`, :math:`B \times M \times P`, *optional*): 
+            log_fir_magnitude (:python:`FloatTensor`, :math:`B \times M \times P`, *optional*):
                 A log-magnitude vector of the FIR filter.
                 Must be given when :python:`zp_filter_per_tap` is set to :python:`True`.
 
