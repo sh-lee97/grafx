@@ -88,7 +88,11 @@ def create_empty_parameters(processors, G, std=1e-2):
 
 
 def create_empty_parameters_from_shape_dict(
-    parameter_shapes, num_nodes, std=1e-2, root=True
+    parameter_shapes,
+    num_nodes,
+    std=1e-2,
+    root=True,
+    device="cpu",
 ):
 
     def int_to_tuple(x):
@@ -104,14 +108,16 @@ def create_empty_parameters_from_shape_dict(
         case dict():
             parameter = {
                 k: create_empty_parameters_from_shape_dict(
-                    v, num_nodes, std, root=False
+                    v, num_nodes, std, root=False, device=device
                 )
                 for k, v in parameter_shapes.items()
             }
             parameter = nn.ParameterDict(parameter)
         # leaf node
         case int() | tuple():
-            parameter = std * torch.randn(num_nodes, *int_to_tuple(parameter_shapes))
+            parameter = std * torch.randn(
+                num_nodes, *int_to_tuple(parameter_shapes), device=device
+            )
             if root:
                 parameter = {"parameter": parameter}
                 nn.ParameterDict(parameter)
