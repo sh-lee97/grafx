@@ -1,8 +1,10 @@
+import warnings
+
+import numpy as np
 import torch
+import torch.fft
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.fft
-import numpy as np
 
 try:
     from flashfftconv import FlashFFTConv
@@ -10,6 +12,99 @@ try:
     FLASHFFTCONV_AVAILABLE = True
 except:
     FLASHFFTCONV_AVAILABLE = False
+
+
+class FIRConvolution(nn.Module):
+    """
+    A FIR convolution backend, which can use either native FFT-based convolution or :python:`FlashFFTConv` :cite:`fu2023flashfftconv`.
+    Allows for causal and zero-phase convolution modes.
+
+        For an input $\mathbf{U}$ and
+
+    Args:
+        mode (:python:`str`, *optional*):
+            The convolution mode, either :python:`"causal"` or :python:`"zerophase"` (default: :python:`"causal"`).
+        flashfftconv (:python:`bool`, *optional*):
+            An option to use :python:`FlashFFTConv` as a backend
+            (default: :python:`True`).
+        max_input_len (:python:`int`, *optional*):
+            When :python:`flashfftconv` is set to :python:`True`,
+            the max input length must be also given (default: :python:`2**17`).
+    """
+
+    def __init__(
+        self,
+        mode="causal",
+        flashfftconv=True,
+        max_input_len=2**17,
+    ):
+        super().__init__()
+        self.mode = mode
+
+        if not FLASHFFTCONV_AVAILABLE and flashfftconv:
+            warnings.warn(
+                f"FlashFFTConv is not available. Using native convolution instead."
+            )
+            flashfftconv = False
+
+        self.flashfftconv = flashfftconv
+
+        if self.flashfftconv and mode == "zerophase":
+            warnings.warn(
+                f"When using FlashFFTConv with zerophase mode, make sure that the sum of the input and kernel lengths is less than or equal to max_input_len."
+            )
+
+        if self.flashfftconv:
+            flashfftconv_len = 2 ** int(np.ceil(np.log2(max_input_len)))
+            self.conv = FlashFFTConv(flashfftconv_len, dtype=torch.bfloat16)
+            self._forward = self._flashfftconv_forward
+        else:
+            self._forward = self._native_forward
+
+    #        match self.eq_channel:
+    #            case "mono" | "stereo":
+    #                self.process = self._process_mono_stereo
+    #            case "midside":
+    #                self.process = self._process_midside
+    #            case "pseudo_midside":
+    #                self.process = self._process_pseudo_midside
+    #            case _:
+    #                raise ValueError(f"Invalid eq_channel: {self.eq_channel}")
+    #
+    def forward(self, input_signals, fir):
+        r"""
+        Performs the convolution operation.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times C_\mathrm{in} \times L_\mathrm{in}`):
+                A batch of input audio signals.
+            fir (:python:`FloatTensor`, :math:`B \times C_\mathrm{filter} \times L_\mathrm{filter}`):
+                A batch of FIR filters.
+
+        Returns:
+            :python:`FloatTensor`: A batch of convolved signals of shape :math:`B \times C_\mathrm{out} \times L_\mathrm{in}` where :math:`C_\mathrm{out} = \max (C_\mathrm{in}, C_\mathrm{filter})`.
+        """
+        return self._forward(input_signals, fir)
+
+    def _native_forward(self, x, h):
+        return convolve(x, h, mode=self.mode)
+
+    def _flashfftconv_forward(self, x, h):
+        x_shape, h_shape = x.shape, h.shape
+
+        if x_shape[-2] == 1 and h_shape[-2] != 1:
+            x = x.repeat(1, h_shape[-2], 1)
+        elif x_shape[-2] != 1 and h_shape[-2] == 1:
+            h = h.repeat(1, x_shape[-2], 1)
+
+        x_shape, h_shape = x.shape, h.shape
+
+        x = x.view(1, -1, x_shape[-1])
+        x = x.type(torch.bfloat16)
+        h = h.view(-1, h_shape[-1])
+        y = self.conv(x, h)
+        y = y.view(*x_shape[:-1], -1)
+        return y
 
 
 def compute_pad_len(x, y, pad_mode="pow2"):
@@ -38,55 +133,3 @@ def convolve(x, h, mode="zerophase", pad_mode="min"):
         case _:
             y = y_pad
     return y
-
-
-class CausalConvolution(nn.Module):
-    """
-    CausalConvolution module that performs convolution operation in a causal manner.
-
-    Args:
-        flashfftconv (bool): Flag indicating whether to use FlashFFTConv for convolution.
-        max_input_len (int): Maximum input length for FlashFFTConv.
-
-    Attributes:
-        flashfftconv (bool): Flag indicating whether to use FlashFFTConv for convolution.
-        conv (FlashFFTConv): FlashFFTConv instance for convolution.
-
-    """
-
-    def __init__(
-        self,
-        flashfftconv=True,
-        max_input_len=2**17,
-    ):
-        super().__init__()
-        self.flashfftconv = flashfftconv
-        if self.flashfftconv:
-            flashfftconv_len = 2 ** int(np.ceil(np.log2(max_input_len)))
-            self.conv = FlashFFTConv(flashfftconv_len, dtype=torch.bfloat16)
-
-    def forward(self, x, h):
-        """
-        Forward pass of the CausalConvolution module.
-
-        Args:
-            x (torch.Tensor): Input tensor.
-            h (torch.Tensor): Convolution kernel.
-
-        Returns:
-            torch.Tensor: Output tensor.
-
-        """
-        if self.flashfftconv:
-            return self.flashfftconv_forward(x, h)
-        else:
-            return convolve(x, h, mode="causal")
-
-    def flashfftconv_forward(self, x, h):
-        x_shape, h_shape = x.shape, h.shape
-        x = x.view(1, -1, x_shape[-1])
-        x = x.type(torch.bfloat16)
-        h = h.view(-1, h_shape[-1])
-        y = self.conv(x, h)
-        y = y.view(*x_shape[:-1], -1)
-        return y

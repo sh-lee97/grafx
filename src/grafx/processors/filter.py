@@ -1,14 +1,11 @@
 import math
 
-import numpy as np
 import torch
 import torch.fft
 import torch.nn as nn
 import torch.nn.functional as F
-from torchaudio.functional import lfilter
 
-from grafx.processors.core.convolution import CausalConvolution
-from grafx.processors.core.iir import BiquadFilterBackend, svf_to_biquad
+from grafx.processors.core.iir import IIRFilter
 
 PI = math.pi
 TWO_PI = 2 * math.pi
@@ -21,39 +18,6 @@ class BiquadFilter(nn.Module):
     r"""
     A serial stack of second-order filters (biquads) with the given coefficients.
 
-        The transfer function of the $K$ stacked biquads $H(z)$ is given as :cite:`smith2007introduction`
-        $$
-        H(z) = \prod_{i=1}^K H_i(z) = \prod_i \frac{ b_{i, 0} + b_{i, 1} z^{-1} + b_{i, 2} z^{-2}}{a_{i, 0} + a_{i, 1} z^{-1} + a_{i, 2} z^{-2}}.
-        $$
-
-        We provide two backends for the filtering.
-        The first one, :python:`"lfilter"`, is the time-domain method that computes the difference equation exactly.
-        It uses :python:`torchaudio.lfilter`, which uses the direct form I implementation
-        (the bar denotes the normalized coefficients by $a_{i, 0}$) :cite:`yu2024differentiable`.
-        $$
-        x[n] &= \bar{b}_{i, 0} s[n] + \bar{b}_{i, 1} s[n-1] + \bar{b}_{i, 2} s[n-2], \\
-        y_i[n] &= x[n] + \bar{a}_{i, 1} y[n-1] + \bar{a}_{i, 2} y[n-2]
-        $$
-
-        The second one, :python:`"fsm"`, is the frequency-sampling method (FSM) that approximates the filter with a finite impulse response (FIR)
-        by sampling the discrete-time Fourier transform (DTFT) of the filter $H(e^{j\omega})$ at a finite number of points $N$ uniformly 
-        :cite:`rabiner70freqsamp, kuznetsov2020differentiable`.
-        $$
-        H_N[k]
-        = \prod_{i=1}^K (H_i)_N[k]
-        = \prod_{i=1}^K \frac{b_{i, 0} + b_{i, 1} z_N^{-1} + b_{i, 2} z_N^{-2}}{a_{i, 0} + a_{i, 1} z_N^{-1} + a_{i, 2} z_N^{-2}}.
-        $$
-
-        Here, $z_N = \exp(j\cdot 2\pi/N)$ so that $z_N^k$ becomes the $k$-th $N$-point discrete Fourier transform (DFT) bin. 
-        Then, the FIR filter $h_N[n]$ is obtained by taking the inverse DFT of the sampled DTFT $H_N[k]$
-        and the final output signal is computed by convolving the input signal with the FIR filter as $y[n] = h_N[n] * s[n]$.
-        This :python:`"fsm"` backend is faster than the former :python:`"lfilter"` but only an approximation.
-        This error is called time-domain aliasing; the frequency-sampled FIR is given as follows :cite:`smith2007mathematics`.
-        $$
-        h_N[n] = \sum_{m=0}^\infty h[n+mN].
-        $$
-        
-        where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
         To ensure the stability of each biquad, we restrict the normalized feedback coefficients with the following activations :cite:`nercessian2021lightweight`.
         $$
         \bar{a}_{i, 1} &= 2 \tanh(\tilde{a}_{i, 1}), \\
@@ -66,7 +30,6 @@ class BiquadFilter(nn.Module):
         is the stacked biquad coefficients for the feedforward path
         and the latter three are the pre-activation values for the feedback path.
         The last one $\mathbf{a}_0$ is optional and only used when :python:`normalized == False`.
-
 
     Args:
         num_filters (:python:`int`, *optional*):
@@ -86,7 +49,7 @@ class BiquadFilter(nn.Module):
         super().__init__()
         self.num_filters = num_filters
         self.normalized = normalized
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, Bs, A1_pre, A2_pre, A0=None):
         r"""
@@ -134,6 +97,91 @@ class BiquadFilter(nn.Module):
         return size
 
 
+class PoleZeroFilter(nn.Module):
+    r"""
+    A serial stack of biquads with pole/zero parameters.
+
+        $$
+        H(z) = g \prod_{k=1}^K \frac{(z-q_{k})(z-q_{k}^*)}{(z-p_{k})(z-p_{k}^*)}
+        $$
+
+        The poles are restricted to the unit circle and reparameterized as follows,
+        $$
+        p_k = \tilde{p}_k \cdot \frac{\tanh( | \tilde{p}_k | )}{ | \tilde{p}_k | + \epsilon}.
+        $$
+
+        $p = \{ g, \tilde{\mathbf{p}}, \mathbf{z} \}$ are the learnable parameters,
+        where both complex poles and zeros are repesented as a real-valued tensors with last dimension of size 2.
+
+    Args:
+        num_filters (:python:`int`, *optional*):
+            Number of biquads to use (default: :python:`1`).
+        **backend_kwargs:
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
+    """
+
+    def __init__(self, num_filters=1, **backend_kwargs):
+        super().__init__()
+
+    def forward(self, input_signal, log_gain, poles, zeros):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals.
+            log_gain (:python:`FloatTensor`, :math:`B \times 1`):
+                A batch of log-gains.
+            poles (:python:`FloatTensor`, :math:`B \times K \times 2`):
+                A batch of complex poles.
+            zeros (:python:`FloatTensor`, :math:`B \times K \times 2`):
+                A batch of complex zeros.
+
+
+        Returns:
+            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+        """
+
+        gain = torch.exp(log_gain)
+
+        poles = torch.view_as_complex(poles)
+        poles_radii = torch.abs(poles)
+        poles = poles * torch.tanh(poles_radii) / (poles_radii + 1e-5)
+
+        zeros = torch.view_as_complex(zeros)
+        zeros_radii = torch.abs(zeros)
+
+        ones = torch.ones_like(poles_radii)
+
+        b0 = ones
+        b1 = -2 * zeros.real
+        b2 = zeros_radii.square()
+
+        a0 = ones
+        a1 = -2 * poles.real
+        a2 = poles_radii.square()
+
+        Bs = torch.stack([b0, b1, b2], -1)
+        As = torch.stack([a0, a1, a2], -1)
+
+        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = gain.unsqueeze(-1) * output_signal
+
+        return output_signal
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
+
+        return {
+            "log_gain": 1,
+            "poles": (self.num_filters, 2),
+            "zeros": (self.num_filters, 2),
+        }
+
+
 class StateVariableFilter(nn.Module):
     r"""
     A series of biquads with the state variable filter (SVF) parameters :cite:`vafilter, kuznetsov2020differentiable`.
@@ -158,13 +206,13 @@ class StateVariableFilter(nn.Module):
         num_filters (:python:`int`, *optional*):
             Number of SVFs to use (default: :python:`1`).
         **backend_kwargs: 
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
         self.num_filters = num_filters
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, twoR, G, c_hp, c_bp, c_lp):
         r"""
@@ -217,28 +265,10 @@ class StateVariableFilter(nn.Module):
         return Bs, As
 
 
-class LowPassFilter(nn.Module):
-    r"""
-    Compute a simple second-order low-pass filter.
-
-        $$
-        \mathbf{b} &= \left[ \frac{1 - \cos(\omega_0)}{2}, 1 - \cos(\omega_0), \frac{1 - \cos(\omega_0)}{2} \right], \\
-        \mathbf{a} &= \left[ 1 + \alpha, -2 \cos(\omega_0), 1 - \alpha \right].
-        $$
-
-        These coefficients are calculated with the following pre-activations:
-        $\omega_0 = \pi \cdot \sigma(\tilde{w}_0)$ and 
-        $\alpha = \sin(\omega_0) / 2q$ where the inverse of the quality factor is simply parameterized as $1 / q = \exp(\tilde{q})$.
-        This processor has two learnable parameters: $p = \{\tilde{w}_0, \tilde{q}\}$.
-
-    Args:
-        **backend_kwargs: 
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
-    """
-
+class BaseParametricFilter(nn.Module):
     def __init__(self, **backend_kwargs):
         super().__init__()
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv):
         r"""
@@ -255,16 +285,29 @@ class LowPassFilter(nn.Module):
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
-        w0 = PI * torch.sigmoid(w0)
-        cos_w0 = torch.cos(w0)
-        sin_w0 = torch.sin(w0)
-        q_inv = torch.exp(q_inv)
-        alpha = sin_w0 * q_inv * ALPHA_SCALE
-
-        Bs, As = LowPassFilter.get_biquad_coefficients(cos_w0, alpha)
+        w0, alpha = self.filter_parameter_activations(w0, q_inv)
+        cos_w0, alpha = self.compute_common_filter_parameters(w0, alpha)
+        Bs, As = self.get_biquad_coefficients(cos_w0, alpha)
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
         output_signal = self.biquad(input_signal, Bs, As)
         return output_signal
+
+    @staticmethod
+    def get_biquad_coefficients(cos_w0, alpha):
+        raise NotImplementedError
+
+    @staticmethod
+    def filter_parameter_activations(w0, q_inv):
+        w0 = PI * torch.sigmoid(w0)
+        q_inv = torch.exp(q_inv)
+        return w0, q_inv
+
+    @staticmethod
+    def compute_common_filter_parameters(w0, q_inv):
+        cos_w0 = torch.cos(w0)
+        sin_w0 = torch.sin(w0)
+        alpha = sin_w0 * q_inv * ALPHA_SCALE
+        return cos_w0, alpha
 
     def parameter_size(self):
         r"""
@@ -272,6 +315,29 @@ class LowPassFilter(nn.Module):
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
         return {"w0": 1, "q_inv": 1}
+
+
+class LowPassFilter(BaseParametricFilter):
+    r"""
+    Compute a simple second-order low-pass filter.
+
+        $$
+        \mathbf{b} &= \left[ \frac{1 - \cos(\omega_0)}{2}, 1 - \cos(\omega_0), \frac{1 - \cos(\omega_0)}{2} \right], \\
+        \mathbf{a} &= \left[ 1 + \alpha, -2 \cos(\omega_0), 1 - \alpha \right].
+        $$
+
+        These coefficients are calculated with the following pre-activations:
+        $\omega_0 = \pi \cdot \sigma(\tilde{w}_0)$ and 
+        $\alpha = \sin(\omega_0) / 2q$ where the inverse of the quality factor is simply parameterized as $1 / q = \exp(\tilde{q})$.
+        This processor has two learnable parameters: $p = \{\tilde{w}_0, \tilde{q}\}$.
+
+    Args:
+        **backend_kwargs: 
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
+    """
+
+    def __init__(self, **backend_kwargs):
+        super().__init__(**backend_kwargs)
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha):
@@ -285,6 +351,76 @@ class LowPassFilter(nn.Module):
         Bs = torch.stack([b0, b1, b2], -1)
         As = torch.stack([a0, a1, a2], -1)
         return Bs, As
+
+
+# class LowPassFilter(nn.Module):
+#    r"""
+#    Compute a simple second-order low-pass filter.
+#
+#        $$
+#        \mathbf{b} &= \left[ \frac{1 - \cos(\omega_0)}{2}, 1 - \cos(\omega_0), \frac{1 - \cos(\omega_0)}{2} \right], \\
+#        \mathbf{a} &= \left[ 1 + \alpha, -2 \cos(\omega_0), 1 - \alpha \right].
+#        $$
+#
+#        These coefficients are calculated with the following pre-activations:
+#        $\omega_0 = \pi \cdot \sigma(\tilde{w}_0)$ and
+#        $\alpha = \sin(\omega_0) / 2q$ where the inverse of the quality factor is simply parameterized as $1 / q = \exp(\tilde{q})$.
+#        This processor has two learnable parameters: $p = \{\tilde{w}_0, \tilde{q}\}$.
+#
+#    Args:
+#        **backend_kwargs:
+#            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
+#    """
+#
+#    def __init__(self, **backend_kwargs):
+#        super().__init__()
+#        self.biquad = IIRFilter(order=2, **backend_kwargs)
+#
+#    def forward(self, input_signal, w0, q_inv):
+#        r"""
+#        Processes input audio with the processor and given parameters.
+#
+#        Args:
+#            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+#                A batch of input audio signals.
+#            w0 (:python:`FloatTensor`, :math:`B \times 1`):
+#                A batch of cutoff frequencies.
+#            q_inv (:python:`FloatTensor`, :math:`B \times 1`):
+#                A batch of the inverse of quality factors (or resonance).
+#
+#        Returns:
+#            :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
+#        """
+#        w0 = PI * torch.sigmoid(w0)
+#        cos_w0 = torch.cos(w0)
+#        sin_w0 = torch.sin(w0)
+#        q_inv = torch.exp(q_inv)
+#        alpha = sin_w0 * q_inv * ALPHA_SCALE
+#
+#        Bs, As = LowPassFilter.get_biquad_coefficients(cos_w0, alpha)
+#        Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
+#        output_signal = self.biquad(input_signal, Bs, As)
+#        return output_signal
+#
+#    def parameter_size(self):
+#        r"""
+#        Returns:
+#            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+#        """
+#        return {"w0": 1, "q_inv": 1}
+#
+#    @staticmethod
+#    def get_biquad_coefficients(cos_w0, alpha):
+#        cos_w0_m_1 = cos_w0 - 1
+#        b0 = cos_w0_m_1 / 2
+#        b1 = cos_w0_m_1
+#        b2 = b0
+#        a0 = 1 + alpha
+#        a1 = -2 * cos_w0
+#        a2 = 1 - alpha
+#        Bs = torch.stack([b0, b1, b2], -1)
+#        As = torch.stack([a0, a1, a2], -1)
+#        return Bs, As
 
 
 class HighPassFilter(nn.Module):
@@ -301,12 +437,12 @@ class HighPassFilter(nn.Module):
 
     Args:
         **backend_kwargs:
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, **backend_kwargs):
         super().__init__()
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv):
         r"""
@@ -343,6 +479,9 @@ class HighPassFilter(nn.Module):
 
     @staticmethod
     def get_biquad_coefficients(cos_w0, alpha):
+        r"""
+        Get biquad coefficients for high-pass filter.
+        """
         cos_w0_p_1 = 1 + cos_w0
         b0 = cos_w0_p_1 / 2
         b1 = -cos_w0_p_1
@@ -368,12 +507,12 @@ class BandPassFilter(nn.Module):
 
     Args:
         **backend_kwargs:
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, constant_skirt=False, **backend_kwargs):
         super().__init__()
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
         if constant_skirt:
             self.get_biquad_coefficients = (
@@ -454,12 +593,12 @@ class BandRejectFilter(nn.Module):
 
     Args:
         **backend_kwargs:
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, **backend_kwargs):
         super().__init__()
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv):
         r"""
@@ -521,12 +660,12 @@ class AllPassFilter(nn.Module):
 
     Args:
         **backend_kwargs:
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, **backend_kwargs):
         super().__init__()
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv):
         r"""
@@ -591,13 +730,13 @@ class PeakingFilter(nn.Module):
         num_filters (:python:`int`, *optional*):
             Number of filters to use (default: :python:`1`).
         **backend_kwargs: 
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
         self.num_filters = num_filters
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv, log_gain):
         r"""
@@ -677,13 +816,13 @@ class LowShelf(nn.Module):
         num_filters (:python:`int`, *optional*):
             Number of filters to use (default: :python:`1`).
         **backend_kwargs: 
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
         self.num_filters = num_filters
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv, log_gain):
         r"""
@@ -770,13 +909,13 @@ class HighShelf(nn.Module):
         num_filters (:python:`int`, *optional*):
             Number of filters to use (default: :python:`1`).
         **backend_kwargs: 
-            Additional keyword arguments for the :class:`~grafx.processors.core.BiquadFilterBackend`.
+            Additional keyword arguments for the :class:`~grafx.processors.core.IIRFilter`.
     """
 
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
         self.num_filters = num_filters
-        self.biquad = BiquadFilterBackend(**backend_kwargs)
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
 
     def forward(self, input_signal, w0, q_inv, log_gain):
         r"""
