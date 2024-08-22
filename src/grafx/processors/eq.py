@@ -262,6 +262,7 @@ class ParametricEqualizer(nn.Module):
         self.biquad = IIRFilter(
             order=2, channel_setup=processor_channel, **backend_kwargs
         )
+        self.processor_channel = processor_channel
 
         match self.processor_channel:
             case "mono" | "stereo":
@@ -295,7 +296,7 @@ class ParametricEqualizer(nn.Module):
             w0, q_inv
         )
         Bs, As = self.get_biquad_coefficients(cos_w0, alpha, A)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.process(input_signal, Bs, As)
         return output_signal
 
     def get_biquad_coefficients_with_shelving_filters(self, cos_w0, alpha, A):
@@ -313,6 +314,14 @@ class ParametricEqualizer(nn.Module):
         As = torch.cat([As_ls, As_peak, As_hs], dim=2)
 
         return Bs, As
+
+    def _process_mono_stereo(self, input_signals, Bs, As):
+        return self.biquad(input_signals, Bs, As)
+
+    def _process_midside(self, input_signals, Bs, As):
+        input_signals = lr_to_ms(input_signals)
+        output_signals = self.biquad(input_signals, Bs, As)
+        return ms_to_lr(output_signals)
 
     def parameter_size(self):
         r"""
@@ -369,14 +378,24 @@ class GraphicEqualizer(nn.Module):
 
     def __init__(
         self,
+        processor_channel="mono",
         scale="bark",
         sr=44100,
-        backend="fsm",
-        fsm_fir_len=8192,
+        **backend_kwargs,
     ):
         super().__init__()
         self.geq = GraphicEqualizerBiquad(scale=scale, sr=sr)
-        self.biquad = IIRFilter(backend=backend, fsm_fir_len=fsm_fir_len)
+        self.biquad = IIRFilter(**backend_kwargs)
+
+        self.processor_channel = processor_channel
+
+        match self.processor_channel:
+            case "mono" | "stereo":
+                self.process = self._process_mono_stereo
+            case "midside":
+                self.process = self._process_midside
+            case _:
+                raise ValueError(f"Invalid processor_channel: {self.processor_channel}")
 
     def forward(self, input_signal, log_gains):
         r"""
@@ -392,8 +411,16 @@ class GraphicEqualizer(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         Bs, As = self.geq(log_gains)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.process(input_signal, Bs, As)
         return output_signal
+
+    def _process_mono_stereo(self, input_signals, Bs, As):
+        return self.biquad(input_signals, Bs, As)
+
+    def _process_midside(self, input_signals, Bs, As):
+        input_signals = lr_to_ms(input_signals)
+        output_signals = self.biquad(input_signals, Bs, As)
+        return ms_to_lr(output_signals)
 
     def parameter_size(self):
         r"""
@@ -401,5 +428,11 @@ class GraphicEqualizer(nn.Module):
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
         num_bands = self.geq.num_bands
-        channel = 2
-        return {"log_gains": (channel, num_bands)}
+
+        match self.processor_channel:
+            case "mono":
+                n_channels = 1
+            case "stereo" | "midside":
+                n_channels = 2
+
+        return {"log_gains": (n_channels, num_bands)}

@@ -46,6 +46,7 @@ def _test_single_processor(
     num_channels=2,
     audio_len=2**17,
     device="cpu",
+    additional_params={},  #
 ):
     processor = processor.to(device)
     parameter_size = processor.parameter_size()
@@ -57,6 +58,8 @@ def _test_single_processor(
         num_nodes=batch_size,
         device=device,
     )
+    parameters.update(additional_params)  #
+
     input_signal = torch.randn(batch_size, num_channels, audio_len, device=device)
     output = processor(input_signal, **parameters)
     if isinstance(output, tuple):
@@ -71,3 +74,15 @@ def _test_single_processor(
         output_signal.dtype == torch.bfloat16
     )
     assert ~output_signal.isnan().any()
+    assert ~output_signal.isinf().any()
+
+
+def get_device_setup(setup):
+    if setup == "cpu":
+        return setup, False
+    elif setup == "cuda":
+        return setup, False
+    elif setup == "cuda_flashfftconv":
+        return "cuda", True
+    else:
+        assert False

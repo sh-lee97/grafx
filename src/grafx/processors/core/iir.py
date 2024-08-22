@@ -77,8 +77,8 @@ class IIRFilter(nn.Module):
         order=2,
         channel_setup="stereo",
         backend="fsm",
+        flashfftconv=True,
         fsm_fir_len=4000,
-        fsm_flashfftconv=True,
         fsm_max_input_len=2**17,
         fsm_regularization=False,
     ):
@@ -87,7 +87,7 @@ class IIRFilter(nn.Module):
         self.fsm_fir_len = fsm_fir_len
         self.fsm_regularization = fsm_regularization
 
-        if fsm_flashfftconv:
+        if flashfftconv:
             assert fsm_fir_len % 2 == 0
             assert fsm_max_input_len % 2 == 0
 
@@ -97,7 +97,7 @@ class IIRFilter(nn.Module):
                 self.register_buffer("delays", delays)
                 self.conv = FIRConvolution(
                     mode="causal",
-                    flashfftconv=fsm_flashfftconv,
+                    flashfftconv=flashfftconv,
                     max_input_len=fsm_max_input_len,
                 )
                 if fsm_regularization:

@@ -36,7 +36,6 @@ class StereoGain(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         b, c, t = input_signals.shape
-        assert c == 2
         gain = torch.exp(log_gain)
         output_signals = input_signals * gain[..., None]
         return output_signals

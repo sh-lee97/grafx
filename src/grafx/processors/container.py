@@ -84,7 +84,7 @@ class DryWet(nn.Module):
 
         For each pair of input $u[n]$ and output signal $y[n] = f(u[n], p)$
         where $f$ and $p$ denote the wrapped processor and the parameters,
-        respeectively,
+        respectively,
         we mix the input and output with a dry/wet mix $0 < w < 1$ as follows,
         $$
         y[n] = (1 - w)u[n]  + w y[n].
@@ -149,7 +149,7 @@ class DryWet(nn.Module):
         """
         param_size = self.processor.parameter_size()
         if not self.external_param:
-            param_size["weight"] = (1,)
+            param_size["drywet_weight"] = (1,)
         return param_size
 
 
@@ -262,12 +262,13 @@ class ParallelMix(nn.Module):
 
         weights = self.get_weight(parallel_weights)
         output_signals, intermediates = [], {}
-        for k, processor in self.processors.items():
+        for i, (k, processor) in enumerate(self.processors.items()):
             out = processor(input_signals, **processors_kwargs[k])
             if isinstance(out, tuple):
                 out, intermediates[k] = out
-            out = out * weights[..., k, None, None]
+            out = out * weights[..., i, None, None]
             output_signals.append(out)
+        output_signals = sum(output_signals)
         return output_signals, intermediates
 
     def _get_softmax_weight(self, weights):

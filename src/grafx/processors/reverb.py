@@ -112,9 +112,8 @@ class MidSideFilteredNoiseReverb(nn.Module):
         self.register_buffer("noise_stft", noise_stft)
 
     def sample_noise(self, num_noises, device):
-        noise = torch.FloatTensor(num_noises * 2, self.ir_len, device=device).uniform_(
-            -1, 1
-        )
+        noise = torch.rand(num_noises * 2, self.ir_len, device=device) * 2 - 1
+        
         noise_stft = torch.stft(
             noise,
             n_fft=self.n_fft,

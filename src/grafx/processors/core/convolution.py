@@ -104,6 +104,7 @@ class FIRConvolution(nn.Module):
         h = h.view(-1, h_shape[-1])
         y = self.conv(x, h)
         y = y.view(*x_shape[:-1], -1)
+        y = y.type(h.dtype)  #####################################
         return y
 
 

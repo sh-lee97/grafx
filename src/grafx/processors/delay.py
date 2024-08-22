@@ -113,8 +113,8 @@ class MultitapDelay(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         ir, radii_loss = self.get_ir(delay_z, log_fir_magnitude)
-        output_sinals = self.conv(input_signals, ir)
-        return output_sinals, radii_loss
+        output_signals = self.conv(input_signals, ir)
+        return output_signals, radii_loss
 
     def get_ir(self, delay_z, log_fir_magnitude):
         z_c = torch.view_as_complex(delay_z)
