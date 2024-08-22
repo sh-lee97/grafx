@@ -259,9 +259,7 @@ class ParametricEqualizer(nn.Module):
         else:
             self.get_biquad_coefficients = PeakingFilter.get_biquad_coefficients
 
-        self.biquad = IIRFilter(
-            order=2, channel_setup=processor_channel, **backend_kwargs
-        )
+        self.biquad = IIRFilter(order=2, **backend_kwargs)
         self.processor_channel = processor_channel
 
         match self.processor_channel:

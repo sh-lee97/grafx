@@ -61,16 +61,6 @@ class FIRConvolution(nn.Module):
         else:
             self._forward = self._native_forward
 
-    #        match self.eq_channel:
-    #            case "mono" | "stereo":
-    #                self.process = self._process_mono_stereo
-    #            case "midside":
-    #                self.process = self._process_midside
-    #            case "pseudo_midside":
-    #                self.process = self._process_pseudo_midside
-    #            case _:
-    #                raise ValueError(f"Invalid eq_channel: {self.eq_channel}")
-    #
     def forward(self, input_signals, fir):
         r"""
         Performs the convolution operation.

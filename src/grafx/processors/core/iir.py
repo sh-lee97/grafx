@@ -75,7 +75,6 @@ class IIRFilter(nn.Module):
     def __init__(
         self,
         order=2,
-        channel_setup="stereo",
         backend="fsm",
         flashfftconv=True,
         fsm_fir_len=4000,
@@ -102,19 +101,11 @@ class IIRFilter(nn.Module):
                 )
                 if fsm_regularization:
                     assert False
-                self._process = self._process_fsm
+                self.process = self._process_fsm
             case "lfilter":
-                self._process = self._process_lfilter
+                self.process = self._process_lfilter
             case _:
                 raise ValueError(f"Unsupported backend: {backend}")
-
-        match channel_setup:
-            case "mono" | "stereo":
-                self.process = self._process
-            case "midside":
-                self.process = self._process_midside
-            case _:
-                raise ValueError(f"Invalid eq_channel: {self.eq_channel}")
 
     def forward(self, input_signal, Bs, As):
         r"""
@@ -167,11 +158,6 @@ class IIRFilter(nn.Module):
             )
         output_signal = output_signal.view(b, c, audio_len)
         return output_signal
-
-    def _process_midside(self, input_signals, Bs, As):
-        input_signals = lr_to_ms(input_signals)
-        output_signals = self._process(input_signals, Bs, As)
-        return ms_to_lr(output_signals)
 
     @staticmethod
     def iir_fsm(Bs, As, delays, eps=1e-10):
