@@ -18,7 +18,7 @@ from .filter import (
     PeakingFilter,
     StateVariableFilter,
 )
-from .reverb import MidSideFilteredNoiseReverb
+from .reverb import STFTMaskedNoiseReverb
 from .stereo import (
     MidSideToStereo,
     MonoToStereo,
