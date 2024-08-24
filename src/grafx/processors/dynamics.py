@@ -3,11 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from grafx.processors.core.envelope import Ballistics, TruncatedOnePoleIIRFilter
-from grafx.processors.core.nonlinear import (
-    compressor_gain_exp_knee,
-    compressor_gain_hard_knee,
-    compressor_gain_quad_knee,
-)
 
 
 class ApproxCompressor(nn.Module):
@@ -302,7 +297,6 @@ class Compressor(nn.Module):
             When :python:`flashfftconv` is set to :python:`True`, 
             the max input length must be also given (default: :python:`2**17`).
 
-
     """
 
     def __init__(
@@ -350,11 +344,11 @@ class Compressor(nn.Module):
         self.knee = knee
         match self.knee:
             case "hard":
-                self.compute_gain = compressor_gain_hard_knee
+                self.compute_gain = self.gain_hard_knee
             case "quadratic":
-                self.compute_gain = compressor_gain_quad_knee
+                self.compute_gain = self.gain_quad_knee
             case "exponential":
-                self.compute_gain = compressor_gain_exp_knee
+                self.compute_gain = self.gain_exp_knee
             case _:
                 raise ValueError(f"Unknown knee: {self.knee}")
 
@@ -400,9 +394,9 @@ class Compressor(nn.Module):
         log_energy = torch.log(energy + 1e-5)
         gain = self.compute_gain(
             log_energy,
-            log_threshold=log_threshold - 6,
-            log_ratio=log_ratio,
-            log_knee=log_knee,
+            log_threshold - 6,
+            log_ratio,
+            log_knee,
         )
 
         if self.gain_smoother is not None:
@@ -446,7 +440,7 @@ class Compressor(nn.Module):
         return size
 
     @staticmethod
-    def gain_hard_knee(log_energy, log_threshold, log_ratio):
+    def gain_hard_knee(log_energy, log_threshold, log_ratio, _):
         r"""
         Compute log-compression gain with the hard knee.
         """
@@ -467,7 +461,7 @@ class Compressor(nn.Module):
 
         below_mask = log_energy < (log_threshold - log_knee)
         above_mask = log_energy > (log_threshold + log_knee)
-        middle_mask = (~below_mask) * (~above_mask)
+        middle_mask = ~below_mask & ~above_mask
 
         below = log_energy
         above = log_threshold + (log_energy - log_threshold) / ratio
@@ -586,11 +580,11 @@ class NoiseGate(nn.Module):
         self.knee = knee
         match self.knee:
             case "hard":
-                self.compute_gain = compressor_gain_hard_knee
+                self.compute_gain = self.gain_hard_knee
             case "quadratic":
-                self.compute_gain = compressor_gain_quad_knee
+                self.compute_gain = self.gain_quad_knee
             case "exponential":
-                self.compute_gain = compressor_gain_exp_knee
+                self.compute_gain = self.gain_exp_knee
             case _:
                 raise ValueError(f"Unknown knee: {self.knee}")
 
@@ -634,12 +628,7 @@ class NoiseGate(nn.Module):
             energy = self.energy_smoother_module(energy, z_alpha=z_alpha_pre)
         # log_energy = torch.log(energy + 1e-10) / 2
         log_energy = torch.log(energy + 1e-5)
-        gain = self.compute_gain(
-            log_energy,
-            log_threshold=log_threshold - 6,
-            log_ratio=log_ratio,
-            log_knee=log_knee,
-        )
+        gain = self.compute_gain(log_energy, log_threshold - 6, log_ratio, log_knee)
 
         if self.gain_smoother is not None:
             gain = self.smooth(gain, z_alpha=z_alpha_post)
@@ -682,7 +671,7 @@ class NoiseGate(nn.Module):
         return size
 
     @staticmethod
-    def gain_hard_knee(log_energy, log_threshold, log_ratio):
+    def gain_hard_knee(log_energy, log_threshold, log_ratio, _):
         r"""
         Compute log-compression gain with the hard knee.
         """
@@ -703,7 +692,7 @@ class NoiseGate(nn.Module):
 
         below_mask = log_energy < (log_threshold - log_knee)
         above_mask = log_energy > (log_threshold + log_knee)
-        middle_mask = (~below_mask) * (~above_mask)
+        middle_mask = ~below_mask & ~above_mask
 
         below = ratio * (log_energy - log_threshold) + log_threshold
         above = log_energy
