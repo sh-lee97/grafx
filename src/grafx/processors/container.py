@@ -7,80 +7,9 @@ import torch.nn.functional as F
 from grafx.processors.core.utils import rms_difference
 
 
-class GainStagingRegularization(nn.Module):
-    r"""
-    An regularization module that wraps an audio processor and calculates
-    the energy differences between the input and output audio.
-    It can be used guide the processors to mimic *gain-staging,*
-    a practice that aims to keep the signal energy
-    roughly the same throughout the processing chain.
-
-
-        For each pair of input $u[n]$ and output signal $y[n] = f(u[n], p)$
-        where $f$ and $p$ denote the wrapped processor and the parameters,
-        respeectively,
-        we calculate their loudness difference
-        with an energy function $\sigma$ as follows,
-        $$
-        d = \left| g(y[n]) - g(u[n]) \right|.
-        $$
-
-        The energy function $g$ computes log of
-        mean energy across the time and channel axis.
-        If the signals are stereo, then it is equivalent to calculating
-        the log of mid-channel energy.
-
-    Args:
-        processor (:python:`Module`):
-            Any SISO processor with :python:`forward` and :python:`parameter_size` method implemented properly.
-        key (:python:`str`, *optional*):
-            A dictionary key that will be used to store energy difference in the intermediate results.
-            (default: :python:`"gain_reg"`)
-
-
-    """
-
-    def __init__(self, processor, key="gain_reg"):
-        super().__init__()
-        self.processor = processor
-        self.key = key
-
-    def forward(self, input_signals, **processor_kwargs):
-        r"""
-        Processes input audio with the processor and given parameters.
-
-        Args:
-            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
-                A batch of input audio signals that will be passed to the processor.
-            **processor_kwargs (optional):
-                Keyword arguments (i.e., mostly parameters)
-                that will be passed to the processor.
-
-        Returns:
-            :python:`Tuple[FloatTensor, dict]`: A batch of output signals of shape :math:`B \times C \times L`
-            and dictionary of intermediate/auxiliary results added with the regularization loss.
-        """
-        out = self.processor(input_signals, **processor_kwargs)
-        if isinstance(out, tuple):
-            output_signals, intermediates = out
-        else:
-            output_signals, intermediates = out, {}
-        gain_reg = rms_difference(input_signals, output_signals)
-        assert not self.key in intermediates
-        intermediates[self.key] = gain_reg
-        return output_signals, intermediates
-
-    def parameter_size(self):
-        r"""
-        Returns:
-            :python:`Dict[str, Tuple[int, ...]]`: The wrapped processor's :python:`parameter_size()`.
-        """
-        return self.processor.parameter_size()
-
-
 class DryWet(nn.Module):
     r"""
-    An utility module that mixes the *dry* input with the wrapped processor's *wet* output.
+    An utility module that mixes the input (dry) with the wrapped processor's output (wet).
 
         For each pair of input $u[n]$ and output signal $y[n] = f(u[n], p)$
         where $f$ and $p$ denote the wrapped processor and the parameters,
@@ -155,7 +84,7 @@ class DryWet(nn.Module):
 
 class SerialChain(nn.Module):
     r"""
-    An utility module that serially connects the provided processors.
+    A utility module that serially connects the provided processors.
 
         For processors $f_1, \cdots, f_K$ with their respective parameters $p_1, \cdots, p_K$,
         the serial chain $f = f_K \circ \cdots \circ f_1$
@@ -165,6 +94,11 @@ class SerialChain(nn.Module):
         $$
 
         The set of all learnable parameters is given as $p = \{p_1, \cdots, p_K\}$.
+
+        Note that, from the audio processing perspective, exactly the same result can be achieved
+        by connecting the processors $f_1, \cdots, f_K$ as individual nodes in a graph.
+        Yet, this module can be useful when we use the same chain of processors repeatedly
+        so that encapsulating them in a single node is more convenient.
 
     Args:
         processors (:python:`Dict[str, Module]`):
@@ -292,3 +226,74 @@ if __name__ == "__main__":
     serialchain = SerialChain(
         processors={"gain": GainStagingRegularization(), "drywet": DryWet()}
     )
+
+
+class GainStagingRegularization(nn.Module):
+    r"""
+    A regularization module that wraps an audio processor and calculates
+    the energy differences between the input and output audio.
+    It can be used guide the processors to mimic *gain-staging,*
+    a practice that aims to keep the signal energy
+    roughly the same throughout the processing chain.
+
+
+        For each pair of input $u[n]$ and output signal $y[n] = f(u[n], p)$
+        where $f$ and $p$ denote the wrapped processor and the parameters,
+        respeectively,
+        we calculate their loudness difference
+        with an energy function $\sigma$ as follows,
+        $$
+        d = \left| g(y[n]) - g(u[n]) \right|.
+        $$
+
+        The energy function $g$ computes log of
+        mean energy across the time and channel axis.
+        If the signals are stereo, then it is equivalent to calculating
+        the log of mid-channel energy.
+
+    Args:
+        processor (:python:`Module`):
+            Any SISO processor with :python:`forward` and :python:`parameter_size` method implemented properly.
+        key (:python:`str`, *optional*):
+            A dictionary key that will be used to store energy difference in the intermediate results.
+            (default: :python:`"gain_reg"`)
+
+
+    """
+
+    def __init__(self, processor, key="gain_reg"):
+        super().__init__()
+        self.processor = processor
+        self.key = key
+
+    def forward(self, input_signals, **processor_kwargs):
+        r"""
+        Processes input audio with the processor and given parameters.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
+                A batch of input audio signals that will be passed to the processor.
+            **processor_kwargs (optional):
+                Keyword arguments (i.e., mostly parameters)
+                that will be passed to the processor.
+
+        Returns:
+            :python:`Tuple[FloatTensor, dict]`: A batch of output signals of shape :math:`B \times C \times L`
+            and dictionary of intermediate/auxiliary results added with the regularization loss.
+        """
+        out = self.processor(input_signals, **processor_kwargs)
+        if isinstance(out, tuple):
+            output_signals, intermediates = out
+        else:
+            output_signals, intermediates = out, {}
+        gain_reg = rms_difference(input_signals, output_signals)
+        assert not self.key in intermediates
+        intermediates[self.key] = gain_reg
+        return output_signals, intermediates
+
+    def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: The wrapped processor's :python:`parameter_size()`.
+        """
+        return self.processor.parameter_size()
