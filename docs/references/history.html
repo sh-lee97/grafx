@@ -281,16 +281,18 @@ ADSR envelopes.</p></li>
 <h2>v0.6.0<a class="headerlink" href="#v0-6-0" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Parameters: each processor can have a nested parameter dictionary of an arbitrary depth.</p></li>
-<li><p>Exposed core DDSP methods:</p>
-<ul>
-<li></li>
-</ul>
-</li>
+<li><p>Exposed core DDSP modules:
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.convolution.FIRConvolution" title="grafx.processors.core.convolution.FIRConvolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">FIRConvolution</span></code></a>,
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.fft_filterbank.TriangularFilterBank" title="grafx.processors.core.fft_filterbank.TriangularFilterBank"><code class="xref py py-class docutils literal notranslate"><span class="pre">TriangularFilterBank</span></code></a>,
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.iir.IIRFilter" title="grafx.processors.core.iir.IIRFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IIRFilter</span></code></a>,
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.delay.SurrogateDelay" title="grafx.processors.core.delay.SurrogateDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurrogateDelay</span></code></a>,
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter" title="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">TruncatedOnePoleIIRFilter</span></code></a>,
+<a class="reference internal" href="../processor_api/core.html#grafx.processors.core.envelope.Ballistics" title="grafx.processors.core.envelope.Ballistics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ballistics</span></code></a>,</p></li>
 <li><p>New processors:</p>
 <ul>
 <li><p>Basic second-order IIR filters:
 <a class="reference internal" href="../processor_api/filter.html#grafx.processors.filter.BiquadFilter" title="grafx.processors.filter.BiquadFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BiquadFilter</span></code></a>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">PoleZeroFilter</span></code>,
+<a class="reference internal" href="../processor_api/filter.html#grafx.processors.filter.PoleZeroFilter" title="grafx.processors.filter.PoleZeroFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PoleZeroFilter</span></code></a>,
 <a class="reference internal" href="../processor_api/filter.html#grafx.processors.filter.StateVariableFilter" title="grafx.processors.filter.StateVariableFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateVariableFilter</span></code></a>,
 <a class="reference internal" href="../processor_api/filter.html#grafx.processors.filter.LowPassFilter" title="grafx.processors.filter.LowPassFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LowPassFilter</span></code></a>,
 <a class="reference internal" href="../processor_api/filter.html#grafx.processors.filter.HighPassFilter" title="grafx.processors.filter.HighPassFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">HighPassFilter</span></code></a>,
@@ -305,23 +307,19 @@ ADSR envelopes.</p></li>
 (based on <a class="reference external" href="https://github.com/csteinmetz1/dasp-pytorch/">dasp_pytorch</a> and <span id="id5">[<a class="reference internal" href="reference.html#id157" title="Kyung Yun Lee, Nils Meyer-Kahlen, Georg Götz, U Peter Svensson, Sebastian J Schlecht, and Vesa Välimäki. Fade-in reverberation in multi-room environments using the common-slope model. arXiv preprint arXiv:2407.13242, 2024.">LMKGotz+24</a>, <a class="reference internal" href="reference.html#id5" title="Christian J Steinmetz, Vamsi Krishna Ithapu, and Paul Calamia. Filtered noise shaping for time domain room impulse response estimation from reverberant speech. In WASPAA. IEEE, 2021.">SIC21</a>]</span>).</p></li>
 </ul>
 </li>
-<li><p>New containers:</p>
-<ul>
-<li><p><a class="reference internal" href="../processor_api/container.html#grafx.processors.container.SerialChain" title="grafx.processors.container.SerialChain"><code class="xref py py-class docutils literal notranslate"><span class="pre">SerialChain</span></code></a> and</p></li>
-<li><p><a class="reference internal" href="../processor_api/container.html#grafx.processors.container.ParallelMix" title="grafx.processors.container.ParallelMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelMix</span></code></a> added.</p></li>
-</ul>
-</li>
+<li><p>New containers: <a class="reference internal" href="../processor_api/container.html#grafx.processors.container.SerialChain" title="grafx.processors.container.SerialChain"><code class="xref py py-class docutils literal notranslate"><span class="pre">SerialChain</span></code></a> and
+<a class="reference internal" href="../processor_api/container.html#grafx.processors.container.ParallelMix" title="grafx.processors.container.ParallelMix"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelMix</span></code></a>.</p></li>
 <li><p>Updated processors:</p>
 <ul>
 <li><p><a class="reference internal" href="../processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer" title="grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a> (new window argument &amp; allows triangular filterbank),</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">STFTFilteredNoiseReverb</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">MultitapDelay</span></code> (renamed):</p></li>
+<li><p><a class="reference internal" href="../processor_api/reverb.html#grafx.processors.reverb.STFTMaskedNoiseReverb" title="grafx.processors.reverb.STFTMaskedNoiseReverb"><code class="xref py py-class docutils literal notranslate"><span class="pre">STFTMaskedNoiseReverb</span></code></a> and <a class="reference internal" href="../processor_api/delay.html#grafx.processors.delay.MultitapDelay" title="grafx.processors.delay.MultitapDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultitapDelay</span></code></a> (renamed):</p></li>
 <li><p><a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.Compressor" title="grafx.processors.dynamics.Compressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compressor</span></code></a> and <a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate" title="grafx.processors.dynamics.NoiseGate"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoiseGate</span></code></a> (renamed): support efficient ballistics <span id="id6">[<a class="reference internal" href="reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span> and more compression curves.</p></li>
 </ul>
 </li>
 </ul>
 </section>
-<section id="v0-5-0">
-<h2>v0.5.0<a class="headerlink" href="#v0-5-0" title="Link to this heading"></a></h2>
+<section id="v0-5-x">
+<h2>v0.5.x<a class="headerlink" href="#v0-5-x" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Graph data structures: <a class="reference internal" href="../graph_api/data.html#grafx.data.graph.GRAFX" title="grafx.data.graph.GRAFX"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFX</span></code></a> and <a class="reference internal" href="../graph_api/data.html#grafx.data.tensor.GRAFXTensor" title="grafx.data.tensor.GRAFXTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GRAFXTensor</span></code></a>, and their basic utility functions.</p></li>
 <li><p>Audio rendering methods: <a class="reference internal" href="../graph_api/render.html#grafx.render.graph.render_grafx" title="grafx.render.graph.render_grafx"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_grafx()</span></code></a> and other preparation methods.</p></li>
@@ -329,10 +327,10 @@ ADSR envelopes.</p></li>
 <li><p>Differentiable audio processors: <a class="reference internal" href="../processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer" title="grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a>,
 <a class="reference internal" href="../processor_api/stereo.html#grafx.processors.stereo.StereoGain" title="grafx.processors.stereo.StereoGain"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoGain</span></code></a>,
 <a class="reference internal" href="../processor_api/stereo.html#grafx.processors.stereo.SideGainImager" title="grafx.processors.stereo.SideGainImager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SideGainImager</span></code></a>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxCompressor</span></code>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxNoiseGate</span></code>,
-<a class="reference internal" href="../processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="xref py py-class docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a>, and
-<a class="reference internal" href="../processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay" title="grafx.processors.delay.StereoMultitapDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code></a>.</p></li>
+<a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.ApproxCompressor" title="grafx.processors.dynamics.ApproxCompressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxCompressor</span></code></a>,
+<a class="reference internal" href="../processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate" title="grafx.processors.dynamics.ApproxNoiseGate"><code class="xref py py-class docutils literal notranslate"><span class="pre">ApproxNoiseGate</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code>, and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code>.</p></li>
 <li><p>Auxiliary processor containers: <a class="reference internal" href="../processor_api/container.html#grafx.processors.container.DryWet" title="grafx.processors.container.DryWet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DryWet</span></code></a> and <a class="reference internal" href="../processor_api/container.html#grafx.processors.container.GainStagingRegularization" title="grafx.processors.container.GainStagingRegularization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a>.</p></li>
 </ul>
 </section>
@@ -418,7 +416,7 @@ that matches the real-world music mixture so that we do not need to rely on the 
 <li><a class="reference internal" href="#">Versions</a><ul>
 <li><a class="reference internal" href="#todos">TODOs</a></li>
 <li><a class="reference internal" href="#v0-6-0">v0.6.0</a></li>
-<li><a class="reference internal" href="#v0-5-0">v0.5.0</a></li>
+<li><a class="reference internal" href="#v0-5-x">v0.5.x</a></li>
 <li><a class="reference internal" href="#pre-release">Pre-Release</a></li>
 </ul>
 </li>

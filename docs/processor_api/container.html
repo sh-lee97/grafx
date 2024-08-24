@@ -264,87 +264,14 @@
           <section id="module-grafx.processors.container">
 <span id="grafx-processors-container"></span><h1>grafx.processors.container<a class="headerlink" href="#module-grafx.processors.container" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GainStagingRegularization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gain_reg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>An regularization module that wraps an audio processor and calculates
-the energy differences between the input and output audio.
-It can be used guide the processors to mimic <em>gain-staging,</em>
-a practice that aims to keep the signal energy
-roughly the same throughout the processing chain.</p>
-<blockquote>
-<div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
-where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
-respeectively,
-we calculate their loudness difference
-with an energy function <span class="math notranslate nohighlight">\(\sigma\)</span> as follows,
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[
-d = \left| g(y[n]) - g(u[n]) \right|.
-\]</div>
-</div>
-</p>
-<p>The energy function <span class="math notranslate nohighlight">\(g\)</span> computes log of
-mean energy across the time and channel axis.
-If the signals are stereo, then it is equivalent to calculating
-the log of mid-channel energy.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>processor</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Module</span></code>) – Any SISO processor with <code class="code highlight python docutils literal highlight-python"><span class="n">forward</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span></code> method implemented properly.</p></li>
-<li><p><strong>key</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – A dictionary key that will be used to store energy difference in the intermediate results.
-(default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;gain_reg&quot;</span></code>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processor_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.forward" title="Link to this definition"></a></dt>
-<dd><p>Processes input audio with the processor and given parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals that will be passed to the processor.</p></li>
-<li><p><strong>**processor_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters)
-that will be passed to the processor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>
-and dictionary of intermediate/auxiliary results added with the regularization loss.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Tuple</span><span class="p">[</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.parameter_size">
-<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.parameter_size" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The wrapped processor’s <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code>.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.container.DryWet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DryWet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.DryWet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>An utility module that mixes the <em>dry</em> input with the wrapped processor’s <em>wet</em> output.</p>
+<p>An utility module that mixes the input (dry) with the wrapped processor’s output (wet).</p>
 <blockquote>
 <div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
 where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
-respeectively,
+respectively,
 we mix the input and output with a dry/wet mix <span class="math notranslate nohighlight">\(0 &lt; w &lt; 1\)</span> as follows,
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -411,7 +338,7 @@ optionally added with the dry/wet weight when <code class="code highlight python
 <dt class="sig sig-object py" id="grafx.processors.container.SerialChain">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SerialChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.SerialChain" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>An utility module that serially connects the provided processors.</p>
+<p>A utility module that serially connects the provided processors.</p>
 <blockquote>
 <div><p>For processors <span class="math notranslate nohighlight">\(f_1, \cdots, f_K\)</span> with their respective parameters <span class="math notranslate nohighlight">\(p_1, \cdots, p_K\)</span>,
 the serial chain <span class="math notranslate nohighlight">\(f = f_K \circ \cdots \circ f_1\)</span>
@@ -424,6 +351,10 @@ y[n] = (f_K \circ \cdots \circ f_1)(s[n]; p_1, \cdots, p_K).
 </div>
 </p>
 <p>The set of all learnable parameters is given as <span class="math notranslate nohighlight">\(p = \{p_1, \cdots, p_K\}\)</span>.</p>
+<p>Note that, from the audio processing perspective, exactly the same result can be achieved
+by connecting the processors <span class="math notranslate nohighlight">\(f_1, \cdots, f_K\)</span> as individual nodes in a graph.
+Yet, this module can be useful when we use the same chain of processors repeatedly
+so that encapsulating them in a single node is more convenient.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -527,6 +458,79 @@ The set of all learnable parameters is given as <span class="math notranslate no
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GainStagingRegularization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gain_reg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A regularization module that wraps an audio processor and calculates
+the energy differences between the input and output audio.
+It can be used guide the processors to mimic <em>gain-staging,</em>
+a practice that aims to keep the signal energy
+roughly the same throughout the processing chain.</p>
+<blockquote>
+<div><p>For each pair of input <span class="math notranslate nohighlight">\(u[n]\)</span> and output signal <span class="math notranslate nohighlight">\(y[n] = f(u[n], p)\)</span>
+where <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(p\)</span> denote the wrapped processor and the parameters,
+respeectively,
+we calculate their loudness difference
+with an energy function <span class="math notranslate nohighlight">\(\sigma\)</span> as follows,
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+d = \left| g(y[n]) - g(u[n]) \right|.
+\]</div>
+</div>
+</p>
+<p>The energy function <span class="math notranslate nohighlight">\(g\)</span> computes log of
+mean energy across the time and channel axis.
+If the signals are stereo, then it is equivalent to calculating
+the log of mid-channel energy.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>processor</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Module</span></code>) – Any SISO processor with <code class="code highlight python docutils literal highlight-python"><span class="n">forward</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span></code> method implemented properly.</p></li>
+<li><p><strong>key</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – A dictionary key that will be used to store energy difference in the intermediate results.
+(default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;gain_reg&quot;</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">processor_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals that will be passed to the processor.</p></li>
+<li><p><strong>**processor_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters)
+that will be passed to the processor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>
+and dictionary of intermediate/auxiliary results added with the regularization loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Tuple</span><span class="p">[</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.container.GainStagingRegularization.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.container.GainStagingRegularization.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The wrapped processor’s <code class="code highlight python docutils literal highlight-python"><span class="n">parameter_size</span><span class="p">()</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -585,10 +589,10 @@ The set of all learnable parameters is given as <span class="math notranslate no
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.container</a><ul>
-<li><a class="reference internal" href="#grafx.processors.container.GainStagingRegularization"><code class="docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.container.DryWet"><code class="docutils literal notranslate"><span class="pre">DryWet</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.container.SerialChain"><code class="docutils literal notranslate"><span class="pre">SerialChain</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.container.ParallelMix"><code class="docutils literal notranslate"><span class="pre">ParallelMix</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.container.GainStagingRegularization"><code class="docutils literal notranslate"><span class="pre">GainStagingRegularization</span></code></a></li>
 </ul>
 </li>
 </ul>

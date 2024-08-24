@@ -27,9 +27,13 @@ v0.6.0
 
 * Parameters: each processor can have a nested parameter dictionary of an arbitrary depth.
 
-* Exposed core DDSP methods: 
-
-  * 
+* Exposed core DDSP modules: 
+  :class:`~grafx.processors.core.convolution.FIRConvolution`, 
+  :class:`~grafx.processors.core.fft_filterbank.TriangularFilterBank`,
+  :class:`~grafx.processors.core.iir.IIRFilter`,
+  :class:`~grafx.processors.core.delay.SurrogateDelay`,
+  :class:`~grafx.processors.core.envelope.TruncatedOnePoleIIRFilter`,
+  :class:`~grafx.processors.core.envelope.Ballistics`,
 
 * New processors:
 
@@ -49,19 +53,17 @@ v0.6.0
   * New reverb: :class:`~grafx.processors.reverb.FilteredNoiseShapingReverb` 
     (based on `dasp_pytorch <https://github.com/csteinmetz1/dasp-pytorch/>`_ and :cite:`steinmetz2021filtered, lee2024fade`).
 
-* New containers:
-  
-  * :class:`~grafx.processors.container.SerialChain` and 
-  * :class:`~grafx.processors.container.ParallelMix` added. 
+* New containers: :class:`~grafx.processors.container.SerialChain` and 
+  :class:`~grafx.processors.container.ParallelMix`.
 
 * Updated processors: 
 
   * :class:`~grafx.processors.eq.ZeroPhaseFIREqualizer` (new window argument & allows triangular filterbank),
-  * :class:`~grafx.processors.reverb.STFTFilteredNoiseReverb` and :class:`~grafx.processors.delay.MultitapDelay` (renamed): 
+  * :class:`~grafx.processors.reverb.STFTMaskedNoiseReverb` and :class:`~grafx.processors.delay.MultitapDelay` (renamed): 
   * :class:`~grafx.processors.dynamics.Compressor` and :class:`~grafx.processors.dynamics.NoiseGate` (renamed): support efficient ballistics :cite:`yu2024differentiable` and more compression curves.
 
 
-v0.5.0
+v0.5.x
 --------------------------
 
 * Graph data structures: :class:`~grafx.data.graph.GRAFX` and :class:`~grafx.data.tensor.GRAFXTensor`, and their basic utility functions.

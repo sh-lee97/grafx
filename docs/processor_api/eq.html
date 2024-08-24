@@ -264,10 +264,77 @@
           <section id="grafx-processors-eq">
 <h1>grafx.processors.eq<a class="headerlink" href="#grafx-processors-eq" title="Link to this heading"></a></h1>
 <dl class="py class" id="module-grafx.processors.eq">
-<dt class="sig sig-object py" id="grafx.processors.eq.NewZeroPhaseFIREqualizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NewZeroPhaseFIREqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frequency_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mono'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_filterbank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filterbank_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.NewZeroPhaseFIREqualizer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFIREqualizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ZeroPhaseFIREqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_magnitude_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFIREqualizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>A single-channel zero-phase finite impulse response (FIR) filter <span id="id1">[<a class="reference internal" href="../references/reference.html#id8" title="Jesse Engel, Lamtharn (Hanoi) Hantrakul, Chenjie Gu, and Adam Roberts. DDSP: differentiable digital signal processing. In ICLR. 2020.">EHGR20</a>, <a class="reference internal" href="../references/reference.html#id160" title="Julius Orion Smith. Introduction to digital filters: with audio applications. Volume 2. Julius Smith, 2007.">Smi07b</a>, <a class="reference internal" href="../references/reference.html#id161" title="Julius Orion Smith. Spectral Audio Signal Processing. Volume 4. Julius Smith, 2011.">Smi11</a>]</span>.</p>
+<blockquote>
+<div><p>From the input log-magnitude <span class="math notranslate nohighlight">\(H_{\mathrm{log}}\)</span>,
+we compute inverse FFT (IFFT) of the magnitude response
+and multiply it with a zero-centered window <span class="math notranslate nohighlight">\(v[n]\)</span>.
+Each input channel is convolved with the following FIR.
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+h[n] = v[n] \cdot \frac{1}{N} \sum_{k=0}^{N-1} \exp H_{\mathrm{log}}[k] \cdot  w_{N}^{kn}.
+\]</div>
+</div>
+</p>
+<p>Here, <span class="math notranslate nohighlight">\(-(N+1)/2 \leq n \leq (N+1)/2\)</span> and <span class="math notranslate nohighlight">\(w_{N} = \exp(j\cdot 2\pi/N)\)</span>.
+This equalizer’s learnable parameter is <span class="math notranslate nohighlight">\(p = \{ H_{\mathrm{log}} \}\)</span>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_magnitude_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of FFT magnitude bins (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1024</span></code>).</p></li>
+<li><p><strong>window</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <em>optional</em>) – The window function to use for the FIR filter.
+If <code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code> is given, we create the window internally.
+It can be: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hamming&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;blackman&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;bartlett&quot;</span></code>, and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;kaiser&quot;</span></code>.
+If <code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code> is given, we use it as a window (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;hann&quot;</span></code>).</p></li>
+<li><p><strong>**window_kwargs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>, <em>optional</em>) – Additional keyword arguments for the window function.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFIREqualizer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_magnitude</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFIREqualizer.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>log_magnitude</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \:\!\)</span>) – A batch of log-magnitude vectors of the FIR filter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.eq.ZeroPhaseFIREqualizer.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ZeroPhaseFIREqualizer.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.eq.NewZeroPhaseFIREqualizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NewZeroPhaseFIREqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frequency_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mono'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_filterbank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filterbank_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.NewZeroPhaseFIREqualizer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A single-channel zero-phase finite impulse response (FIR) filter <span id="id2">[<a class="reference internal" href="../references/reference.html#id8" title="Jesse Engel, Lamtharn (Hanoi) Hantrakul, Chenjie Gu, and Adam Roberts. DDSP: differentiable digital signal processing. In ICLR. 2020.">EHGR20</a>, <a class="reference internal" href="../references/reference.html#id160" title="Julius Orion Smith. Introduction to digital filters: with audio applications. Volume 2. Julius Smith, 2007.">Smi07b</a>, <a class="reference internal" href="../references/reference.html#id161" title="Julius Orion Smith. Spectral Audio Signal Processing. Volume 4. Julius Smith, 2011.">Smi11</a>]</span>.</p>
 <blockquote>
 <div><p>From the input log-magnitude <span class="math notranslate nohighlight">\(H_{\mathrm{log}}\)</span>,
 we compute inverse FFT (IFFT) of the magnitude response
@@ -427,9 +494,9 @@ If false, we use only peaking filters (default: <code class="code highlight pyth
 
 <dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.eq.GraphicEqualizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GraphicEqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsm_fir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8192</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.GraphicEqualizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GraphicEqualizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mono'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bark'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">backend_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.GraphicEqualizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>A graphic equalizer (GEQ) based on second-order peaking filters <span id="id2">[<a class="reference internal" href="../references/reference.html#id109" title="Juho Liski, Vesa Valimaki, and others. The quest for the best graphic equalizer. In Proc. Int. Conf. Digital Audio Effects (DAFx-17), Edinburgh, UK, 95–102. 2017.">LV+17</a>]</span>.</p>
+<p>A graphic equalizer (GEQ) based on second-order peaking filters <span id="id3">[<a class="reference internal" href="../references/reference.html#id109" title="Juho Liski, Vesa Valimaki, and others. The quest for the best graphic equalizer. In Proc. Int. Conf. Digital Audio Effects (DAFx-17), Edinburgh, UK, 95–102. 2017.">LV+17</a>]</span>.</p>
 <blockquote>
 <div><p>We cascade <span class="math notranslate nohighlight">\(K\)</span> biquad filters to form a graphic equalizer,
 whose transfer function is given as <span class="math notranslate nohighlight">\(H(z) = \prod_{k=1}^{K} H_k(z)\)</span> where each biquad <span class="math notranslate nohighlight">\(H_k(z)\)</span> is as follows,
@@ -454,7 +521,7 @@ pre-determined to be <span class="math notranslate nohighlight">\(\tilde{g}_k = 
 The frequency values (<span class="math notranslate nohighlight">\(\omega_k\)</span> and <span class="math notranslate nohighlight">\(B_k\)</span>) and the number of bands <span class="math notranslate nohighlight">\(K\)</span> are also determined by the frequency scale.
 The learnable parameter is a concatenation of the log-magnitudes, i.e., <span class="math notranslate nohighlight">\(\smash{p = \{ \mathbf{g}^{\mathrm{log}} \}}\)</span> where <span class="math notranslate nohighlight">\(\smash{g_k = \exp g_k^{\mathrm{log}}}\)</span>.</p>
 <p>Note that the log-gain parameters are different to the equalizer’s log-magnitude response values at the center frequencies known as “control points”.
-To set the log-gains to match the control points, we can use least-square optimization methods <span id="id3">[<a class="reference internal" href="../references/reference.html#id109" title="Juho Liski, Vesa Valimaki, and others. The quest for the best graphic equalizer. In Proc. Int. Conf. Digital Audio Effects (DAFx-17), Edinburgh, UK, 95–102. 2017.">LV+17</a>, <a class="reference internal" href="../references/reference.html#id159" title="Vesa Valimaki and Jussi Ramo. Neurally controlled graphic equalizer. IEEE/ACM Transactions on Audio, Speech, and Language Processing, 27(12):2140–2149, 2019.">VR19</a>]</span>.</p>
+To set the log-gains to match the control points, we can use least-square optimization methods <span id="id4">[<a class="reference internal" href="../references/reference.html#id109" title="Juho Liski, Vesa Valimaki, and others. The quest for the best graphic equalizer. In Proc. Int. Conf. Digital Audio Effects (DAFx-17), Edinburgh, UK, 95–102. 2017.">LV+17</a>, <a class="reference internal" href="../references/reference.html#id159" title="Vesa Valimaki and Jussi Ramo. Neurally controlled graphic equalizer. IEEE/ACM Transactions on Audio, Speech, and Language Processing, 27(12):2140–2149, 2019.">VR19</a>]</span>.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -561,6 +628,7 @@ To set the log-gains to match the control points, we can use least-square optimi
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.eq</a><ul>
+<li><a class="reference internal" href="#grafx.processors.eq.ZeroPhaseFIREqualizer"><code class="docutils literal notranslate"><span class="pre">ZeroPhaseFIREqualizer</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.eq.NewZeroPhaseFIREqualizer"><code class="docutils literal notranslate"><span class="pre">NewZeroPhaseFIREqualizer</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.eq.ParametricEqualizer"><code class="docutils literal notranslate"><span class="pre">ParametricEqualizer</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.eq.GraphicEqualizer"><code class="docutils literal notranslate"><span class="pre">GraphicEqualizer</span></code></a></li>

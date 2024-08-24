@@ -10,7 +10,7 @@ One can create and modify a graph, convert it to tensor representations,
 and process output audio efficiently in GPU with batched node processing.
 The library is complemented with various differentiable audio processors, 
 which enables end-to-end optimization of processor parameters or their estimators (e.g., graph neural networks) via gradient descent.
-The code can be found in `this repository <https://github.com/sh-lee97/grafx>`_.
+The code can be found in `this github repository <https://github.com/sh-lee97/grafx>`_.
 
 
 Installation
