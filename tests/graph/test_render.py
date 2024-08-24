@@ -3,7 +3,7 @@ import torch
 from grafx.data import GRAFX, NodeConfigs, convert_to_tensor
 from grafx.processors import (
     ApproxCompressor,
-    MidSideFilteredNoiseReverb,
+    STFTMaskedNoiseReverb,
     ZeroPhaseFIREqualizer,
 )
 from grafx.render import prepare_render, render_grafx, reorder_for_fast_render
@@ -26,13 +26,12 @@ def test_render_pipeline():
     G_t = reorder_for_fast_render(G_t, method="beam")
     render_data = prepare_render(G_t)
 
-
     processors = {
         "eq": ZeroPhaseFIREqualizer(),
         "compressor": ApproxCompressor(flashfftconv=False),
-        "reverb": MidSideFilteredNoiseReverb(flashfftconv=False),
+        "reverb": STFTMaskedNoiseReverb(flashfftconv=False),
     }
 
     parameters = create_empty_parameters(processors, G)
-    input_signals = torch.zeros(3, 2, 2 ** 17)
+    input_signals = torch.zeros(3, 2, 2**17)
     render_grafx(processors, input_signals, parameters, render_data)
