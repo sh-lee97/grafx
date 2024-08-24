@@ -10,7 +10,7 @@ from grafx.processors.core.noise import get_filtered_noise
 from grafx.processors.core.utils import normalize_impulse
 
 
-class MidSideFilteredNoiseReverb(nn.Module):
+class STFTMaskedNoiseReverb(nn.Module):
     r"""
     A filtered noise model :cite:`engel2020ddsp` (or pseudo-random noise method) with mid/side controls.
 
@@ -113,7 +113,7 @@ class MidSideFilteredNoiseReverb(nn.Module):
 
     def sample_noise(self, num_noises, device):
         noise = torch.rand(num_noises * 2, self.ir_len, device=device) * 2 - 1
-        
+
         noise_stft = torch.stft(
             noise,
             n_fft=self.n_fft,
