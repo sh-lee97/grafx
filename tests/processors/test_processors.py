@@ -20,7 +20,7 @@ def test_approx_noise_gate():
 
 
 def test_mid_side_filtered_noise_reverb():
-    processor = MidSideFilteredNoiseReverb(flashfftconv=False)
+    processor = STFTMaskedNoiseReverb(flashfftconv=False)
     _test_single_processor(processor, device="cpu")
 
 
@@ -79,7 +79,7 @@ def test_serial_chain():
     processor = SerialChain(
         {
             "compressor": ApproxCompressor(flashfftconv=False),
-            "reverb": MidSideFilteredNoiseReverb(flashfftconv=False),
+            "reverb": STFTMaskedNoiseReverb(flashfftconv=False),
         }
     )
     print(processor.parameter_size())

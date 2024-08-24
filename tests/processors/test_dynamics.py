@@ -7,13 +7,21 @@ from utils import _test_single_processor
 from grafx.processors import *
 
 
+@pytest.fixture(params=["cpu", "cuda"])
+def device(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False])
+def flashfftconv(request):
+    return request.param
+
+
 @pytest.mark.parametrize("energy_smoother", ["iir", "ballistics", None])
 @pytest.mark.parametrize("gain_smoother", ["iir", "ballistics", None])
 @pytest.mark.parametrize("gain_smooth_in_log", [True, False])
 @pytest.mark.parametrize("knee", ["hard", "quadratic", "exponential"])
 @pytest.mark.parametrize("iir_len", [16384, 32768])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_compressor(
     energy_smoother,
     gain_smoother,
@@ -44,8 +52,6 @@ def test_compressor(
 @pytest.mark.parametrize("gain_smooth_in_log", [True, False])
 @pytest.mark.parametrize("knee", ["hard", "quadratic", "exponential"])
 @pytest.mark.parametrize("iir_len", [16384, 32768])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_noisegate(
     energy_smoother,
     gain_smoother,
