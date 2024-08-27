@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from einops import rearrange
-from torch.fft import irfft
 
 from grafx.processors.core.convolution import FIRConvolution, convolve
 from grafx.processors.core.delay import SurrogateDelay
@@ -46,16 +46,14 @@ class MultitapDelay(nn.Module):
         zp_filter_bins (:python:`int`, *optional*):
             The number of bins for each equalizer
             (default: :python:`20`).
-        straight_through (:python:`bool`, *optional*):
-            Use hard delays for the forward passes and surrogate soft delays for the backward passes
-            with straight-through estimation :cite:`bengio2013estimating`
-            (default: :python:`True`).
         flashfftconv (:python:`bool`, *optional*):
             An option to use :python:`FlashFFTConv` :cite:`fu2023flashfftconv` as a backend
             to perform the causal convolution efficiently (default: :python:`True`).
         max_input_len (:python:`int`, *optional*):
             When :python:`flashfftconv` is set to :python:`True`,
             the max input length must be also given (default: :python:`2**17`).
+        **surrgate_delay_kwargs (*optional*):
+            Additional arguments for the :class:`~grafx.processors.core.delay.SurrogateDelay` module.
     """
 
     def __init__(
@@ -63,18 +61,18 @@ class MultitapDelay(nn.Module):
         segment_len=3000,
         num_segments=20,
         num_delay_per_segment=1,
-        stereo=True,
+        processor_channel="stereo",
         zp_filter_per_tap=True,
         zp_filter_bins=20,
-        straight_through=True,
         flashfftconv=True,
         max_input_len=2**17,
+        pre_delay=0,
+        **surrogate_delay_kwargs,
     ):
         super().__init__()
         self.segment_len = segment_len
         self.num_segments = num_segments
         self.num_delay_per_segment = num_delay_per_segment
-        self.stereo = stereo
 
         self.zp_filter_per_tap = zp_filter_per_tap
         if self.zp_filter_per_tap:
@@ -88,13 +86,27 @@ class MultitapDelay(nn.Module):
 
         self.delay = SurrogateDelay(
             N=segment_len,
-            straight_through=straight_through,
+            **surrogate_delay_kwargs,
         )
 
-        self.conv = FIRConvolution(
+        self.num_channelsonv = FIRConvolution(
             flashfftconv=flashfftconv,
             max_input_len=max_input_len,
         )
+
+        self.pre_delay = pre_delay
+
+        self.processor_channel = processor_channel
+        match self.processor_channel:
+            case "mono":
+                self.process = self._process_mono_stereo
+                self.num_channels = 1
+            case "stereo":
+                self.process = self._process_mono_stereo
+                self.num_channels = 2
+            case "midside":
+                self.process = self._process_midside
+                self.num_channels = 2
 
     def forward(self, input_signals, delay_z, log_fir_magnitude=None):
         r"""
@@ -113,7 +125,10 @@ class MultitapDelay(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times 2 \times L`.
         """
         ir, radii_loss = self.get_ir(delay_z, log_fir_magnitude)
-        output_signals = self.conv(input_signals, ir)
+        output_signals = self.num_channelsonv(input_signals, ir)
+        if self.pre_delay != 0:
+            output_signals = F.pad(output_signals, (self.pre_delay, 0))
+            output_signals = output_signals[:, :, : -self.pre_delay]
         return output_signals, radii_loss
 
     def get_ir(self, delay_z, log_fir_magnitude):
@@ -127,7 +142,7 @@ class MultitapDelay(nn.Module):
         irs = rearrange(
             irs,
             "b (c m p) t -> b c m p t",
-            c=2 if self.stereo else 1,
+            c=self.num_channels,
             m=self.num_segments,
             p=self.num_delay_per_segment,
         )
@@ -140,14 +155,22 @@ class MultitapDelay(nn.Module):
         loss = {"radii_reg": radii_loss}
         return irs, loss
 
+    def _process_mono_stereo(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        return self.conv(input_signals, fir)
+
+    def _process_midside(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        input_signals = lr_to_ms(input_signals)
+        output_signals = self.conv(input_signals, fir)
+        return ms_to_lr(output_signals)
+
     def parameter_size(self):
         """
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        num_delay = self.num_segments * self.num_delay_per_segment
-        if self.stereo:
-            num_delay *= 2
+        num_delay = self.num_segments * self.num_delay_per_segment * self.num_channels
         size = {"delay_z": (num_delay, 2)}
         if self.zp_filter_per_tap:
             size["log_fir_magnitude"] = (num_delay, self.zp_filter_bins)
