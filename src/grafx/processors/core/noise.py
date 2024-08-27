@@ -42,7 +42,7 @@ def apply_linkwitz_riley(
         input_audio = hpfed
         filtered_signals.append(lpfed)
     filtered_signals.append(hpfed)
-    filtered_signals = np.concatenate(filtered_signals, 0)
+    filtered_signals = np.stack(filtered_signals, 1)
     return filtered_signals
 
 
@@ -57,7 +57,9 @@ def get_filtered_noise(
     zerophase=True,
     order=2,
 ):
-    noise = np.random.rand((num_channels, fir_len))
+    noise = np.random.rand(num_channels, fir_len)
+    print(noise.shape)
+    noise = 2 * noise - 1
     filtered_noise = apply_linkwitz_riley(
         noise,
         num_bands=num_bands,
@@ -68,7 +70,8 @@ def get_filtered_noise(
         zerophase=zerophase,
         order=order,
     )
-    filtered_noise = torch.from_numpy(filtered_noise, dtype=torch.float)
+    filtered_noise = torch.from_numpy(filtered_noise).float()
+    print("?", filtered_noise.shape)
     return filtered_noise
 
 

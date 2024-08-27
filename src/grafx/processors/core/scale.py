@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import torch
 
 
@@ -138,6 +139,8 @@ def mel_to_hz(mels: torch.Tensor, mel_scale: str = "htk") -> torch.Tensor:
 def hz_to_log(freqs):
     if isinstance(freqs, torch.Tensor):
         return torch.log(freqs)
+    elif isinstance(freqs, np.ndarray):
+        return np.log(freqs)
     else:
         return math.log(freqs)
 
@@ -145,6 +148,10 @@ def hz_to_log(freqs):
 def log_to_hz(logs):
     if isinstance(logs, torch.Tensor):
         return torch.exp(logs)
+    elif isinstance(logs, np.ndarray):
+        return np.exp(logs)
+    else:
+        return math.exp(logs)
 
 
 def to_scale(freqs, scale):
