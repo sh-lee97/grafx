@@ -102,11 +102,13 @@ class TanhDistortion(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        size = {"log_hardness": 2, "z_threshold": 2}
+        size = {}
         if self.pre_post_gain:
             size["log_pre_gain"] = 1
             if not self.inverse_post_gain:
                 size["log_post_gain"] = 1
+        if self.use_bias:
+            size["bias"] = 1
         return size
 
 
@@ -190,7 +192,7 @@ class PiecewiseTanhDistortion(nn.Module):
 
     @staticmethod
     def apply_distortion(input_signals, hardness, threshold):
-        hardness, threshold = hardness.unsqueeze(-1), threshold.unsqueeze(-1)
+        hardness, threshold = hardness.unsqueeze(-2), threshold.unsqueeze(-2)
 
         kn, kp = threshold.split(1, dim=-1)
         gp, gn = hardness.split(1, dim=-1)
@@ -204,13 +206,11 @@ class PiecewiseTanhDistortion(nn.Module):
         below_mask = input_signals < -kn
         middle_mask = ~above_mask & ~below_mask
 
-        output_signals[above_mask] = (
-            ap * torch.tanh(gp * (input_signals[above_mask] - kp)) + bp
-        )
-        output_signals[below_mask] = (
-            an * torch.tanh(gn * (input_signals[below_mask] + kn)) + bn
-        )
-        output_signals[middle_mask] = torch.tanh(input_signals[middle_mask])
+        above = ap * torch.tanh(gp * (input_signals - kp)) + bp
+        middle = torch.tanh(input_signals)
+        below = an * torch.tanh(gn * (input_signals + kn)) + bn
+
+        output_signals = above_mask * above + middle_mask * middle + below_mask * below
         return output_signals
 
     def parameter_size(self):
@@ -289,7 +289,7 @@ class PowerDistortion(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        size = {"basis_weights", self.max_order}
+        size = {"basis_weights": self.max_order}
         if self.pre_gain:
             size["log_pre_gain"] = 1
         return size
@@ -354,7 +354,7 @@ class ChebyshevDistortion(nn.Module):
 
     @staticmethod
     def apply_distortion(input_signals, basis_weights, use_tanh=False):
-        max_order = basis_weights.shape(-1)
+        max_order = basis_weights.shape[-1]
         shape = input_signals.shape
         b, _, _ = shape
         device = input_signals.device
@@ -378,81 +378,7 @@ class ChebyshevDistortion(nn.Module):
         Returns:
             :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
         """
-        size = {"basis_weights", self.max_order}
+        size = {"basis_weights": self.max_order}
         if self.pre_gain:
             size["log_pre_gain"] = 1
         return size
-
-
-##################################
-##################################
-##################################
-##################################
-##################################
-##################################
-
-
-class HardnessDist(nn.Module):
-    r""" """
-
-    def __init__(self):
-        super().__init__()
-
-    def tanh_clipper(self, x, drive, offset):
-        return (torch.tanh(x * drive + offset) - torch.tanh(offset)) / drive
-
-    def cubic_clipper(self, x, drive, offset):
-        return (cc(x * drive + offset) - cc(offset)) / drive
-
-    def hard_clipper(self, x, drive, offset):
-        return (hc(x * drive + offset) - hc(offset)) / drive
-
-    def process(self, x, p):
-        batch_size = p.size(0)
-        drive_dB = p[:, 0].reshape(batch_size, 1, 1)
-        offset = p[:, 1].reshape(batch_size, 1, 1)
-        dist_choice = p[:, 2].reshape(batch_size, 1, 1)
-        drive = torch.pow(10, drive_dB / 20)
-
-        out = torch.zeros_like(x)
-        x = x * drive
-
-        out0 = self.tanh_clipper(x, drive, offset)
-        out1 = self.cubic_clipper(x, drive, offset)
-        out2 = self.hard_clipper(x, drive, offset)
-
-        out = torch.where(
-            condition=dist_choice < 1,
-            input=(1 - dist_choice) * out0 + dist_choice * out1,
-            other=(2 - dist_choice) * out1 + (dist_choice - 1) * out2,
-        )
-
-        return out
-
-    @staticmethod
-    def hard_clipper(x):
-        return (torch.abs(x + 1) - torch.abs(x - 1)) / 2
-
-    @staticmethod
-    def hard_clipper_with_bias(x):
-        return (torch.abs(x + 1) - torch.abs(x - 1)) / 2
-
-    @staticmethod
-    def tanh_clipper(x):
-        return tanh(x)
-
-    @staticmethod
-    def tanh_clipper_with_bias(x):
-        return tanh(x)
-
-    @staticmethod
-    def cubic_clipper(x):
-        out = x - 4 / 27 * torch.pow(x, 3)
-        out = torch.where(condition=torch.abs(x) < 1.5, input=out, other=torch.sign(x))
-        return out
-
-    @staticmethod
-    def cubic_clipper_with_bias(x):
-        out = x - 4 / 27 * torch.pow(x, 3)
-        out = torch.where(condition=torch.abs(x) < 1.5, input=out, other=torch.sign(x))
-        return out

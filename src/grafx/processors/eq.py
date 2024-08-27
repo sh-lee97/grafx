@@ -270,12 +270,12 @@ class ParametricEqualizer(nn.Module):
             case _:
                 raise ValueError(f"Invalid processor_channel: {self.processor_channel}")
 
-    def forward(self, input_signal, w0, q_inv, log_gain):
+    def forward(self, input_signals, w0, q_inv, log_gain):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             w0 (:python:`FloatTensor`, :math:`B \times K`):
                 A batch of cutoff frequencies.
@@ -294,7 +294,7 @@ class ParametricEqualizer(nn.Module):
             w0, q_inv
         )
         Bs, As = self.get_biquad_coefficients(cos_w0, alpha, A)
-        output_signal = self.process(input_signal, Bs, As)
+        output_signal = self.process(input_signals, Bs, As)
         return output_signal
 
     def get_biquad_coefficients_with_shelving_filters(self, cos_w0, alpha, A):
@@ -395,12 +395,12 @@ class GraphicEqualizer(nn.Module):
             case _:
                 raise ValueError(f"Invalid processor_channel: {self.processor_channel}")
 
-    def forward(self, input_signal, log_gains):
+    def forward(self, input_signals, log_gains):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             log_gains (:python:`FloatTensor`, :math:`B \times K \:\!`):
                 A batch of log-gain vectors of the GEQ.
@@ -409,7 +409,7 @@ class GraphicEqualizer(nn.Module):
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
         """
         Bs, As = self.geq(log_gains)
-        output_signal = self.process(input_signal, Bs, As)
+        output_signal = self.process(input_signals, Bs, As)
         return output_signal
 
     def _process_mono_stereo(self, input_signals, Bs, As):

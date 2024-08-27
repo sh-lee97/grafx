@@ -118,7 +118,7 @@ class SerialChain(nn.Module):
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             **processors_kwargs (*optional*):
                 Keyword arguments (i.e., mostly parameters) that will be passed to the processor.
@@ -185,7 +185,7 @@ class ParallelMix(nn.Module):
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             log_gains (:python:`FloatTensor`, :math:`B \times K \:\!`):
                 A batch of log-gain vectors of the GEQ.

@@ -18,7 +18,17 @@ from .filter import (
     PeakingFilter,
     StateVariableFilter,
 )
-from .reverb import STFTMaskedNoiseReverb
+from .nonlinear import (
+    ChebyshevDistortion,
+    PiecewiseTanhDistortion,
+    PowerDistortion,
+    TanhDistortion,
+)
+from .reverb import (
+    FeedbackDelayNetwork,
+    FilteredNoiseShapingReverb,
+    STFTMaskedNoiseReverb,
+)
 from .stereo import (
     MidSideToStereo,
     MonoToStereo,

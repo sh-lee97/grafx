@@ -5,13 +5,63 @@ import torch.fft
 import torch.nn as nn
 import torch.nn.functional as F
 
+from grafx.processors.core.convolution import FIRConvolution
 from grafx.processors.core.iir import IIRFilter
+from grafx.processors.core.midside import lr_to_ms, ms_to_lr
+from grafx.processors.core.utils import normalize_impulse
 
 PI = math.pi
 TWO_PI = 2 * math.pi
 HALF_PI = math.pi / 2
 TWOR_SCALE = 1 / math.log(2)
 ALPHA_SCALE = 1 / 2
+
+
+class FIRFilter(nn.Module):
+    r"""
+    A time-domain FIR filter with learnable
+
+        For a given input $u[n]$, the output $y[n]$ is computed as
+        $$
+        y[n] = u[n] * h[n]
+        $$
+    """
+
+    def __init__(self, fir_len=1023, processor_channel="mono", **backend_kwargs):
+        super().__init__()
+        self.fir_len = fir_len
+        self.conv = FIRConvolution(fir_len=fir_len, **backend_kwargs)
+
+        match self.processor_channel:
+            case "midside":
+                self.num_channels = 2
+                self.process = self._process_midside
+            case "stereo":
+                self.num_channels = 2
+                self.process = self._process_mono_stereo
+            case "mono":
+                self.num_channels = 1
+                self.process = self._process_mono_stereo
+            case _:
+                raise ValueError(f"Unknown channel type: {self.channel}")
+
+    def forward(self, input_signals, fir):
+        fir = torch.tanh(fir)
+        output_signals = self.process(input_signals, fir)
+        return output_signals
+
+    def _process_mono_stereo(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        return self.conv(input_signals, fir)
+
+    def _process_midside(self, input_signals, fir):
+        fir = normalize_impulse(fir)
+        input_signals = lr_to_ms(input_signals)
+        output_signals = self.conv(input_signals, fir)
+        return ms_to_lr(output_signals)
+
+    def parameter_size(self):
+        return {"fir": (self.num_channels, self.fir_len)}
 
 
 class BiquadFilter(nn.Module):
@@ -51,12 +101,12 @@ class BiquadFilter(nn.Module):
         self.normalized = normalized
         self.biquad = IIRFilter(order=2, **backend_kwargs)
 
-    def forward(self, input_signal, Bs, A1_pre, A2_pre, A0=None):
+    def forward(self, input_signals, Bs, A1_pre, A2_pre, A0=None):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             Bs (:python:`FloatTensor`, :math:`B \times K \times 3`):
                 A batch of biquad coefficients, $b_{i, 0}, b_{i, 1}, b_{i, 2}$, stacked in the last dimension.
@@ -81,7 +131,7 @@ class BiquadFilter(nn.Module):
             As = As * A0.unsqueeze(-1)
 
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.biquad(input_signals, Bs, As)
         return output_signal
 
     def parameter_size(self):
@@ -123,12 +173,12 @@ class PoleZeroFilter(nn.Module):
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
 
-    def forward(self, input_signal, log_gain, poles, zeros):
+    def forward(self, input_signals, log_gain, poles, zeros):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             log_gain (:python:`FloatTensor`, :math:`B \times 1`):
                 A batch of log-gains.
@@ -164,7 +214,7 @@ class PoleZeroFilter(nn.Module):
         Bs = torch.stack([b0, b1, b2], -1)
         As = torch.stack([a0, a1, a2], -1)
 
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.biquad(input_signals, Bs, As)
         output_signal = gain.unsqueeze(-1) * output_signal
 
         return output_signal
@@ -214,12 +264,12 @@ class StateVariableFilter(nn.Module):
         self.num_filters = num_filters
         self.biquad = IIRFilter(order=2, **backend_kwargs)
 
-    def forward(self, input_signal, twoR, G, c_hp, c_bp, c_lp):
+    def forward(self, input_signals, twoR, G, c_hp, c_bp, c_lp):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             log_gains (:python:`FloatTensor`, :math:`B \times K \:\!`):
                 A batch of log-gain vectors of the GEQ.
@@ -231,7 +281,7 @@ class StateVariableFilter(nn.Module):
         twoR = TWOR_SCALE * F.softplus(twoR) + 1e-2
         Bs, As = StateVariableFilter.get_biquad_coefficients(twoR, G, c_hp, c_bp, c_lp)
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.biquad(input_signals, Bs, As)
         return output_signal
 
     def parameter_size(self):
@@ -270,12 +320,12 @@ class BaseParametricFilter(nn.Module):
         super().__init__()
         self.biquad = IIRFilter(order=2, **backend_kwargs)
 
-    def forward(self, input_signal, w0, q_inv):
+    def forward(self, input_signals, w0, q_inv):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             w0 (:python:`FloatTensor`, :math:`B \times 1`):
                 A batch of cutoff frequencies.
@@ -289,7 +339,7 @@ class BaseParametricFilter(nn.Module):
         cos_w0, alpha = self.compute_common_filter_parameters(w0, alpha)
         Bs, As = self.get_biquad_coefficients(cos_w0, alpha)
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.biquad(input_signals, Bs, As)
         return output_signal
 
     @staticmethod
@@ -489,12 +539,12 @@ class BaseParametricEqualizerFilter(nn.Module):
         self.num_filters = num_filters
         self.biquad = IIRFilter(order=2, **backend_kwargs)
 
-    def forward(self, input_signal, w0, q_inv, log_gain):
+    def forward(self, input_signals, w0, q_inv, log_gain):
         r"""
         Processes input audio with the processor and given parameters.
 
         Args:
-            input_signal (:python:`FloatTensor`, :math:`B \times C \times L`):
+            input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
             w0 (:python:`FloatTensor`, :math:`B \times 1`):
                 A batch of cutoff frequencies.
@@ -509,7 +559,7 @@ class BaseParametricEqualizerFilter(nn.Module):
 
         Bs, As = self.get_biquad_coefficients(cos_w0, alpha, A)
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
-        output_signal = self.biquad(input_signal, Bs, As)
+        output_signal = self.biquad(input_signals, Bs, As)
         return output_signal
 
     @staticmethod

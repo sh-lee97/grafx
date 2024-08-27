@@ -260,10 +260,13 @@ class FilteredNoiseShapingReverb(nn.Module):
         match self.processor_channel:
             case "midside":
                 self.num_channels = 2
+                self.process = self._process_midside
             case "stereo":
                 self.num_channels = 2
+                self.process = self._process_mono_stereo
             case "mono":
                 self.num_channels = 1
+                self.process = self._process_mono_stereo
             case _:
                 raise ValueError(f"Unknown channel type: {self.channel}")
 
@@ -314,15 +317,6 @@ class FilteredNoiseShapingReverb(nn.Module):
 
         arange = torch.arange(self.ir_len)[None, None, None, :]
         self.register_buffer("arange", arange)
-
-        self.processor_channel = processor_channel
-        match self.processor_channel:
-            case "mono" | "stereo":
-                self.process = self._process_mono_stereo
-            case "midside":
-                self.process = self._process_midside
-            case "pseudo_midside":
-                self.process = self._process_pseudo_midside
 
     def forward(
         self, input_signals, log_decay, log_gain, log_fade_in=None, z_fade_in_gain=None
