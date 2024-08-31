@@ -1,11 +1,38 @@
 import pytest
-import torch
-from utils import _test_single_processor
+from utils import _save_audio_mel, _test_single_processor
 
 from grafx.processors.reverb import *
 
+# region Fixture
 
-@pytest.mark.parametrize("ir_len", [30000, 60000])
+
+@pytest.fixture(params=[30000, 60000])
+def ir_len(request):
+    return request.param
+
+
+@pytest.fixture(params=["cpu", "cuda"])
+def device(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False])
+def flashfftconv(request):
+    return request.param
+
+
+# endregion Fixture
+
+
+@pytest.mark.parametrize(
+    "processor_cls", [STFTMaskedNoiseReverb, FilteredNoiseShapingReverb]
+)
+def test_reverb_quantitative(processor_cls, batch_size=1):
+    print(processor_cls.__name__)
+    processor = processor_cls(flashfftconv=True)
+    _save_audio_mel(processor, "reverb", device="cuda", batch_size=batch_size)
+
+
 @pytest.mark.parametrize(
     "processor_channel", ["mono", "stereo", "midside", "pseudo_midside"]
 )
@@ -13,8 +40,6 @@ from grafx.processors.reverb import *
 @pytest.mark.parametrize("hop_length", [128, 192])
 @pytest.mark.parametrize("fixed_noise", [True, False])
 @pytest.mark.parametrize("gain_envelope", [True, False])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_stft_masked_noise_reverb(
     ir_len,
     processor_channel,
@@ -26,7 +51,7 @@ def test_stft_masked_noise_reverb(
     device,
 ):
     if device == "cpu" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = STFTMaskedNoiseReverb(
         ir_len=ir_len,
@@ -41,7 +66,6 @@ def test_stft_masked_noise_reverb(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("ir_len", [30000, 60000])
 @pytest.mark.parametrize("num_bands", [2, 10])
 @pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("scale", ["bark_traunmuller"])
@@ -49,8 +73,6 @@ def test_stft_masked_noise_reverb(
 @pytest.mark.parametrize("order", [2, 4])
 @pytest.mark.parametrize("filtered_noise", ["pseudo-random"])
 @pytest.mark.parametrize("use_fade_in", [True, False])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_filtered_noise_shaping_reverb(
     ir_len,
     num_bands,
@@ -64,7 +86,7 @@ def test_filtered_noise_shaping_reverb(
     device,
 ):
     if device == "cpu" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = FilteredNoiseShapingReverb(
         ir_len=ir_len,

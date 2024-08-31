@@ -62,6 +62,9 @@ def get_processor(processor_cls, flashfftconv):
     return processor
 
 
+# region Fixture
+
+
 @pytest.fixture(params=DEVICE_SETUPS)
 def device_setup(request):
     return get_device_setup(request.param)
@@ -77,6 +80,9 @@ def processors_combination(request):
 #     device, flashfftconv = device_setup
 #     processor_cls = request.param
 #     return get_processor(processor_cls, flashfftconv)
+
+
+# endregion Fixture
 
 
 @pytest.mark.parametrize("key", ["gain_reg"])

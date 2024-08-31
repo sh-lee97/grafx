@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import pytest
 import torch
 import torch.nn.functional as F
-from utils import _test_single_processor
+from utils import _save_audio_mel, _test_single_processor
 
 from grafx.processors import *
+
+# region Fixture
 
 
 @pytest.fixture(params=["cpu", "cuda"])
@@ -15,6 +17,21 @@ def device(request):
 @pytest.fixture(params=[True, False])
 def flashfftconv(request):
     return request.param
+
+
+# endregion Fixture
+
+
+@pytest.mark.parametrize("processor_cls", [Compressor, NoiseGate])
+def test_dynamics_quantitative(processor_cls, batch_size=4):
+    print(processor_cls.__name__)
+    processor = processor_cls(flashfftconv=True)
+    _save_audio_mel(
+        processor,
+        "dynamics",
+        device="cuda",
+        batch_size=batch_size,
+    )
 
 
 @pytest.mark.parametrize("energy_smoother", ["iir", "ballistics", None])

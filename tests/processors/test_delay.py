@@ -1,8 +1,29 @@
 import pytest
-import torch
-from utils import _test_single_processor
+from utils import _save_audio_mel, _test_single_processor
 
 from grafx.processors.delay import MultitapDelay
+
+# region Fixture
+
+
+@pytest.fixture(params=["cpu", "cuda"])
+def device(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False])
+def flashfftconv(request):
+    return request.param
+
+
+# endregion Fixture
+
+
+@pytest.mark.parametrize("processor_cls", [MultitapDelay])
+def test_delay_quantitative(processor_cls, batch_size=4):
+    print(processor_cls.__name__)
+    processor = processor_cls(flashfftconv=True)
+    _save_audio_mel(processor, "delay", device="cuda", batch_size=batch_size)
 
 
 @pytest.mark.parametrize("segment_len", [3000, 6000])
@@ -11,8 +32,6 @@ from grafx.processors.delay import MultitapDelay
 @pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("zp_filter_per_tap", [True, False])
 @pytest.mark.parametrize("straight_through", [True, False])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_multitap_delay(
     segment_len,
     num_segments,
@@ -24,7 +43,7 @@ def test_multitap_delay(
     device,
 ):
     if device == "cpu" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = MultitapDelay(
         segment_len=segment_len,

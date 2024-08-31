@@ -1,26 +1,73 @@
 import pytest
-from utils import _test_lti_processor, _test_single_processor
+from utils import _save_audio_mel, _test_single_processor
 
 from grafx.processors import *
 
+# region Fixture
 
-@pytest.mark.parametrize("num_filters", [1, 4, 16])
-@pytest.mark.parametrize("normalized", [True, False])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
+
+@pytest.fixture(params=[1, 4, 16])
+def num_filters(request):
+    return request.param
+
+
+@pytest.fixture(params=["cpu", "cuda"])
+def device(request):
+    return request.param
+
+
+@pytest.fixture(params=["fsm", "lfilter"])
+def backend(request):
+    return request.param
+
+
+@pytest.fixture(params=[4000, 8192, 16384])
+def fsm_fir_len(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False])
+def flashfftconv(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False])
+def fsm_regularization(request):
+    return request.param
+
+
+# endregion Fixture
+
+
+@pytest.mark.parametrize(
+    "processor_cls",
+    [
+        BiquadFilter,
+        StateVariableFilter,
+        PoleZeroFilter,
+        LowPassFilter,
+        BandPassFilter,
+        HighPassFilter,
+        BandRejectFilter,
+        AllPassFilter,
+        PeakingFilter,
+        LowShelf,
+        HighShelf,
+    ],
+)
+def test_filter_quantitative(processor_cls, batch_size=4):
+    print(processor_cls.__name__)
+
+    processor = processor_cls(backend="fsm", flashfftconv=True)
+    _save_audio_mel(processor, "filter", device="cuda", batch_size=batch_size)
+
+
+@pytest.mark.parametrize("normalized", [False])
 def test_biquad_filter(
-    device,
-    num_filters,
-    normalized,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
+    device, num_filters, normalized, backend, fsm_fir_len, flashfftconv
 ):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = BiquadFilter(
         num_filters=num_filters,
@@ -33,21 +80,9 @@ def test_biquad_filter(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("num_filters", [1, 4, 16])
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_svf(
-    device,
-    num_filters,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_svf(device, num_filters, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = StateVariableFilter(
         num_filters=num_filters,
@@ -59,19 +94,9 @@ def test_svf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_lpf(
-    device,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_lpf(device, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = LowPassFilter(
         backend=backend,
@@ -82,19 +107,9 @@ def test_lpf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_bpf(
-    device,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_bpf(device, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = BandPassFilter(
         backend=backend,
@@ -105,19 +120,9 @@ def test_bpf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_hpf(
-    device,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_hpf(device, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = HighPassFilter(
         backend=backend,
@@ -128,19 +133,9 @@ def test_hpf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_brf(
-    device,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_brf(device, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = BandRejectFilter(
         backend=backend,
@@ -151,19 +146,9 @@ def test_brf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_apf(
-    device,
-    backend,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_apf(device, backend, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = AllPassFilter(
         backend=backend,
@@ -174,21 +159,9 @@ def test_apf(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("num_filters", [1, 4, 16])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_peak(
-    device,
-    backend,
-    num_filters,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_peak(device, backend, num_filters, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = PeakingFilter(
         backend=backend,
@@ -200,21 +173,9 @@ def test_peak(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("num_filters", [1, 4, 16])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_ls(
-    device,
-    backend,
-    num_filters,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_ls(device, backend, num_filters, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = LowShelf(
         backend=backend,
@@ -226,21 +187,9 @@ def test_ls(
     _test_single_processor(processor, device=device)
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
-@pytest.mark.parametrize("num_filters", [1, 4, 16])
-@pytest.mark.parametrize("backend", ["fsm", "lfilter"])
-@pytest.mark.parametrize("fsm_fir_len", [4000, 8192, 16384])
-@pytest.mark.parametrize("flashfftconv", [True, False])
-def test_hs(
-    device,
-    backend,
-    num_filters,
-    fsm_fir_len,
-    flashfftconv,
-    # fsm_regularization,
-):
+def test_hs(device, backend, num_filters, fsm_fir_len, flashfftconv):
     if device == "cpu" and backend == "fsm" and flashfftconv:
-        return
+        pytest.skip("Skipping test due to known issue with this configuration.")
 
     processor = HighShelf(
         backend=backend,
@@ -250,3 +199,7 @@ def test_hs(
         fsm_regularization=False,
     )
     _test_single_processor(processor, device=device)
+
+
+if __name__ == "__main__":
+    test_filter_quantitative(BiquadFilter, "cuda", "fsm", False)

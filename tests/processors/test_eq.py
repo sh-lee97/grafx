@@ -1,19 +1,59 @@
 import pytest
-from utils import _test_lti_processor, _test_single_processor, get_device_setup
+from utils import _save_audio_mel, _test_single_processor, get_device_setup
 
 from grafx.processors import *
 
-DEVICE_SETUPS = ["cpu", "cuda", "cuda_flashfftconv"]
+# region Fixture
 
 
-@pytest.mark.parametrize("num_frequency_bins", [256, 1024])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
-@pytest.mark.parametrize(
-    "window", ["hann", "hamming", "blackman", "bartlett", "kaiser", "boxcar", None]
+@pytest.fixture(params=[256, 1024])
+def num_frequency_bins(request):
+    return request.param
+
+
+@pytest.fixture(params=["mono", "stereo", "midside"])
+def processor_channel(request):
+    return request.param
+
+
+@pytest.fixture(
+    params=["hann", "hamming", "blackman", "bartlett", "kaiser", "boxcar", None]
 )
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
+def window(request):
+    return request.param
+
+
+@pytest.fixture(params=["cpu", "cuda", "cuda_flashfftconv"])
+def setup(request):
+    return request.param
+
+
+@pytest.fixture(scope="session")
+def processor_list():
+    return []
+
+
+@pytest.fixture(scope="session", autouse=True)
+def save_audio_mel_once(processor_list):
+    yield
+    if processor_list:
+        print("Processors in the list:")
+        print([name for name, _ in processor_list])
+        for name, processor in processor_list:
+            _save_audio_mel(processor, "eq", device="cuda", name=name)
+
+
+def add_processor_if_unique(name, processor, processor_list):
+    # Check if the name already exists in the list
+    if not any(existing_name == name for existing_name, _ in processor_list):
+        processor_list.append((name, processor))
+
+
+# endregion Fixture
+
+
 def test_zerophase_fir_equalizer_without_filterbank(
-    num_frequency_bins, processor_channel, window, setup
+    num_frequency_bins, processor_channel, window, setup, processor_list
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -28,18 +68,25 @@ def test_zerophase_fir_equalizer_without_filterbank(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "ZeroPhaseFIREqualizer_Without_Filterbank"
+    add_processor_if_unique(name, processor, processor_list)
 
 
-@pytest.mark.parametrize("num_frequency_bins", [256, 1024])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("window", ["hann"])
 @pytest.mark.parametrize("num_filters", [50])
 @pytest.mark.parametrize("scale", ["bark_traunmuller", "mel_slaney", "linear", "log"])
 @pytest.mark.parametrize("f_max", [8000, 22050])
 @pytest.mark.parametrize("sr", [16000])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_zerophase_fir_equalizer_with_filterbank(
-    num_frequency_bins, processor_channel, window, num_filters, scale, f_max, sr, setup
+    num_frequency_bins,
+    processor_channel,
+    window,
+    num_filters,
+    scale,
+    f_max,
+    sr,
+    setup,
+    processor_list,
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -61,6 +108,8 @@ def test_zerophase_fir_equalizer_with_filterbank(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "ZeroPhaseFIREqualizer_With_Filterbank"
+    add_processor_if_unique(name, processor, processor_list)
 
 
 @pytest.mark.parametrize("num_frequency_bins", [1024])
@@ -81,7 +130,6 @@ def test_zerophase_fir_equalizer_with_filterbank(
 )
 @pytest.mark.parametrize("f_max", [8000])
 @pytest.mark.parametrize("sr", [16000])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_zerophase_fir_equalizer_with_filterbank_all_scales(
     num_frequency_bins,
     processor_channel,
@@ -91,6 +139,7 @@ def test_zerophase_fir_equalizer_with_filterbank_all_scales(
     f_max,
     sr,
     setup,
+    processor_list,
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -112,19 +161,12 @@ def test_zerophase_fir_equalizer_with_filterbank_all_scales(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "ZeroPhaseFIREqualizer_With_Filterbank_All_Scales"
+    add_processor_if_unique(name, processor, processor_list)
 
 
-@pytest.mark.parametrize("num_frequency_bins", [256, 1024])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
-@pytest.mark.parametrize(
-    "window", ["hann", "hamming", "blackman", "bartlett", "kaiser", "boxcar", None]
-)
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_newzerophase_fir_equalizer_without_filterbank(
-    num_frequency_bins,
-    processor_channel,
-    window,
-    setup,
+    num_frequency_bins, processor_channel, window, setup, processor_list
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -139,18 +181,25 @@ def test_newzerophase_fir_equalizer_without_filterbank(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "NewZeroPhaseFIREqualizer_Without_Filterbank"
+    add_processor_if_unique(name, processor, processor_list)
 
 
-@pytest.mark.parametrize("num_frequency_bins", [256, 1024])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("window", ["hann"])
 @pytest.mark.parametrize("num_filters", [50])
 @pytest.mark.parametrize("scale", ["bark_traunmuller", "mel_slaney", "linear", "log"])
 @pytest.mark.parametrize("f_max", [8000, 22050])
 @pytest.mark.parametrize("sr", [16000])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_newzerophase_fir_equalizer_with_filterbank(
-    num_frequency_bins, processor_channel, window, num_filters, scale, f_max, sr, setup
+    num_frequency_bins,
+    processor_channel,
+    window,
+    num_filters,
+    scale,
+    f_max,
+    sr,
+    setup,
+    processor_list,
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -172,6 +221,8 @@ def test_newzerophase_fir_equalizer_with_filterbank(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "NewZeroPhaseFIREqualizer_With_Filterbank"
+    add_processor_if_unique(name, processor, processor_list)
 
 
 @pytest.mark.parametrize("num_frequency_bins", [1024])
@@ -192,9 +243,16 @@ def test_newzerophase_fir_equalizer_with_filterbank(
 )
 @pytest.mark.parametrize("f_max", [8000])
 @pytest.mark.parametrize("sr", [16000])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_newzerophase_fir_equalizer_with_filterbank_all_scales(
-    num_frequency_bins, processor_channel, window, num_filters, scale, f_max, sr, setup
+    num_frequency_bins,
+    processor_channel,
+    window,
+    num_filters,
+    scale,
+    f_max,
+    sr,
+    setup,
+    processor_list,
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -216,17 +274,14 @@ def test_newzerophase_fir_equalizer_with_filterbank_all_scales(
         eps=1e-7,
     )
     _test_single_processor(processor, device=device)
+    name = "NewZeroPhaseFIREqualizer_With_Filterbank_All_Scales"
+    add_processor_if_unique(name, processor, processor_list)
 
 
 @pytest.mark.parametrize("num_filters", [10, 20])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("use_shelving_filters", [True, False])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
 def test_parametric_equalizer(
-    num_filters,
-    processor_channel,
-    use_shelving_filters,
-    setup,
+    num_filters, processor_channel, use_shelving_filters, setup, processor_list
 ):
     device, flashfftconv = get_device_setup(setup)
 
@@ -237,14 +292,16 @@ def test_parametric_equalizer(
         flashfftconv=flashfftconv,
     )
     _test_single_processor(processor, device=device)
+    name = "ParametricEqualizer"
+    add_processor_if_unique(name, processor, processor_list)
 
 
 @pytest.mark.parametrize("scale", ["bark", "third_octave"])
-@pytest.mark.parametrize("processor_channel", ["mono", "stereo", "midside"])
 @pytest.mark.parametrize("backend", ["fsm", "lfilter"])
 @pytest.mark.parametrize("fsm_fir_len", [4096, 8192])
-@pytest.mark.parametrize("setup", DEVICE_SETUPS)
-def test_graphic_equalizer(scale, processor_channel, backend, fsm_fir_len, setup):
+def test_graphic_equalizer(
+    scale, processor_channel, backend, fsm_fir_len, setup, processor_list
+):
     device, flashfftconv = get_device_setup(setup)
 
     processor = GraphicEqualizer(
@@ -255,6 +312,8 @@ def test_graphic_equalizer(scale, processor_channel, backend, fsm_fir_len, setup
         flashfftconv=flashfftconv,
     )
     _test_single_processor(processor, device=device)
+    name = "GraphicEqualizer"
+    add_processor_if_unique(name, processor, processor_list)
 
 
 # def test_geq():
