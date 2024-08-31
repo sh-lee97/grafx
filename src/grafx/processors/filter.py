@@ -129,7 +129,8 @@ class BiquadFilter(nn.Module):
 
         if self.normalized:
             As = As * A0.unsqueeze(-1)
-
+        B0 = Bs[:, :, :1]
+        Bs = torch.cat([B0 + torch.ones_like(B0), Bs[:, :, 1:]], -1)
         Bs, As = Bs.unsqueeze(1), As.unsqueeze(1)
         output_signal = self.biquad(input_signals, Bs, As)
         return output_signal
@@ -172,6 +173,8 @@ class PoleZeroFilter(nn.Module):
 
     def __init__(self, num_filters=1, **backend_kwargs):
         super().__init__()
+        self.num_filters = num_filters  ###
+        self.biquad = IIRFilter(order=2, **backend_kwargs)  ###
 
     def forward(self, input_signals, log_gain, poles, zeros):
         r"""

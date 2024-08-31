@@ -11,11 +11,13 @@ from .filter import (
     BandPassFilter,
     BandRejectFilter,
     BiquadFilter,
+    FIRFilter,
     HighPassFilter,
     HighShelf,
     LowPassFilter,
     LowShelf,
     PeakingFilter,
+    PoleZeroFilter,
     StateVariableFilter,
 )
 from .nonlinear import (

@@ -92,6 +92,7 @@ class FIRConvolution(nn.Module):
         x = x.view(1, -1, x_shape[-1])
         x = x.type(torch.bfloat16)
         h = h.view(-1, h_shape[-1])
+
         y = self.conv(x, h)
         y = y.view(*x_shape[:-1], -1)
         y = y.type(h.dtype)  #####################################
