@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.delay" href="delay.html" /><link rel="prev" title="grafx.processors.dynamics" href="dynamics.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.delay" href="delay.html" /><link rel="prev" title="grafx.processors.nonlinear" href="nonlinear.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>grafx.processors.reverb - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,16 +214,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -262,9 +265,10 @@
           <section id="module-grafx.processors.reverb">
 <span id="grafx-processors-reverb"></span><h1>grafx.processors.reverb<a class="headerlink" href="#module-grafx.processors.reverb" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MidSideFilteredNoiseReverb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb" title="Link to this definition"></a></dt>
-<dd><p>A filtered noise model <span id="id1">[<a class="reference internal" href="../references/reference.html#id9" title="Jesse Engel, Lamtharn (Hanoi) Hantrakul, Chenjie Gu, and Adam Roberts. DDSP: differentiable digital signal processing. In ICLR. 2020.">EHGR20</a>]</span> (or pseudo-random noise method) with mid/side controls.</p>
+<dt class="sig sig-object py" id="grafx.processors.reverb.STFTMaskedNoiseReverb">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">STFTMaskedNoiseReverb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pseudo_midside'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.STFTMaskedNoiseReverb" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A filtered noise model <span id="id1">[<a class="reference internal" href="../references/reference.html#id8" title="Jesse Engel, Lamtharn (Hanoi) Hantrakul, Chenjie Gu, and Adam Roberts. DDSP: differentiable digital signal processing. In ICLR. 2020.">EHGR20</a>]</span> (or pseudo-random noise method) with mid/side controls.</p>
 <blockquote>
 <div><p>We employ two fixed-length uniform noise signal, <span class="math notranslate nohighlight">\(v_{\mathrm{m}}[n]\)</span> and <span class="math notranslate nohighlight">\(v_{\mathrm{s}}[n] \sim \mathcal{U}[-1, 1)\)</span>, that correpond to a mid and side chananels, respoenctively.
 Next, we apply a magnitude mask <span class="math notranslate nohighlight">\(M_{\mathrm{x}}[k, m] \in \mathbb{R}^{K\times M}\)</span> to each noise’s short-time Fourier transform (STFT) <span class="math notranslate nohighlight">\(V_{\mathrm{x}}[k, m] \in \mathbb{C}^{K\times M}\)</span>.
@@ -301,14 +305,14 @@ where the latter two are optional.</p>
 <li><p><strong>fixed_noise</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use fixed-seed random noises (<span class="math notranslate nohighlight">\(v_{\mathrm{m}}[n]\)</span> and <span class="math notranslate nohighlight">\(v_{\mathrm{s}}[n]\)</span>) for every forward pass.
 If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>, we create different uniform noises for every forward pass (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>gain_envelope</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use the log-magnitude gain envelope <span class="math notranslate nohighlight">\(G[m]\)</span> (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
-<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id2">[<a class="reference internal" href="../references/reference.html#id150" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend to perform the causal convolution efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id2">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend to perform the causal convolution efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_env_log_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb.forward" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.reverb.STFTMaskedNoiseReverb.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_log_magnitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_env_log_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.STFTMaskedNoiseReverb.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -332,8 +336,86 @@ are stacked together (the same applies to the remaining tensors).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.reverb.MidSideFilteredNoiseReverb.parameter_size">
-<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb.parameter_size" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.reverb.STFTMaskedNoiseReverb.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.STFTMaskedNoiseReverb.parameter_size" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.reverb.FilteredNoiseShapingReverb">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FilteredNoiseShapingReverb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'midside'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">31.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zerophase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_randomness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pseudo-random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_fade_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_decay_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_decay_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.FilteredNoiseShapingReverb" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A time-domain FIR filter based on the envelope “shaping” of filterbank noise signals
+<span id="id3">[<a class="reference internal" href="../references/reference.html#id5" title="Christian J Steinmetz, Vamsi Krishna Ithapu, and Paul Calamia. Filtered noise shaping for time domain room impulse response estimation from reverberant speech. In WASPAA. IEEE, 2021.">SIC21</a>]</span>.</p>
+<blockquote>
+<div><p>From a noise signal <span class="math notranslate nohighlight">\(v[n] \sim \mathcal{U}[-1, 1)\)</span>,
+we apply a <span class="math notranslate nohighlight">\(K\)</span>-band filterbank to obtain a set of filtered noise signals <span class="math notranslate nohighlight">\(v_1[n], \cdots, v_K[n]\)</span>.
+Then, we apply a time-domain envelope shaping, <span class="math notranslate nohighlight">\(a_i[n]\)</span>, to each filtered noise signal as follows,
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+h[n] = \sum_{i=1}^K a_i[n] v_i[n].
+\]</div>
+</div>
+</p>
+<p>Each envelope shaping is parameterized by a decay <span class="math notranslate nohighlight">\(r_i\)</span> and an initial gain <span class="math notranslate nohighlight">\(g_i\)</span>.
+Furthermore, we can set a fade-in envelope to the shaping which is set to be shorter than the decay time.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The length of the impulse response (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">60000</span></code>).</p></li>
+<li><p><strong>num_bands</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of frequency bands (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">12</span></code>).</p></li>
+<li><p><strong>processor_channel</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The channel type of the processor, either <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;midside&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;stereo&quot;</span></code>, or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mono&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;midside&quot;</span></code></p></li>
+<li><p><strong>f_min</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – The minimum frequency of the filtered noise (default: <code class="code highlight python docutils literal highlight-python"><span class="mf">31.5</span></code>).</p></li>
+<li><p><strong>f_max</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – The maximum frequency of the filtered noise (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">15000</span></code>).</p></li>
+<li><p><strong>scale</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The scale of the frequency bands, either <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;log&quot;</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;linear&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;log&quot;</span></code>).</p></li>
+<li><p><strong>sr</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The sample rate of the filtered noise (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">30000</span></code>).</p></li>
+<li><p><strong>zerophase</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use a zero-phase crossover filter (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>order</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The order of the crossover filter (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span></code>).</p></li>
+<li><p><strong>noise_randomness</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The randomness of the filtered noise, either <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;pseudo-random&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fixed&quot;</span></code>, or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;random&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;pseudo-random&quot;</span></code>).</p></li>
+<li><p><strong>use_fade_in</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, we use a fade-in envelope (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
+<li><p><strong>min_decay_ms</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – The minimum decay time in milliseconds (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">50</span></code>).</p></li>
+<li><p><strong>max_decay_ms</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">float</span></code>, <em>optional</em>) – The maximum decay time in milliseconds (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2000</span></code>).</p></li>
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id4">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend to perform the causal convolution efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
+<li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.reverb.FilteredNoiseShapingReverb.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_decay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fade_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_fade_in_gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.FilteredNoiseShapingReverb.forward" title="Link to this definition"></a></dt>
+<dd><p>Processes input audio with the processor and given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C\times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>log_decay</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>) – A batch of log-decay values.</p></li>
+<li><p><strong>log_gain</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>) – A batch of log-gain values.</p></li>
+<li><p><strong>log_fade_in</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K\)</span>, <em>optional</em>) – A batch of log-fade-in values (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of output signals of shape <span class="math notranslate nohighlight">\(B \times C \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.reverb.FilteredNoiseShapingReverb.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.reverb.FilteredNoiseShapingReverb.parameter_size" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
@@ -362,14 +444,14 @@ are stacked together (the same applies to the remaining tensors).</p></li>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="dynamics.html">
+          <a class="prev-page" href="nonlinear.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">grafx.processors.dynamics</div>
+                <div class="title">grafx.processors.nonlinear</div>
                 
               </div>
             </a>
@@ -404,7 +486,8 @@ are stacked together (the same applies to the remaining tensors).</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.reverb</a><ul>
-<li><a class="reference internal" href="#grafx.processors.reverb.MidSideFilteredNoiseReverb"><code class="docutils literal notranslate"><span class="pre">MidSideFilteredNoiseReverb</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.reverb.STFTMaskedNoiseReverb"><code class="docutils literal notranslate"><span class="pre">STFTMaskedNoiseReverb</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.reverb.FilteredNoiseShapingReverb"><code class="docutils literal notranslate"><span class="pre">FilteredNoiseShapingReverb</span></code></a></li>
 </ul>
 </li>
 </ul>

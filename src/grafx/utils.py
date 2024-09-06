@@ -10,9 +10,9 @@ def get_node_ids_from_type(G: GRAFX, node_type: str):
     Retrieves the node IDs for of a specific type in the graph.
 
     Args:
-        G (:class:`~grafx.data.graph.GRAFX`): 
+        G (:class:`~grafx.data.graph.GRAFX`):
             The target graph.
-        node_type (:python:`str`): 
+        node_type (:python:`str`):
             The node type to retrieve.
 
     Returns:
@@ -30,14 +30,14 @@ def count_nodes_per_type(G: GRAFX, types_to_count: list = None):
     Counts the number of nodes for each specified type in the graph.
 
     Args:
-        G (:class:`~grafx.data.graph.GRAFX`): 
+        G (:class:`~grafx.data.graph.GRAFX`):
             The target graph.
-        types_to_count (:python:`list`, *optional*): 
-            A list of node types to count. If :python:`None`, 
+        types_to_count (:python:`list`, *optional*):
+            A list of node types to count. If :python:`None`,
             counts all types present in the graph (default: :python:`None`).
 
     Returns:
-        :python:`Dict[str, int]`: 
+        :python:`Dict[str, int]`:
             A dictionary with node types as keys and counts as values.
     """
     if types_to_count is not None:
@@ -60,20 +60,20 @@ def count_nodes_per_type(G: GRAFX, types_to_count: list = None):
 def create_empty_parameters(processors, G, std=1e-2):
     """
     Creates and initializes parameter tensors in a nested dictionary format from a given graph and processors.
-    The tensors values are sampled from a normal distribution $\mathcal{N}(0, \sigma^2)$, 
+    The tensors values are sampled from a normal distribution $\mathcal{N}(0, \sigma^2)$,
     where the standard deviation $\sigma$ is given by the :python:`std` argument.
 
     Args:
-        processors (:python:`Mappings`): 
-            A dictionary of processors, either :python:`dict` or :python:`nn.ModuleDict`, 
+        processors (:python:`Mappings`):
+            A dictionary of processors, either :python:`dict` or :python:`nn.ModuleDict`,
             where keys are node types and values are processors.
-        G (:class:`~grafx.data.graph.GRAFX`): 
+        G (:class:`~grafx.data.graph.GRAFX`):
             The graph containing nodes whose parameters are to be initialized.
-        std (:python:`float`, *optional*): 
+        std (:python:`float`, *optional*):
             Standard deviation for the parameter initialization (default: :python:`0.01`).
 
     Returns:
-        :python:`nn.ModuleDict`: 
+        :python:`nn.ModuleDict`:
             A module dictionary with initialized parameters for each node type in the graph.
     """
     parameter_dict = {}
@@ -84,10 +84,17 @@ def create_empty_parameters(processors, G, std=1e-2):
         parameter_dict[processor_type] = create_empty_parameters_from_shape_dict(
             parameter_shapes=parameter_shapes, num_nodes=num_nodes, std=std
         )
-    return nn.ModuleDict(parameter_dict)
+    return nn.ParameterDict(parameter_dict)
 
 
-def create_empty_parameters_from_shape_dict(parameter_shapes, num_nodes, std=1e-2):
+def create_empty_parameters_from_shape_dict(
+    parameter_shapes,
+    num_nodes,
+    std=1e-2,
+    root=True,
+    device="cpu",
+):
+
     def int_to_tuple(x):
         if isinstance(x, int):
             return (x,)
@@ -97,20 +104,31 @@ def create_empty_parameters_from_shape_dict(parameter_shapes, num_nodes, std=1e-
             raise Exception(f"Parameter shape with type {type(x)} is not suppoerted")
 
     match parameter_shapes:
+        # non-leaf node
         case dict():
             parameter = {
-                k: std * torch.randn(num_nodes, *int_to_tuple(v))
+                k: create_empty_parameters_from_shape_dict(
+                    v, num_nodes, std, root=False, device=device
+                )
                 for k, v in parameter_shapes.items()
             }
+            parameter = nn.ParameterDict(parameter)
+        # leaf node
         case int() | tuple():
-            parameter = std * torch.randn(num_nodes, *int_to_tuple(parameter_shapes))
-            parameter = {"parameter": parameter}
+            parameter = std * torch.randn(
+                num_nodes, *int_to_tuple(parameter_shapes), device=device
+            )
+            if root:
+                parameter = {"parameter": parameter}
+                nn.ParameterDict(parameter)
+            else:
+                parameter = nn.Parameter(parameter)
         case _:
             raise Exception(
                 f"Parameter shapes with type {type(parameter_shapes)} is not suppoerted"
             )
 
-    return nn.ParameterDict(parameter)
+    return parameter
 
 
 def permute_grafx_tensor(
@@ -124,12 +142,12 @@ def permute_grafx_tensor(
     Attributes that are not provided in the :python:`node_attrs` or :python:`id_attrs` are left unchanged.
 
     Args:
-        G_t (:class:`~grafx.data.tensor.GRAFXTensor`): 
+        G_t (:class:`~grafx.data.tensor.GRAFXTensor`):
             The graph tensor to permute.
-        node_id (:python:`LongTensor`): 
+        node_id (:python:`LongTensor`):
             The permutation index given by the node IDs.
-        node_attrs (:python:`List[str]`, *optional*): 
-            List of node attributes to permute 
+        node_attrs (:python:`List[str]`, *optional*):
+            List of node attributes to permute
             (default: :python:`["node_types", "rendering_orders"]`).
         id_attrs (:python:`List[str]`, *optional*): List of attributes that contain node IDs
             (default: :python:`["edge_indices"]`).
@@ -154,3 +172,16 @@ def permute_grafx_tensor(
                 new_dict[k] = v
 
     return GRAFXTensor(**new_dict)
+
+
+if __name__ == "__main__":
+    shape_dict = {
+        "init": (3, 3),
+        "mid": {"init_gain": 1, "delta_filter": {"cutoff": (40, 30)}},
+        "post": {
+            "panning": (1,),
+            "dynamic_range": (2, 2),
+        },
+    }
+    param = create_empty_parameters_from_shape_dict(shape_dict, 10)
+    print(param)

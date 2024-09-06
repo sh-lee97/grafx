@@ -10,4 +10,5 @@ grafx.processors.reverb
 
 .. automodule:: grafx.processors.reverb
    :members:
+   :show-inheritance:
 

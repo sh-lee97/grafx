@@ -1,4 +1,4 @@
-:tocdepth: 3
+:tocdepth: 2
 
 .. role:: python(code)
      :language: python
@@ -18,4 +18,5 @@ grafx.processors.eq
 
 .. automodule:: grafx.processors.eq
    :members:
+   :show-inheritance:
 

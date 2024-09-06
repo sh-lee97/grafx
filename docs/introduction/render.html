@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,16 +214,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -309,7 +312,7 @@ We also choose the first and the last subset, <span class="math notranslate nohi
 to have all of the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;in&quot;</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;out&quot;</span></code> nodes, respectively.</p>
 <ul>
 <li><p><strong>Fixed —</strong> In some cases, from the way the graph is constructed, we know a priori a fixed type sequence that is optimal (or its supersequence that contains the optimal).
-For example, the below graph was first constructed with a fixed chain of processors, and then got pruned to the current graph <span id="id3">[<a class="reference internal" href="../references/reference.html#id149" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
+For example, the below graph was first constructed with a fixed chain of processors, and then got pruned to the current graph <span id="id3">[<a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
 In such a case, we know that the optimal order is a subsequence of the original processor chain.</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="../_images/fixed.svg"><img alt="../_images/fixed.svg" src="../_images/fixed.svg" style="width: 837.8399999999999px; height: 298.56px;" />

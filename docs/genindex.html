@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 --><title>Index - GRAFX Documentation</title>
+    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 --><title>Index - GRAFX Documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a6743078" />
     
     
 
@@ -212,16 +212,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references/reference.html">References</a></li>
 </ul>
 
@@ -260,7 +263,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -268,13 +271,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="graph_api/data.html#grafx.data.graph.GRAFX.add">add() (GRAFX method)</a>
 </li>
-        <li><a href="graph_api/data.html#grafx.data.graph.GRAFX.add_serial_chain">add_serial_chain() (GRAFX method)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxCompressor">ApproxCompressor (class in grafx.processors.dynamics)</a>
+        <li><a href="graph_api/data.html#grafx.data.graph.GRAFX.add_serial_chain">add_serial_chain() (GRAFX method)</a>
 </li>
-        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate">ApproxNoiseGate (class in grafx.processors.dynamics)</a>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.AllPassFilter">AllPassFilter (class in grafx.processors.filter)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -284,7 +285,21 @@
   <h2>B</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/core.html#grafx.processors.core.envelope.Ballistics">Ballistics (class in grafx.processors.core.envelope)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BandPassFilter">BandPassFilter (class in grafx.processors.filter)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BandRejectFilter">BandRejectFilter (class in grafx.processors.filter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter">BaseParametricEqualizerFilter (class in grafx.processors.filter)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter">BaseParametricFilter (class in grafx.processors.filter)</a>
+</li>
         <li><a href="graph_api/data.html#grafx.data.batch.batch_grafx">batch_grafx() (in module grafx.data.batch)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BiquadFilter">BiquadFilter (class in grafx.processors.filter)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -294,14 +309,26 @@
   <h2>C</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.ChebyshevDistortion">ChebyshevDistortion (class in grafx.processors.nonlinear)</a>
+</li>
+        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor">Compressor (class in grafx.processors.dynamics)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter.compute_common_filter_parameters">compute_common_filter_parameters() (BaseParametricEqualizerFilter static method)</a>
+
+        <ul>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter.compute_common_filter_parameters">(BaseParametricFilter static method)</a>
+</li>
+        </ul></li>
+        <li><a href="processor_api/core.html#grafx.processors.core.fft_filterbank.TriangularFilterBank.compute_matrix">compute_matrix() (TriangularFilterBank static method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="graph_api/draw.html#grafx.draw.position.compute_node_position">compute_node_position() (in module grafx.draw.position)</a>
 </li>
         <li><a href="graph_api/render.html#grafx.render.order.graph.compute_render_order">compute_render_order() (in module grafx.render.order.graph)</a>
 </li>
         <li><a href="graph_api/data.html#grafx.data.graph.GRAFX.connect">connect() (GRAFX method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="graph_api/data.html#grafx.data.conversion.convert_to_tensor">convert_to_tensor() (in module grafx.data.conversion)</a>
 </li>
         <li><a href="graph_api/utils.html#grafx.utils.count_nodes_per_type">count_nodes_per_type() (in module grafx.utils)</a>
@@ -324,7 +351,7 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="graph_api/draw.html#grafx.draw.node.draw_node">draw_node() (in module grafx.draw.node)</a>
 </li>
-        <li><a href="processor_api/containers.html#grafx.processors.containers.DryWet">DryWet (class in grafx.processors.containers)</a>
+        <li><a href="processor_api/container.html#grafx.processors.container.DryWet">DryWet (class in grafx.processors.container)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -334,22 +361,84 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxCompressor.forward">forward() (ApproxCompressor method)</a>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter.filter_parameter_activations">filter_parameter_activations() (BaseParametricEqualizerFilter static method)</a>
 
         <ul>
-          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate.forward">(ApproxNoiseGate method)</a>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter.filter_parameter_activations">(BaseParametricFilter static method)</a>
 </li>
-          <li><a href="processor_api/containers.html#grafx.processors.containers.DryWet.forward">(DryWet method)</a>
+        </ul></li>
+        <li><a href="processor_api/reverb.html#grafx.processors.reverb.FilteredNoiseShapingReverb">FilteredNoiseShapingReverb (class in grafx.processors.reverb)</a>
 </li>
-          <li><a href="processor_api/containers.html#grafx.processors.containers.GainStagingRegularization.forward">(GainStagingRegularization method)</a>
+        <li><a href="processor_api/core.html#grafx.processors.core.convolution.FIRConvolution">FIRConvolution (class in grafx.processors.core.convolution)</a>
 </li>
-          <li><a href="processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb.forward">(MidSideFilteredNoiseReverb method)</a>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.FIRFilter">FIRFilter (class in grafx.processors.filter)</a>
+</li>
+        <li><a href="processor_api/core.html#grafx.processors.core.envelope.Ballistics.forward">forward() (Ballistics method)</a>
+
+        <ul>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter.forward">(BaseParametricEqualizerFilter method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter.forward">(BaseParametricFilter method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BiquadFilter.forward">(BiquadFilter method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.ChebyshevDistortion.forward">(ChebyshevDistortion method)</a>
+</li>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor.forward">(Compressor method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.DryWet.forward">(DryWet method)</a>
+</li>
+          <li><a href="processor_api/reverb.html#grafx.processors.reverb.FilteredNoiseShapingReverb.forward">(FilteredNoiseShapingReverb method)</a>
+</li>
+          <li><a href="processor_api/core.html#grafx.processors.core.convolution.FIRConvolution.forward">(FIRConvolution method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.FIRFilter.forward">(FIRFilter method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.GainStagingRegularization.forward">(GainStagingRegularization method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.GraphicEqualizer.forward">(GraphicEqualizer method)</a>
+</li>
+          <li><a href="processor_api/core.html#grafx.processors.core.iir.IIRFilter.forward">(IIRFilter method)</a>
+</li>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.MidSideToStereo.forward">(MidSideToStereo method)</a>
+</li>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.MonoToStereo.forward">(MonoToStereo method)</a>
+</li>
+          <li><a href="processor_api/delay.html#grafx.processors.delay.MultitapDelay.forward">(MultitapDelay method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.NewZeroPhaseFIREqualizer.forward">(NewZeroPhaseFIREqualizer method)</a>
+</li>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate.forward">(NoiseGate method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.ParallelMix.forward">(ParallelMix method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.ParametricEqualizer.forward">(ParametricEqualizer method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PiecewiseTanhDistortion.forward">(PiecewiseTanhDistortion method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.PoleZeroFilter.forward">(PoleZeroFilter method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PowerDistortion.forward">(PowerDistortion method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.SerialChain.forward">(SerialChain method)</a>
 </li>
           <li><a href="processor_api/stereo.html#grafx.processors.stereo.SideGainImager.forward">(SideGainImager method)</a>
 </li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.StateVariableFilter.forward">(StateVariableFilter method)</a>
+</li>
           <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoGain.forward">(StereoGain method)</a>
 </li>
-          <li><a href="processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay.forward">(StereoMultitapDelay method)</a>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoToMidSide.forward">(StereoToMidSide method)</a>
+</li>
+          <li><a href="processor_api/reverb.html#grafx.processors.reverb.STFTMaskedNoiseReverb.forward">(STFTMaskedNoiseReverb method)</a>
+</li>
+          <li><a href="processor_api/core.html#grafx.processors.core.delay.SurrogateDelay.forward">(SurrogateDelay method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.TanhDistortion.forward">(TanhDistortion method)</a>
+</li>
+          <li><a href="processor_api/core.html#grafx.processors.core.fft_filterbank.TriangularFilterBank.forward">(TriangularFilterBank method)</a>
+</li>
+          <li><a href="processor_api/core.html#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward">(TruncatedOnePoleIIRFilter method)</a>
 </li>
           <li><a href="processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer.forward">(ZeroPhaseFIREqualizer method)</a>
 </li>
@@ -362,8 +451,50 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processor_api/containers.html#grafx.processors.containers.GainStagingRegularization">GainStagingRegularization (class in grafx.processors.containers)</a>
+        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor.gain_exp_knee">gain_exp_knee() (Compressor static method)</a>
+
+        <ul>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate.gain_exp_knee">(NoiseGate static method)</a>
 </li>
+        </ul></li>
+        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor.gain_hard_knee">gain_hard_knee() (Compressor static method)</a>
+
+        <ul>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate.gain_hard_knee">(NoiseGate static method)</a>
+</li>
+        </ul></li>
+        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor.gain_quad_knee">gain_quad_knee() (Compressor static method)</a>
+
+        <ul>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate.gain_quad_knee">(NoiseGate static method)</a>
+</li>
+        </ul></li>
+        <li><a href="processor_api/container.html#grafx.processors.container.GainStagingRegularization">GainStagingRegularization (class in grafx.processors.container)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.AllPassFilter.get_biquad_coefficients">get_biquad_coefficients() (AllPassFilter static method)</a>
+
+        <ul>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BandPassFilter.get_biquad_coefficients">(BandPassFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BandRejectFilter.get_biquad_coefficients">(BandRejectFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter.get_biquad_coefficients">(BaseParametricEqualizerFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter.get_biquad_coefficients">(BaseParametricFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.HighPassFilter.get_biquad_coefficients">(HighPassFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.HighShelf.get_biquad_coefficients">(HighShelf static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.LowPassFilter.get_biquad_coefficients">(LowPassFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.LowShelf.get_biquad_coefficients">(LowShelf static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.PeakingFilter.get_biquad_coefficients">(PeakingFilter static method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.StateVariableFilter.get_biquad_coefficients">(StateVariableFilter static method)</a>
+</li>
+        </ul></li>
         <li><a href="graph_api/draw.html#grafx.draw.style.NodeColorHandler.get_colors">get_colors() (NodeColorHandler method)</a>
 </li>
         <li><a href="graph_api/utils.html#grafx.utils.get_node_ids_from_type">get_node_ids_from_type() (in module grafx.utils)</a>
@@ -419,6 +550,8 @@
           <li><a href="graph_api/draw.html#module-grafx.draw.graph">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     grafx.draw.node
 
@@ -433,13 +566,25 @@
           <li><a href="graph_api/draw.html#module-grafx.draw.position">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     grafx.draw.style
 
         <ul>
           <li><a href="graph_api/draw.html#module-grafx.draw.style">module</a>
+</li>
+        </ul></li>
+        <li>
+    grafx.processors.container
+
+        <ul>
+          <li><a href="processor_api/container.html#module-grafx.processors.container">module</a>
+</li>
+        </ul></li>
+        <li>
+    grafx.processors.core.iir
+
+        <ul>
+          <li><a href="processor_api/core.html#module-grafx.processors.core.iir">module</a>
 </li>
         </ul></li>
         <li>
@@ -454,6 +599,20 @@
 
         <ul>
           <li><a href="processor_api/eq.html#module-grafx.processors.eq">module</a>
+</li>
+        </ul></li>
+        <li>
+    grafx.processors.filter
+
+        <ul>
+          <li><a href="processor_api/filter.html#module-grafx.processors.filter">module</a>
+</li>
+        </ul></li>
+        <li>
+    grafx.processors.nonlinear
+
+        <ul>
+          <li><a href="processor_api/nonlinear.html#module-grafx.processors.nonlinear">module</a>
 </li>
         </ul></li>
         <li>
@@ -507,6 +666,46 @@
         </ul></li>
         <li><a href="graph_api/data.html#grafx.data.tensor.GRAFXTensor">GRAFXTensor (class in grafx.data.tensor)</a>
 </li>
+        <li><a href="processor_api/eq.html#grafx.processors.eq.GraphicEqualizer">GraphicEqualizer (class in grafx.processors.eq)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.HighPassFilter">HighPassFilter (class in grafx.processors.filter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.HighShelf">HighShelf (class in grafx.processors.filter)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/core.html#grafx.processors.core.iir.IIRFilter">IIRFilter (class in grafx.processors.core.iir)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.LowPassFilter">LowPassFilter (class in grafx.processors.filter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.LowShelf">LowShelf (class in grafx.processors.filter)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -515,7 +714,7 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb">MidSideFilteredNoiseReverb (class in grafx.processors.reverb)</a>
+        <li><a href="processor_api/stereo.html#grafx.processors.stereo.MidSideToStereo">MidSideToStereo (class in grafx.processors.stereo)</a>
 </li>
         <li>
     module
@@ -541,9 +740,17 @@
 </li>
           <li><a href="graph_api/draw.html#module-grafx.draw.style">grafx.draw.style</a>
 </li>
+          <li><a href="processor_api/container.html#module-grafx.processors.container">grafx.processors.container</a>
+</li>
+          <li><a href="processor_api/core.html#module-grafx.processors.core.iir">grafx.processors.core.iir</a>
+</li>
           <li><a href="processor_api/delay.html#module-grafx.processors.delay">grafx.processors.delay</a>
 </li>
           <li><a href="processor_api/eq.html#module-grafx.processors.eq">grafx.processors.eq</a>
+</li>
+          <li><a href="processor_api/filter.html#module-grafx.processors.filter">grafx.processors.filter</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#module-grafx.processors.nonlinear">grafx.processors.nonlinear</a>
 </li>
           <li><a href="processor_api/reverb.html#module-grafx.processors.reverb">grafx.processors.reverb</a>
 </li>
@@ -561,6 +768,12 @@
 </li>
         </ul></li>
     </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/stereo.html#grafx.processors.stereo.MonoToStereo">MonoToStereo (class in grafx.processors.stereo)</a>
+</li>
+        <li><a href="processor_api/delay.html#grafx.processors.delay.MultitapDelay">MultitapDelay (class in grafx.processors.delay)</a>
+</li>
+    </ul></td>
   </tr></table>
 </section>
 
@@ -568,11 +781,15 @@
   <h2>N</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/eq.html#grafx.processors.eq.NewZeroPhaseFIREqualizer">NewZeroPhaseFIREqualizer (class in grafx.processors.eq)</a>
+</li>
         <li><a href="graph_api/draw.html#grafx.draw.style.NodeColorHandler">NodeColorHandler (class in grafx.draw.style)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="graph_api/data.html#grafx.data.configs.NodeConfigs">NodeConfigs (class in grafx.data.configs)</a>
+</li>
+        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate">NoiseGate (class in grafx.processors.dynamics)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -582,29 +799,79 @@
   <h2>P</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxCompressor.parameter_size">parameter_size() (ApproxCompressor method)</a>
+        <li><a href="processor_api/container.html#grafx.processors.container.ParallelMix">ParallelMix (class in grafx.processors.container)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricEqualizerFilter.parameter_size">parameter_size() (BaseParametricEqualizerFilter method)</a>
 
         <ul>
-          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.ApproxNoiseGate.parameter_size">(ApproxNoiseGate method)</a>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BaseParametricFilter.parameter_size">(BaseParametricFilter method)</a>
 </li>
-          <li><a href="processor_api/containers.html#grafx.processors.containers.DryWet.parameter_size">(DryWet method)</a>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.BiquadFilter.parameter_size">(BiquadFilter method)</a>
 </li>
-          <li><a href="processor_api/containers.html#grafx.processors.containers.GainStagingRegularization.parameter_size">(GainStagingRegularization method)</a>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.ChebyshevDistortion.parameter_size">(ChebyshevDistortion method)</a>
 </li>
-          <li><a href="processor_api/reverb.html#grafx.processors.reverb.MidSideFilteredNoiseReverb.parameter_size">(MidSideFilteredNoiseReverb method)</a>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.Compressor.parameter_size">(Compressor method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.DryWet.parameter_size">(DryWet method)</a>
+</li>
+          <li><a href="processor_api/reverb.html#grafx.processors.reverb.FilteredNoiseShapingReverb.parameter_size">(FilteredNoiseShapingReverb method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.FIRFilter.parameter_size">(FIRFilter method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.GainStagingRegularization.parameter_size">(GainStagingRegularization method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.GraphicEqualizer.parameter_size">(GraphicEqualizer method)</a>
+</li>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.MidSideToStereo.parameter_size">(MidSideToStereo method)</a>
+</li>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.MonoToStereo.parameter_size">(MonoToStereo method)</a>
+</li>
+          <li><a href="processor_api/delay.html#grafx.processors.delay.MultitapDelay.parameter_size">(MultitapDelay method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.NewZeroPhaseFIREqualizer.parameter_size">(NewZeroPhaseFIREqualizer method)</a>
+</li>
+          <li><a href="processor_api/dynamics.html#grafx.processors.dynamics.NoiseGate.parameter_size">(NoiseGate method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.ParallelMix.parameter_size">(ParallelMix method)</a>
+</li>
+          <li><a href="processor_api/eq.html#grafx.processors.eq.ParametricEqualizer.parameter_size">(ParametricEqualizer method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PiecewiseTanhDistortion.parameter_size">(PiecewiseTanhDistortion method)</a>
+</li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.PoleZeroFilter.parameter_size">(PoleZeroFilter method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PowerDistortion.parameter_size">(PowerDistortion method)</a>
+</li>
+          <li><a href="processor_api/container.html#grafx.processors.container.SerialChain.parameter_size">(SerialChain method)</a>
 </li>
           <li><a href="processor_api/stereo.html#grafx.processors.stereo.SideGainImager.parameter_size">(SideGainImager method)</a>
 </li>
+          <li><a href="processor_api/filter.html#grafx.processors.filter.StateVariableFilter.parameter_size">(StateVariableFilter method)</a>
+</li>
           <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoGain.parameter_size">(StereoGain method)</a>
 </li>
-          <li><a href="processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay.parameter_size">(StereoMultitapDelay method)</a>
+          <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoToMidSide.parameter_size">(StereoToMidSide method)</a>
+</li>
+          <li><a href="processor_api/reverb.html#grafx.processors.reverb.STFTMaskedNoiseReverb.parameter_size">(STFTMaskedNoiseReverb method)</a>
+</li>
+          <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.TanhDistortion.parameter_size">(TanhDistortion method)</a>
 </li>
           <li><a href="processor_api/eq.html#grafx.processors.eq.ZeroPhaseFIREqualizer.parameter_size">(ZeroPhaseFIREqualizer method)</a>
 </li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/eq.html#grafx.processors.eq.ParametricEqualizer">ParametricEqualizer (class in grafx.processors.eq)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.PeakingFilter">PeakingFilter (class in grafx.processors.filter)</a>
+</li>
         <li><a href="graph_api/utils.html#grafx.utils.permute_grafx_tensor">permute_grafx_tensor() (in module grafx.utils)</a>
+</li>
+        <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PiecewiseTanhDistortion">PiecewiseTanhDistortion (class in grafx.processors.nonlinear)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.PoleZeroFilter">PoleZeroFilter (class in grafx.processors.filter)</a>
+</li>
+        <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.PowerDistortion">PowerDistortion (class in grafx.processors.nonlinear)</a>
 </li>
         <li><a href="graph_api/render.html#grafx.render.prepare.prepare_render">prepare_render() (in module grafx.render.prepare)</a>
 </li>
@@ -634,13 +901,21 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/container.html#grafx.processors.container.SerialChain">SerialChain (class in grafx.processors.container)</a>
+</li>
         <li><a href="processor_api/stereo.html#grafx.processors.stereo.SideGainImager">SideGainImager (class in grafx.processors.stereo)</a>
+</li>
+        <li><a href="processor_api/filter.html#grafx.processors.filter.StateVariableFilter">StateVariableFilter (class in grafx.processors.filter)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoGain">StereoGain (class in grafx.processors.stereo)</a>
 </li>
-        <li><a href="processor_api/delay.html#grafx.processors.delay.StereoMultitapDelay">StereoMultitapDelay (class in grafx.processors.delay)</a>
+        <li><a href="processor_api/stereo.html#grafx.processors.stereo.StereoToMidSide">StereoToMidSide (class in grafx.processors.stereo)</a>
+</li>
+        <li><a href="processor_api/reverb.html#grafx.processors.reverb.STFTMaskedNoiseReverb">STFTMaskedNoiseReverb (class in grafx.processors.reverb)</a>
+</li>
+        <li><a href="processor_api/core.html#grafx.processors.core.delay.SurrogateDelay">SurrogateDelay (class in grafx.processors.core.delay)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -650,7 +925,15 @@
   <h2>T</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/nonlinear.html#grafx.processors.nonlinear.TanhDistortion">TanhDistortion (class in grafx.processors.nonlinear)</a>
+</li>
         <li><a href="graph_api/data.html#grafx.data.tensor.GRAFXTensor.to">to() (GRAFXTensor method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processor_api/core.html#grafx.processors.core.fft_filterbank.TriangularFilterBank">TriangularFilterBank (class in grafx.processors.core.fft_filterbank)</a>
+</li>
+        <li><a href="processor_api/core.html#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter">TruncatedOnePoleIIRFilter (class in grafx.processors.core.envelope)</a>
 </li>
     </ul></td>
   </tr></table>

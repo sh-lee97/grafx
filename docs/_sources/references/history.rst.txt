@@ -2,14 +2,68 @@
      :language: python
      :class: highlight
 
-History 
+Versions
 ===========================
 
 ..
   
 .. --------------------------
 
-v0.5.0
+TODOs
+--------------------------
+
+* New processors: higher-order filters, such as Moog ladder :cite:`vafilter`, stacked SVFs :cite:`werner2020moog`, and butterworth filters. 
+  A Linkwitz-Riley crossover. 
+  Differentiable artificial reverberations, including velvet noise-based ones and feedback delay networks :cite:`lee2022differentiable, dal2023differentiable`.
+  Higher-order allpass filter, e.g., (frequency-dependent) Schroeder allpass. 
+  Factorized compressors and noisegates. Limiters. 
+  Memoryless nonlinearities :cite:`peladeau2024blind`.
+  Modulation effects. Simple oscillators with modulation capabilities. 
+  ADSR envelopes. 
+* New containers: a multiband processor based on Linkwitz-Riley crossover 
+
+v0.6.0
+--------------------------
+
+* Parameters: each processor can have a nested parameter dictionary of an arbitrary depth.
+
+* Exposed core DDSP modules: 
+  :class:`~grafx.processors.core.convolution.FIRConvolution`, 
+  :class:`~grafx.processors.core.fft_filterbank.TriangularFilterBank`,
+  :class:`~grafx.processors.core.iir.IIRFilter`,
+  :class:`~grafx.processors.core.delay.SurrogateDelay`,
+  :class:`~grafx.processors.core.envelope.TruncatedOnePoleIIRFilter`,
+  :class:`~grafx.processors.core.envelope.Ballistics`,
+
+* New processors:
+
+  * Basic second-order IIR filters: 
+    :class:`~grafx.processors.filter.BiquadFilter`, 
+    :class:`~grafx.processors.filter.PoleZeroFilter`, 
+    :class:`~grafx.processors.filter.StateVariableFilter`, 
+    :class:`~grafx.processors.filter.LowPassFilter`, 
+    :class:`~grafx.processors.filter.HighPassFilter`, 
+    :class:`~grafx.processors.filter.BandPassFilter`, 
+    :class:`~grafx.processors.filter.BandRejectFilter`, 
+    :class:`~grafx.processors.filter.AllPassFilter`,
+    :class:`~grafx.processors.filter.PeakingFilter`,
+    :class:`~grafx.processors.filter.LowShelf`, and
+    :class:`~grafx.processors.filter.HighShelf`.
+  * New equalizers: :class:`~grafx.processors.eq.GraphicEqualizer` and :class:`~grafx.processors.eq.ParametricEqualizer`,
+  * New reverb: :class:`~grafx.processors.reverb.FilteredNoiseShapingReverb` 
+    (based on `dasp_pytorch <https://github.com/csteinmetz1/dasp-pytorch/>`_ and :cite:`steinmetz2021filtered, lee2024fade`).
+
+* New containers: :class:`~grafx.processors.container.SerialChain` and 
+  :class:`~grafx.processors.container.ParallelMix`.
+
+* Updated processors: 
+
+  * :class:`~grafx.processors.eq.ZeroPhaseFIREqualizer` (new window argument & allows triangular filterbank),
+  * :class:`~grafx.processors.reverb.STFTMaskedNoiseReverb` and :class:`~grafx.processors.delay.MultitapDelay` (renamed): 
+  * :class:`~grafx.processors.dynamics.Compressor` and :class:`~grafx.processors.dynamics.NoiseGate` (renamed): support efficient ballistics :cite:`yu2024differentiable` and more compression curves.
+
+
+v0.5.x
 --------------------------
 
 * Graph data structures: :class:`~grafx.data.graph.GRAFX` and :class:`~grafx.data.tensor.GRAFXTensor`, and their basic utility functions.
@@ -22,7 +76,7 @@ v0.5.0
   :class:`~grafx.processors.dynamics.ApproxNoiseGate`, 
   :class:`~grafx.processors.reverb.MidSideFilteredNoiseReverb`, and
   :class:`~grafx.processors.delay.StereoMultitapDelay`. 
-* Auxiliary processor containers: :class:`~grafx.processors.containers.DryWet` and :class:`~grafx.processors.containers.GainStagingRegularization`.
+* Auxiliary processor containers: :class:`~grafx.processors.container.DryWet` and :class:`~grafx.processors.container.GainStagingRegularization`.
 
 .. --------------------------
 
@@ -36,7 +90,7 @@ This led us to re-implement various processors in :python:`jax`
 to run both the forward and backward pass efficiently in CPU with :python:`jax.compile`.
 Our hope was that, if the forward pass is written correctly, the parameter optimization with gradient descent should work as well.
 Of course, this was not the case; for example, the modulation effects were not trained at all (now, we know why: :cite:`hayes2023sinusoidal, carson2023differentiable`).
-Furthermore, the backpropagation through the graphs (even with $|V| = 10$ nodes) was still too slow to be practical.
+Furthermore, the backpropagation through the graphs (even with ten nodes) was still too slow to be practical.
 Consequently, we decided to only use the graph engine for the forward passes and the training of the graph and parameter predictors
 was done with a simple "parameter loss."
 

@@ -10,4 +10,5 @@ grafx.processors.delay
 
 .. automodule:: grafx.processors.delay
    :members:
+   :show-inheritance:
 
