@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.containers" href="containers.html" /><link rel="prev" title="grafx.processors.reverb" href="reverb.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.container" href="container.html" /><link rel="prev" title="grafx.processors.reverb" href="reverb.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>grafx.processors.delay - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,16 +214,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references/reference.html">References</a></li>
 </ul>
 
@@ -262,9 +265,10 @@
           <section id="module-grafx.processors.delay">
 <span id="grafx-processors-delay"></span><h1>grafx.processors.delay<a class="headerlink" href="#module-grafx.processors.delay" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="grafx.processors.delay.StereoMultitapDelay">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StereoMultitapDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_delay_per_segment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stereo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zp_filter_per_tap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zp_filter_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">straight_through</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.StereoMultitapDelay" title="Link to this definition"></a></dt>
-<dd><p>A stereo delay module comprising feed-forward delays, each with learnable delay length.</p>
+<dt class="sig sig-object py" id="grafx.processors.delay.MultitapDelay">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultitapDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_delay_per_segment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stereo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zp_filter_per_tap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zp_filter_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flashfftconv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">surrogate_delay_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.MultitapDelay" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A stereo delay module comprising feed-forward delays, each with learnable delay length.</p>
 <blockquote>
 <div><p>Simliar to the other LTI processors, we first compute the FIR of the processor and convolve it with the input.
 The multitap delay’s FIR is given as
@@ -275,22 +279,11 @@ h[n] = \sum_{m=1}^{M} \underbrace{c_m[n]}_{\mathrm{optional}}*\delta[n-d_m]
 \]</div>
 </div>
 </p>
-<p>where <span class="math notranslate nohighlight">\(\delta[n]\)</span> denotes a unit impulse and <span class="math notranslate nohighlight">\(c_m[n]\)</span> is an optional coloration filter.</p>
-<p>Here, we aim to optimize each <em>discrete</em> delay length <span class="math notranslate nohighlight">\(d_m \in \mathbb{N}\)</span> using gradient descent.
-To this end, we exploit the fact that each delay <span class="math notranslate nohighlight">\(\delta[n-d_m]\)</span> corresponds to a complex sinusoid in the frequency domain.
-Such a sinusoid’s angular frequency <span class="math notranslate nohighlight">\(z_m \in \mathbb{C}\)</span> can be optimized with the gradient descent if we allow it to be inside the unit disk, i.e., <span class="math notranslate nohighlight">\(|z_m| \leq 1\)</span> <span id="id1">[<a class="reference internal" href="../references/reference.html#id86" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>.
-Hence, for each delay, we compute a damped sinusoid with the <em>continuous</em> frequency <span class="math notranslate nohighlight">\(z_m\)</span> then use its IFFT as a surrogate soft delay.
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[
-\delta[n-d_m] \approx \frac{1}{N} \sum_{k=0}^{N-1} z_m^k w_N^{kn}.
-\]</div>
-</div>
-</p>
-<p>where <span class="math notranslate nohighlight">\(0 \leq n &lt; N\)</span> and <span class="math notranslate nohighlight">\(w_{N} = \exp(j\cdot 2\pi/N)\)</span>.
-Note that, instead of allowing the delays to have the full range (from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(N-1\)</span>),
-we can restrict them to have a smaller range and then concatenate them to form a longer multitap delay
-(see the arguments, e.g., <code class="code highlight python docutils literal highlight-python"><span class="n">segment_len</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">num_segments</span></code> below).
+<p>where <span class="math notranslate nohighlight">\(\delta[n]\)</span> denotes a unit impulse and <span class="math notranslate nohighlight">\(c_m[n]\)</span> is an optional coloration filter.
+The delays lengths are optimized with the surrogate delay lines: see <a class="reference internal" href="core.html#grafx.processors.core.delay.SurrogateDelay" title="grafx.processors.core.delay.SurrogateDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurrogateDelay</span></code></a>.
+Instead of allowing the delays to have the full range (from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(N-1\)</span>),
+we can restrict them to have a smaller range and then concatenate them to form a multitap delay;
+see the arguments <code class="code highlight python docutils literal highlight-python"><span class="n">segment_len</span></code> and <code class="code highlight python docutils literal highlight-python"><span class="n">num_segments</span></code> below.
 This multitap delay’s learnable parameter is <span class="math notranslate nohighlight">\(p = \{\mathbf{z}, \mathbf{H}\}\)</span> where the latter is optional
 log-magnitude responses of the coloration filters.</p>
 </div></blockquote>
@@ -309,19 +302,17 @@ log-magnitude responses of the coloration filters.</p>
 (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>zp_filter_bins</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The number of bins for each equalizer
 (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">20</span></code>).</p></li>
-<li><p><strong>straight_through</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – Use hard delays for the forward passes and surrogate soft delays for the backward passes
-with straight-through estimation <span id="id2">[<a class="reference internal" href="../references/reference.html#id14" title="Yoshua Bengio, Nicholas Leonard, and Aaron Courville. Estimating or propagating gradients through stochastic neurons for conditional computation. arXiv:1308.3432, 2013.">BLC13</a>]</span>
-(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
-<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id3">[<a class="reference internal" href="../references/reference.html#id150" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
+<li><p><strong>flashfftconv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – An option to use <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id1">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span> as a backend
 to perform the causal convolution efficiently (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>).</p></li>
 <li><p><strong>max_input_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – When <code class="code highlight python docutils literal highlight-python"><span class="n">flashfftconv</span></code> is set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>,
 the max input length must be also given (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">2</span><span class="o">**</span><span class="mi">17</span></code>).</p></li>
+<li><p><strong>**surrgate_delay_kwargs</strong> (<em>optional</em>) – Additional arguments for the <a class="reference internal" href="core.html#grafx.processors.core.delay.SurrogateDelay" title="grafx.processors.core.delay.SurrogateDelay"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurrogateDelay</span></code></a> module.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.delay.StereoMultitapDelay.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fir_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.StereoMultitapDelay.forward" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.delay.MultitapDelay.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fir_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.MultitapDelay.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -342,8 +333,8 @@ Must be given when <code class="code highlight python docutils literal highlight
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="grafx.processors.delay.StereoMultitapDelay.parameter_size">
-<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.StereoMultitapDelay.parameter_size" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="grafx.processors.delay.MultitapDelay.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.delay.MultitapDelay.parameter_size" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
@@ -363,12 +354,12 @@ Must be given when <code class="code highlight python docutils literal highlight
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="containers.html">
+          <a class="next-page" href="container.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">grafx.processors.containers</div>
+                <div class="title">grafx.processors.container</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -414,7 +405,7 @@ Must be given when <code class="code highlight python docutils literal highlight
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.delay</a><ul>
-<li><a class="reference internal" href="#grafx.processors.delay.StereoMultitapDelay"><code class="docutils literal notranslate"><span class="pre">StereoMultitapDelay</span></code></a></li>
+<li><a class="reference internal" href="#grafx.processors.delay.MultitapDelay"><code class="docutils literal notranslate"><span class="pre">MultitapDelay</span></code></a></li>
 </ul>
 </li>
 </ul>

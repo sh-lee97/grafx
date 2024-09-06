@@ -5,12 +5,12 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Audio Processing Graphs" href="introduction/graph.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=0630726e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a6743078" />
     
     
 
@@ -214,16 +214,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references/reference.html">References</a></li>
 </ul>
 
@@ -266,7 +269,7 @@ One can create and modify a graph, convert it to tensor representations,
 and process output audio efficiently in GPU with batched node processing.
 The library is complemented with various differentiable audio processors,
 which enables end-to-end optimization of processor parameters or their estimators (e.g., graph neural networks) via gradient descent.
-The code can be found in <a class="reference external" href="https://github.com/sh-lee97/grafx">this repository</a>.</p>
+The code can be found in <a class="reference external" href="https://github.com/sh-lee97/grafx">this github repository</a>.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>grafx
@@ -297,18 +300,21 @@ The code can be found in <a class="reference external" href="https://github.com/
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Processor API</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/core.html">grafx.processors.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/filter.html">grafx.processors.filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processor_api/delay.html">grafx.processors.delay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="processor_api/containers.html">grafx.processors.containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processor_api/container.html">grafx.processors.container</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="references/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/history.html">Versions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references/reference.html">References</a></li>
 </ul>
 </div>

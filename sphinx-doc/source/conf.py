@@ -42,16 +42,21 @@ autoclass_signature = "separated"  # new
 todo_include_todos = True
 bibtex_bibfiles = ["references/refs.bib"]
 autodoc_member_order = "bysource"
+toc_object_entries_show_parents = "hide"
 
-#html_theme_options = {
-#    'light_css_variables': {
-#    'api-font-size': 'font-size-normal',
-#    },
-#}
 napoleon_use_ivar = True
 
 html_theme_options = {
     "top_of_page_buttons": [],
+    #    "light_css_variables": {
+    #        "api-font-size": "100%",
+    #    },
 }
 
 html_favicon = "favicon.ico"
+# pygments_style = "xcode"
+pygments_style = "tango"
+# pygments_style = "manni"
+# pygments_style = "emacs"
+# pygments_style = "perldoc"
+# pygments_style = "murphy"

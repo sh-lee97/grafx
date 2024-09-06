@@ -1,4 +1,4 @@
-:tocdepth: 3
+:tocdepth: 2
 
 .. role:: python(code)
      :language: python
@@ -8,19 +8,16 @@
 grafx.processors.dynamics
 ============================
 
-..
-    True Ballistics
-    ----------------------------
+.. 
+     .. automodule:: grafx.processors.dynamics
+     :members:
+     :show-inheritance:
 
-    Approximated Ballistics
-    ----------------------------
 
-.. ----------------------------
-
-.. autoclass:: grafx.processors.dynamics.ApproxCompressor
+.. autoclass:: grafx.processors.dynamics.Compressor
    :members:
+   :show-inheritance:
 
-.. ----------------------------
-
-.. autoclass:: grafx.processors.dynamics.ApproxNoiseGate
+.. autoclass:: grafx.processors.dynamics.NoiseGate
    :members:
+   :show-inheritance:
