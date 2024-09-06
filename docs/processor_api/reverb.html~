@@ -398,10 +398,10 @@ Furthermore, we can set a fade-in envelope to the shaping which is set to be sho
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C\times L\)</span>)</p></li>
-<li><p><strong>log_decay</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>)</p></li>
-<li><p><strong>log_gain</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>)</p></li>
-<li><p><strong>log_fade_in</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K\)</span>, <em>optional</em>)</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C\times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>log_decay</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>) – A batch of log-decay values.</p></li>
+<li><p><strong>log_gain</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K \:\!\)</span>) – A batch of log-gain values.</p></li>
+<li><p><strong>log_fade_in</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B\times C_{\mathrm{rev}}\times K\)</span>, <em>optional</em>) – A batch of log-fade-in values (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

@@ -377,7 +377,8 @@ the max input length must be also given (default: <code class="code highlight py
 <li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – IIR coefficients before applying the sigmoid.</p></li>
 <li><p><strong>log_threshold</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Compression threshold in log scale.</p></li>
 <li><p><strong>log_ratio</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Unconstrained ratio values, which will be transformed into the range of <span class="math notranslate nohighlight">\([1, \infty)\)</span>.</p></li>
-<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee values.</p></li>
+<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee values
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -482,7 +483,8 @@ the max input length must be also given (default: <code class="code highlight py
 <li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – IIR coefficients before applying the sigmoid.</p></li>
 <li><p><strong>log_threshold</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Compression threshold in log scale.</p></li>
 <li><p><strong>log_ratio</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>) – Unconstrained ratio values, which will be transformed into the range of <span class="math notranslate nohighlight">\([1, \infty)\)</span>.</p></li>
-<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee values.</p></li>
+<li><p><strong>log_knee</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(N \times 1\)</span>, <em>optional</em>) – Log of knee values
+(default: <code class="code highlight python docutils literal highlight-python"><span class="kc">None</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

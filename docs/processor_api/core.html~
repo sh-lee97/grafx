@@ -562,6 +562,7 @@ y[n] \approx u[n] * (1-\alpha)\alpha^n.
 \]</div>
 </div>
 </p>
+<p>The length of the truncated FIR, <span class="math notranslate nohighlight">\(N\)</span>, is given as an argument <code class="code highlight python docutils literal highlight-python"><span class="n">iir_len</span></code>.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward">
