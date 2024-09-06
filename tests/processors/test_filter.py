@@ -1,6 +1,7 @@
 import pytest
-from utils import _save_audio_mel, _test_single_processor
+from utils import _save_audio_and_mel, _test_single_processor
 
+# import tests.processors.conftest as conftest
 from grafx.processors import *
 
 # region Fixture
@@ -36,9 +37,15 @@ def fsm_regularization(request):
     return request.param
 
 
+@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+def std(request):
+    return request.param
+
+
 # endregion Fixture
 
 
+@conftest.quant_test
 @pytest.mark.parametrize(
     "processor_cls",
     [
@@ -55,11 +62,13 @@ def fsm_regularization(request):
         HighShelf,
     ],
 )
-def test_filter_quantitative(processor_cls, batch_size=4):
+def test_filter_quantitative(processor_cls, std, batch_size=4):
     print(processor_cls.__name__)
 
     processor = processor_cls(backend="fsm", flashfftconv=True)
-    _save_audio_mel(processor, "filter", device="cuda", batch_size=batch_size)
+    _save_audio_and_mel(
+        processor, "filter", device="cuda", batch_size=batch_size, std=std
+    )
 
 
 @pytest.mark.parametrize("normalized", [False])

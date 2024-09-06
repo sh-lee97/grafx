@@ -52,6 +52,7 @@ Contents
    processor_api/eq
    processor_api/stereo
    processor_api/dynamics
+   processor_api/nonlinear
    processor_api/reverb
    processor_api/delay
    processor_api/container

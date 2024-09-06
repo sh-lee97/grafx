@@ -1,6 +1,11 @@
 import pytest
-from utils import _save_audio_mel, _test_single_processor
+from utils import (
+    _save_audio_and_mel,
+    _test_single_processor,
+    create_empty_parameters_from_shape_dict,
+)
 
+import tests.processors.conftest as conftest
 from grafx.processors.delay import MultitapDelay
 
 # region Fixture
@@ -16,14 +21,23 @@ def flashfftconv(request):
     return request.param
 
 
+@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+def std(request):
+    return request.param
+
+
 # endregion Fixture
 
 
+@conftest.quant_test
 @pytest.mark.parametrize("processor_cls", [MultitapDelay])
-def test_delay_quantitative(processor_cls, batch_size=4):
+def test_delay_quantitative(processor_cls, std, batch_size=4):
     print(processor_cls.__name__)
     processor = processor_cls(flashfftconv=True)
-    _save_audio_mel(processor, "delay", device="cuda", batch_size=batch_size)
+
+    _save_audio_and_mel(
+        processor, "delay", device="cuda", batch_size=batch_size, std=std
+    )
 
 
 @pytest.mark.parametrize("segment_len", [3000, 6000])

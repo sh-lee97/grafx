@@ -1,6 +1,7 @@
 import pytest
-from utils import _save_audio_mel, _test_single_processor, get_device_setup
+from utils import _save_audio_and_mel, _test_single_processor, get_device_setup
 
+import tests.processors.conftest as conftest
 from grafx.processors import *
 
 # region Fixture
@@ -33,18 +34,22 @@ def processor_list():
     return []
 
 
+@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+def std(request):
+    return request.param
+
+
 @pytest.fixture(scope="session", autouse=True)
-def save_audio_mel_once(processor_list):
+def save_audio_mel_once(processor_list, std):
     yield
     if processor_list:
         print("Processors in the list:")
         print([name for name, _ in processor_list])
         for name, processor in processor_list:
-            _save_audio_mel(processor, "eq", device="cuda", name=name)
+            _save_audio_and_mel(processor, "eq", device="cuda", name=name, std=std)
 
 
 def add_processor_if_unique(name, processor, processor_list):
-    # Check if the name already exists in the list
     if not any(existing_name == name for existing_name, _ in processor_list):
         processor_list.append((name, processor))
 

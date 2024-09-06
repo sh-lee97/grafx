@@ -58,7 +58,6 @@ def get_filtered_noise(
     order=2,
 ):
     noise = np.random.rand(num_channels, fir_len)
-    print(noise.shape)
     noise = 2 * noise - 1
     filtered_noise = apply_linkwitz_riley(
         noise,
@@ -71,7 +70,6 @@ def get_filtered_noise(
         order=order,
     )
     filtered_noise = torch.from_numpy(filtered_noise).float()
-    print("?", filtered_noise.shape)
     return filtered_noise
 
 

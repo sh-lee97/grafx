@@ -26,11 +26,7 @@ from .nonlinear import (
     PowerDistortion,
     TanhDistortion,
 )
-from .reverb import (
-    FeedbackDelayNetwork,
-    FilteredNoiseShapingReverb,
-    STFTMaskedNoiseReverb,
-)
+from .reverb import FilteredNoiseShapingReverb, STFTMaskedNoiseReverb
 from .stereo import (
     MidSideToStereo,
     MonoToStereo,

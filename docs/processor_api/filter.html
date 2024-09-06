@@ -219,6 +219,7 @@
 <li class="toctree-l1"><a class="reference internal" href="eq.html">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
@@ -264,6 +265,42 @@
           <section id="module-grafx.processors.filter">
 <span id="grafx-processors-filter"></span><h1>grafx.processors.filter<a class="headerlink" href="#module-grafx.processors.filter" title="Link to this heading"></a></h1>
 <dl class="py class">
+<dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FIRFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1023</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mono'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">backend_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A time-domain FIR filter with learnable</p>
+<blockquote>
+<div><p>For a given input <span class="math notranslate nohighlight">\(u[n]\)</span>, the output <span class="math notranslate nohighlight">\(y[n]\)</span> is computed as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+y[n] = u[n] * h[n]
+\]</div>
+</div>
+</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter.parameter_size">
+<span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter.parameter_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="grafx.processors.filter.BiquadFilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BiquadFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">backend_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BiquadFilter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
@@ -301,12 +338,12 @@ making the number of learnable parameters <span class="math notranslate nohighli
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.BiquadFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A1_pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A2_pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BiquadFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A1_pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A2_pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BiquadFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>Bs</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \times 3\)</span>) – A batch of biquad coefficients, <span class="math notranslate nohighlight">\(b_{i, 0}, b_{i, 1}, b_{i, 2}\)</span>, stacked in the last dimension.</p></li>
 <li><p><strong>A1_pre</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K\:\!\)</span>) – A batch of pre-activation coefficients <span class="math notranslate nohighlight">\(\tilde{a}_{i, 1}\)</span>.</p></li>
 <li><p><strong>A2_pre</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K\:\!\)</span>) – A batch of pre-activation coefficients <span class="math notranslate nohighlight">\(\tilde{a}_{i, 2}\)</span>.</p></li>
@@ -371,12 +408,12 @@ where both complex poles and zeros are repesented as a real-valued tensors with 
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.PoleZeroFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeros</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.PoleZeroFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zeros</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.PoleZeroFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>log_gain</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of log-gains.</p></li>
 <li><p><strong>poles</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \times 2\)</span>) – A batch of complex poles.</p></li>
 <li><p><strong>zeros</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \times 2\)</span>) – A batch of complex zeros.</p></li>
@@ -440,12 +477,12 @@ To ensure the stability of each biquad, we ensure that <span class="math notrans
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.StateVariableFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twoR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_hp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_bp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_lp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.StateVariableFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twoR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_hp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_bp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_lp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.StateVariableFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>log_gains</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \:\!\)</span>) – A batch of log-gain vectors of the GEQ.</p></li>
 </ul>
 </dd>
@@ -484,12 +521,12 @@ To ensure the stability of each biquad, we ensure that <span class="math notrans
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.BaseParametricFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BaseParametricFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BaseParametricFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>w0</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of cutoff frequencies.</p></li>
 <li><p><strong>q_inv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of the inverse of quality factors (or resonance).</p></li>
 </ul>
@@ -683,12 +720,12 @@ This processor has two learnable parameters: <span class="math notranslate nohig
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.BaseParametricEqualizerFilter.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BaseParametricEqualizerFilter.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.BaseParametricEqualizerFilter.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>w0</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of cutoff frequencies.</p></li>
 <li><p><strong>q_inv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of the inverse of quality factors (or resonance).</p></li>
 </ul>
@@ -896,6 +933,7 @@ a_2 &amp;= (A + 1) - (A - 1) \cos \omega_0 - 2 \smash{\sqrt{A}} \alpha,
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">grafx.processors.filter</a><ul>
+<li><a class="reference internal" href="#grafx.processors.filter.FIRFilter"><code class="docutils literal notranslate"><span class="pre">FIRFilter</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.filter.BiquadFilter"><code class="docutils literal notranslate"><span class="pre">BiquadFilter</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.filter.PoleZeroFilter"><code class="docutils literal notranslate"><span class="pre">PoleZeroFilter</span></code></a></li>
 <li><a class="reference internal" href="#grafx.processors.filter.StateVariableFilter"><code class="docutils literal notranslate"><span class="pre">StateVariableFilter</span></code></a></li>

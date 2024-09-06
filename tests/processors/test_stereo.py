@@ -1,6 +1,7 @@
 import pytest
-from utils import _save_audio_mel, _test_single_processor
+from utils import _save_audio_and_mel, _test_single_processor
 
+import tests.processors.conftest as conftest
 from grafx.processors.stereo import *
 
 
@@ -9,8 +10,14 @@ def device(request):
     return request.param
 
 
+@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+def std(request):
+    return request.param
+
+
+@conftest.quant_test
 @pytest.mark.parametrize("processor_cls", [StereoGain, SideGainImager, MonoToStereo])
-def test_stereo_quantitative(processor_cls, batch_size=4):
+def test_stereo_quantitative(processor_cls, std, batch_size=4):
     print(processor_cls.__name__)
 
     if processor_cls == StereoGain:
@@ -23,12 +30,13 @@ def test_stereo_quantitative(processor_cls, batch_size=4):
         raise ValueError(f"Unsupported processor class: {processor_cls}")
 
     processor = processor_cls()
-    _save_audio_mel(
+    _save_audio_and_mel(
         processor,
         "stereo",
         device="cuda",
         num_channels=num_channels,
         batch_size=batch_size,
+        std=std,
     )
 
 

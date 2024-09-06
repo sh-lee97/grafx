@@ -219,6 +219,7 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">grafx.processors.eq</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stereo.html">grafx.processors.stereo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">grafx.processors.dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonlinear.html">grafx.processors.nonlinear</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reverb.html">grafx.processors.reverb</a></li>
 <li class="toctree-l1"><a class="reference internal" href="delay.html">grafx.processors.delay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="container.html">grafx.processors.container</a></li>
@@ -457,12 +458,12 @@ If false, we use only peaking filters (default: <code class="code highlight pyth
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.eq.ParametricEqualizer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ParametricEqualizer.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_inv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.ParametricEqualizer.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>w0</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K\)</span>) – A batch of cutoff frequencies.</p></li>
 <li><p><strong>q_inv</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K\)</span>) – A batch of quality factors (or resonance).</p></li>
 <li><p><strong>log_gain</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K\)</span>) – A batch of log-gains.</p></li>
@@ -537,12 +538,12 @@ To set the log-gains to match the control points, we can use least-square optimi
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.eq.GraphicEqualizer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gains</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.GraphicEqualizer.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_gains</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.eq.GraphicEqualizer.forward" title="Link to this definition"></a></dt>
 <dd><p>Processes input audio with the processor and given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>log_gains</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \:\!\)</span>) – A batch of log-gain vectors of the GEQ.</p></li>
 </ul>
 </dd>

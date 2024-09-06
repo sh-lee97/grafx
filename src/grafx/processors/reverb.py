@@ -288,9 +288,7 @@ class FilteredNoiseShapingReverb(nn.Module):
                     zerophase=zerophase,
                     order=order,
                 )
-                print(filtered_noise.shape)
                 filtered_noise = filtered_noise.unsqueeze(0)
-                print(filtered_noise.shape)
                 self.register_buffer("filtered_noise", filtered_noise)
             case "random":
                 assert False  # TODO
@@ -400,13 +398,14 @@ class FilteredNoiseShapingReverb(nn.Module):
         return size
 
 
-class FeedbackDelayNetwork(nn.Module):
-    r"""
-    A frequency-sampled feedback delay network (FDN).
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def forward(self):
-        pass
+# class FeedbackDelayNetwork(nn.Module):
+#    r"""
+#    A frequency-sampled feedback delay network (FDN).
+#    """
+#
+#    def __init__(self):
+#        super().__init__()
+#
+#    def forward(self):
+#        pass
+#
