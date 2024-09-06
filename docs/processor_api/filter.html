@@ -268,35 +268,49 @@
 <dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FIRFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fir_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1023</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mono'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">backend_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>A time-domain FIR filter with learnable</p>
-<blockquote>
-<div><p>For a given input <span class="math notranslate nohighlight">\(u[n]\)</span>, the output <span class="math notranslate nohighlight">\(y[n]\)</span> is computed as
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[
-y[n] = u[n] * h[n]
-\]</div>
-</div>
-</p>
-</div></blockquote>
+<p>A time-domain filter with learnable finite impulse response (FIR) coefficients.
+It is implemented with the <a class="reference internal" href="core.html#grafx.processors.core.convolution.FIRConvolution" title="grafx.processors.core.convolution.FIRConvolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">FIRConvolution</span></code></a> module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The length of the FIR filter (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">1023</span></code>).</p></li>
+<li><p><strong>processor_channel</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The channel type of the processor, which can be either <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mono&quot;</span></code>, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;stereo&quot;</span></code>, or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;midside&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;mono&quot;</span></code>).</p></li>
+<li><p><strong>**backend_kwargs</strong> – Additional keyword arguments for the <code class="xref py py-class docutils literal notranslate"><span class="pre">FIRConvolution</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Performs the convolution operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{in} \times L_\mathrm{in}\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>fir</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C_\mathrm{filter} \times L_\mathrm{filter}\)</span>) – A batch of FIR filters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of convolved signals of shape <span class="math notranslate nohighlight">\(B \times C_\mathrm{out} \times L_\mathrm{in}\)</span> where <span class="math notranslate nohighlight">\(C_\mathrm{out} = \max (C_\mathrm{in}, C_\mathrm{filter})\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.filter.FIRFilter.parameter_size">
 <span class="sig-name descname"><span class="pre">parameter_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.filter.FIRFilter.parameter_size" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary that contains each parameter tensor’s shape.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="code highlight python docutils literal highlight-python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

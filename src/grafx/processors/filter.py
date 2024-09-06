@@ -19,12 +19,16 @@ ALPHA_SCALE = 1 / 2
 
 class FIRFilter(nn.Module):
     r"""
-    A time-domain FIR filter with learnable
+    A time-domain filter with learnable finite impulse response (FIR) coefficients.
+    It is implemented with the :class:`~grafx.processors.core.convolution.FIRConvolution` module.
 
-        For a given input $u[n]$, the output $y[n]$ is computed as
-        $$
-        y[n] = u[n] * h[n]
-        $$
+    Args:
+        fir_len (:python:`int`, *optional*):
+            The length of the FIR filter (default: :python:`1023`).
+        processor_channel (:python:`str`, *optional*):
+            The channel type of the processor, which can be either :python:`"mono"`, :python:`"stereo"`, or :python:`"midside"` (default: :python:`"mono"`).
+        **backend_kwargs:
+            Additional keyword arguments for the :class:`~grafx.processors.core.FIRConvolution`.
     """
 
     def __init__(self, fir_len=1023, processor_channel="mono", **backend_kwargs):
@@ -46,6 +50,18 @@ class FIRFilter(nn.Module):
                 raise ValueError(f"Unknown channel type: {self.channel}")
 
     def forward(self, input_signals, fir):
+        r"""
+        Performs the convolution operation.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times C_\mathrm{in} \times L_\mathrm{in}`):
+                A batch of input audio signals.
+            fir (:python:`FloatTensor`, :math:`B \times C_\mathrm{filter} \times L_\mathrm{filter}`):
+                A batch of FIR filters.
+
+        Returns:
+            :python:`FloatTensor`: A batch of convolved signals of shape :math:`B \times C_\mathrm{out} \times L_\mathrm{in}` where :math:`C_\mathrm{out} = \max (C_\mathrm{in}, C_\mathrm{filter})`.
+        """
         fir = torch.tanh(fir)
         output_signals = self.process(input_signals, fir)
         return output_signals
@@ -61,6 +77,10 @@ class FIRFilter(nn.Module):
         return ms_to_lr(output_signals)
 
     def parameter_size(self):
+        r"""
+        Returns:
+            :python:`Dict[str, Tuple[int, ...]]`: A dictionary that contains each parameter tensor's shape.
+        """
         return {"fir": (self.num_channels, self.fir_len)}
 
 

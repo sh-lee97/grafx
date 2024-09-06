@@ -257,7 +257,8 @@ class FilteredNoiseShapingReverb(nn.Module):
         f_max (:python:`float`, *optional*):
             The maximum frequency of the filtered noise (default: :python:`15000`).
         scale (:python:`str`, *optional*):
-            The scale of the frequency bands, either :python:`"log"` or :python:`"linear"` (default: :python:`"log"`).
+            Frequency scale to use: :python:`"bark_traunmuller"`, :python:`"bark_schroeder"`, :python:`"bark_wang"`, :python:`"mel_htk"`, :python:`"mel_slaney"`, :python:`"linear"`, :python:`"log"` 
+            (default: :python:`"log"`).
         sr (:python:`int`, *optional*):
             The sample rate of the filtered noise (default: :python:`30000`).
         zerophase (:python:`bool`, *optional*):
