@@ -2,19 +2,22 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchcomp import compressor_core
 
 from grafx.processors.core.convolution import FIRConvolution
-from torchcomp import compressor_core
 
 
 class TruncatedOnePoleIIRFilter(nn.Module):
     r"""
     A one-pole IIR filter with a truncated impulse response.
 
-        Then, we optionally calculate its log-energy envelope $G_u[n] = \log g_u[n]$.
+        The true one-pole IIR filter is defined as a recursive filter with a coefficient $\alpha$.
+        Here, for the speed-up, we calculate its truncated impulse response analytically and convolve it to the input signal.
         $$
-        g_u[n] \approx e[n] * (1-\alpha)\alpha^n.
+        y[n] \approx u[n] * (1-\alpha)\alpha^n.
         $$
+
+        The length of the truncated FIR, $N$, is given as an argument :python:`iir_len`.
     """
 
     def __init__(
@@ -29,6 +32,18 @@ class TruncatedOnePoleIIRFilter(nn.Module):
         self.conv = FIRConvolution(mode="causal", **backend_kwargs)
 
     def forward(self, input_signals, z_alpha):
+        r"""
+        Processes input audio with the processor and given coefficients.
+
+        Args:
+            input_signals (:python:`FloatTensor`, :math:`B \times L`):
+                A batch of input audio signals.
+            z_alpha (:python:`FloatTensor`, :math:`B \times 1`):
+                A batch of one-pole coefficients.
+
+        Returns:
+            :python:`FloatTensor`: A batch of smoothed signals of shape :math:`B \times L`.
+        """
         h = self.compute_impulse(z_alpha)
         smoothed = self.conv(input_signals, h)
         smoothed = F.relu(smoothed)

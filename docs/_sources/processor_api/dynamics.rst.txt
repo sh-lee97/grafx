@@ -8,6 +8,16 @@
 grafx.processors.dynamics
 ============================
 
-.. automodule:: grafx.processors.dynamics
+.. 
+     .. automodule:: grafx.processors.dynamics
+     :members:
+     :show-inheritance:
+
+
+.. autoclass:: grafx.processors.dynamics.Compressor
+   :members:
+   :show-inheritance:
+
+.. autoclass:: grafx.processors.dynamics.NoiseGate
    :members:
    :show-inheritance:

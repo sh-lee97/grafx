@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.filter" href="filter.html" /><link rel="prev" title="grafx.utils" href="../graph_api/utils.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>grafx.processors.core - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
@@ -271,7 +271,10 @@
 <p>A FIR convolution backend, which can use either native FFT-based convolution or <code class="code highlight python docutils literal highlight-python"><span class="n">FlashFFTConv</span></code> <span id="id1">[<a class="reference internal" href="../references/reference.html#id149" title="Daniel Y Fu, Hermann Kumbong, Eric Nguyen, and Christopher Ré. FlashFFTConv: efficient convolutions for long sequences with tensor cores. ICLR, 2023.">FKNRe23</a>]</span>.
 Allows for causal and zero-phase convolution modes.</p>
 <blockquote>
-<div><p>For an input <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> and</p>
+<div><p>For an input <span class="math notranslate nohighlight">\(\mathbf{U}\in\mathbb{R}^{B\times C_{\mathrm{in}} \times L_{\mathrm{in}}}\)</span>
+and a filter <span class="math notranslate nohighlight">\(\mathbf{U}\in\mathbb{R}^{B\times C_{\mathrm{filter}} \times L_{\mathrm{filter}}}\)</span>
+the operation is defined as a usual convolution. However, the output length will be the one of the input
+and the number of the output channels will be determined by broadcasting.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -550,27 +553,35 @@ The returned tensor has an additional dimension (last) for the FIR taps.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>A one-pole IIR filter with a truncated impulse response.</p>
 <blockquote>
-<div><p>Then, we optionally calculate its log-energy envelope <span class="math notranslate nohighlight">\(G_u[n] = \log g_u[n]\)</span>.
+<div><p>The true one-pole IIR filter is defined as a recursive filter with a coefficient <span class="math notranslate nohighlight">\(\alpha\)</span>.
+Here, for the speed-up, we calculate its truncated impulse response analytically and convolve it to the input signal.
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[
-g_u[n] \approx e[n] * (1-\alpha)\alpha^n.
+y[n] \approx u[n] * (1-\alpha)\alpha^n.
 \]</div>
 </div>
 </p>
+<p>The length of the truncated FIR, <span class="math notranslate nohighlight">\(N\)</span>, is given as an argument <code class="code highlight python docutils literal highlight-python"><span class="n">iir_len</span></code>.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grafx.processors.core.envelope.TruncatedOnePoleIIRFilter.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
+<dd><p>Processes input audio with the processor and given coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>z_alpha</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times 1\)</span>) – A batch of one-pole coefficients.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A batch of smoothed signals of shape <span class="math notranslate nohighlight">\(B \times L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

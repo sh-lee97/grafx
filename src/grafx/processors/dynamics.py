@@ -380,7 +380,8 @@ class Compressor(nn.Module):
             log_ratio (:python:`FloatTensor`, :math:`N \times 1`):
                 Unconstrained ratio values, which will be transformed into the range of :math:`[1, \infty)`.
             log_knee (:python:`FloatTensor`, :math:`N \times 1`, *optional*):
-                Log of knee that operates on the log scale.
+                Log of knee values
+                (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
@@ -476,7 +477,7 @@ class Compressor(nn.Module):
     @staticmethod
     def gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee):
         r"""
-        Compute log-compression gain with the quadratic knee.
+        Compute log-compression gain with the exponential knee.
         """
         ratio = 1 + torch.exp(log_ratio)
         log_knee = torch.exp(log_knee)
@@ -616,7 +617,8 @@ class NoiseGate(nn.Module):
             log_ratio (:python:`FloatTensor`, :math:`N \times 1`):
                 Unconstrained ratio values, which will be transformed into the range of :math:`[1, \infty)`.
             log_knee (:python:`FloatTensor`, :math:`N \times 1`, *optional*):
-                Log of knee that operates on the log scale.
+                Log of knee values
+                (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
@@ -707,7 +709,7 @@ class NoiseGate(nn.Module):
     @staticmethod
     def gain_exp_knee(log_energy, log_threshold, log_ratio, log_knee):
         r"""
-        Compute log-compression gain with the quadratic knee.
+        Compute log-compression gain with the exponential knee.
         """
         one_minus_ratio = -torch.exp(log_ratio)
         log_knee = torch.exp(log_knee)

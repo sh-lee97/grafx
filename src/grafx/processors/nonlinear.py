@@ -22,7 +22,7 @@ class TanhDistortion(nn.Module):
 
         This processor's parameters are $p = \{\tilde{g}_{\mathrm{pre}}, \tilde{g}_{\mathrm{post}}, b\}$,
         where $\tilde{g}_{\mathrm{pre}} = \log g_{\mathrm{pre}}$ and $\tilde{g}_{\mathrm{post}} = \log g_{\mathrm{post}}$.
-        Based on the :python:`__init__` arguments, each parameter can be omitted.
+        Depending on the initializations, each parameter can be omitted.
 
 
     Args:
@@ -132,7 +132,6 @@ class PiecewiseTanhDistortion(nn.Module):
         In the simplest setting, the output is given as $y[n] = \xi(u[n])$. 
         Same as :class:`~grafx.processors.nonlinear.TanhDistortion`, 
         we can optionally apply pre- and post-gain as $y[n] = g_{\mathrm{post}} \cdot \xi(g_{\mathrm{pre}} \cdot u[n])$.
-
         This processor has parameters of $\smash{p = \{\tilde{g}_{\mathrm{pre}}, \tilde{g}_{\mathrm{post}}, \smash{\tilde{\mathbf{k}}}, \tilde{\mathbf{h}}\}}$,
         where $\smash{\tilde{\mathbf{k}} = [\tilde{k}_p, \tilde{k}_n]}$ and $\smash{\tilde{\mathbf{h}} = [\tilde{h}_p, \tilde{h}_n]}$.
         The internal parameters are recovered with 
@@ -164,8 +163,17 @@ class PiecewiseTanhDistortion(nn.Module):
         Args:
             input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
-            log_magnitude (:python:`FloatTensor`, :math:`B \times K \:\!`):
-                A batch of log-magnitude vectors of the FIR filter.
+            log_hardness (:python:`FloatTensor`, :math:`B \times 2`):
+                A batch of hardness controls stacked to the last dimension.
+            z_threshold (:python:`FloatTensor`, :math:`B \times 2`):
+                A batch of threshold values stacked to the last dimension.
+            log_pre_gain (:python:`FloatTensor`, :math:`B \times 1`, *optional*):
+                A batch of log pre-gain values, only required if :python:`pre_post_gain` is :python:`True`
+                (default: :python:`None`).
+            log_post_gain (:python:`FloatTensor`, :math:`B \times 1`, *optional*):
+                A batch of log post-gain values, only required if
+                both :python:`pre_post_gain` and :python:`inverse_post_gain` are :python:`False`
+                (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
@@ -228,17 +236,23 @@ class PiecewiseTanhDistortion(nn.Module):
 
 class PowerDistortion(nn.Module):
     r"""
-    :cite:`peladeau2024blind`
+    A distortion processor based on polynomials :cite:`peladeau2024blind`.
 
-    Tanh :cite:`colonel2022reverse`
-
+        The distortion output is simply give as an elementwise (memoryless) polynomial of each sample of the input signal.
         $$
         y[n] = \sum_{k=0}^{K-1} w_k u^k[n].
         $$
 
+        where $w_k$ is the polynomial coefficients, which we also call :python:`basis_weights` in this implementation.
+        We allow optional use of hypertangent and its pre-gain after the polynomial
+        :cite:`colonel2022reverse`.
+        In this case, the output will be given as follows,
         $$
         y[n] = \sum_{k=0}^{K-1} w_k \tanh (g_{\mathrm{pre}} u^k[n]).
         $$
+
+        The processor has parameters of $p = \{\mathbf{w}, \tilde{\mathbf{g}}_{\mathrm{pre}}\}$,
+        where the former is a stack of the coefficients and the latter is the optional log pre-gain values.
     """
 
     def __init__(self, max_order=10, pre_gain=True, remove_dc=False, use_tanh=False):
@@ -262,8 +276,11 @@ class PowerDistortion(nn.Module):
         Args:
             input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
-            log_magnitude (:python:`FloatTensor`, :math:`B \times K \:\!`):
-                A batch of log-magnitude vectors of the FIR filter.
+            basis_weights (:python:`FloatTensor`, :math:`B \times K`):
+                A batch of polynomial coefficients.
+            log_pre_gain (:python:`FloatTensor`, :math:`B \times 1`, *optional*):
+                A batch of log pre-gain values, only required if :python:`pre_gain` is :python:`True`
+                (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.
@@ -297,12 +314,14 @@ class PowerDistortion(nn.Module):
 
 class ChebyshevDistortion(nn.Module):
     r"""
-    :cite:`peladeau2024blind`
+    A distortion processor based on Chebyshev polynomials :cite:`peladeau2024blind`.
 
+        We combine the outputs of Chebyshev polynomials of the input signal.
         $$
         y[n] = \sum_{k=0}^{K-1} w_k T_k(u[n]).
         $$
 
+        where $T_k(u[n])$ is the Chebyshev polynomial of order $k$ defined as follows,
         $$
         \begin{aligned}
         T_0(u[n])&=1, \\ 
@@ -311,9 +330,15 @@ class ChebyshevDistortion(nn.Module):
         \end{aligned}
         $$
 
+        Same as the :class:`~grafx.processors.nonlinear.PowerDistortion`,
+        we allow optional use of hypertangent and its pre-gain after the Chebyshev 
+        :cite:`colonel2022reverse`.
         $$
         y[n] = \sum_{k=0}^{K-1} w_k \tanh T_k(g_{\mathrm{pre}} u[n]).
         $$
+
+        The processor has parameters of $p = \{\mathbf{w}, \tilde{\mathbf{g}}_{\mathrm{pre}}\}$,
+        where the latter is optional.
     """
 
     def __init__(self, max_order=10, pre_gain=True, remove_dc=False, use_tanh=False):
@@ -333,8 +358,12 @@ class ChebyshevDistortion(nn.Module):
         Args:
             input_signals (:python:`FloatTensor`, :math:`B \times C \times L`):
                 A batch of input audio signals.
-            log_magnitude (:python:`FloatTensor`, :math:`B \times K \:\!`):
-                A batch of log-magnitude vectors of the FIR filter.
+            basis_weights (:python:`FloatTensor`, :math:`B \times K`):
+                A batch of Chebyshev polynomial coefficients.
+            log_pre_gain (:python:`FloatTensor`, :math:`B \times 1`, *optional*):
+                A batch of log pre-gain
+                values, only required if :python:`pre_gain` is :python:`True`
+                (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.

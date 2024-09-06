@@ -230,8 +230,52 @@ class STFTMaskedNoiseReverb(nn.Module):
 
 class FilteredNoiseShapingReverb(nn.Module):
     r"""
-    A time-domain FIR filter
-    :cite:`steinmetz2021filtered`
+    A time-domain FIR filter based on the envelope "shaping" of filterbank noise signals
+    :cite:`steinmetz2021filtered`.
+
+        From a noise signal $v[n] \sim \mathcal{U}[-1, 1)$,
+        we apply a $K$-band filterbank to obtain a set of filtered noise signals $v_1[n], \cdots, v_K[n]$.
+        Then, we apply a time-domain envelope shaping, $a_i[n]$, to each filtered noise signal as follows,
+        $$
+        h[n] = \sum_{i=1}^K a_i[n] v_i[n].
+        $$
+
+        Each envelope shaping is parameterized by a decay $r_i$ and an initial gain $g_i$.
+        Furthermore, we can set a fade-in envelope to the shaping which is set to be shorter than the decay time.
+
+
+
+    Args:
+        ir_len (:python:`int`, *optional*):
+            The length of the impulse response (default: :python:`60000`).
+        num_bands (:python:`int`, *optional*):
+            The number of frequency bands (default: :python:`12`).
+        processor_channel (:python:`str`, *optional*):
+            The channel type of the processor, either :python:`"midside"`, :python:`"stereo"`, or :python:`"mono"` (default: :python:`"midside"`
+        f_min (:python:`float`, *optional*):
+            The minimum frequency of the filtered noise (default: :python:`31.5`).
+        f_max (:python:`float`, *optional*):
+            The maximum frequency of the filtered noise (default: :python:`15000`).
+        scale (:python:`str`, *optional*):
+            The scale of the frequency bands, either :python:`"log"` or :python:`"linear"` (default: :python:`"log"`).
+        sr (:python:`int`, *optional*):
+            The sample rate of the filtered noise (default: :python:`30000`).
+        zerophase (:python:`bool`, *optional*):
+            If set to :python:`True`, we use a zero-phase crossover filter (default: :python:`True`).
+        order (:python:`int`, *optional*):
+            The order of the crossover filter (default: :python:`2`).
+        noise_randomness (:python:`str`, *optional*):
+            The randomness of the filtered noise, either :python:`"pseudo-random"`, :python:`"fixed"`, or :python:`"random"` (default: :python:`"pseudo-random"`).
+        use_fade_in (:python:`bool`, *optional*):
+            If set to :python:`True`, we use a fade-in envelope (default: :python:`False`).
+        min_decay_ms (:python:`float`, *optional*):
+            The minimum decay time in milliseconds (default: :python:`50`).
+        max_decay_ms (:python:`float`, *optional*):
+            The maximum decay time in milliseconds (default: :python:`2000`).
+        flashfftconv (:python:`bool`, *optional*):
+            An option to use :python:`FlashFFTConv` :cite:`fu2023flashfftconv` as a backend to perform the causal convolution efficiently (default: :python:`True`).
+        max_input_len (:python:`int`, *optional*):
+            When :python:`flashfftconv` is set to :python:`True`, the max input length must be also given (default: :python:`2**17`).
     """
 
     def __init__(
@@ -324,9 +368,13 @@ class FilteredNoiseShapingReverb(nn.Module):
 
         Args:
             input_signals (:python:`FloatTensor`, :math:`B\times C\times L`):
+                A batch of input audio signals.
             log_decay (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K \:\!`):
+                A batch of log-decay values.
             log_gain (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K \:\!`):
+                A batch of log-gain values.
             log_fade_in (:python:`FloatTensor`, :math:`B\times C_{\mathrm{rev}}\times K`, *optional*):
+                A batch of log-fade-in values (default: :python:`None`).
 
         Returns:
             :python:`FloatTensor`: A batch of output signals of shape :math:`B \times C \times L`.

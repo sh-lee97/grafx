@@ -15,11 +15,14 @@ except:
 
 
 class FIRConvolution(nn.Module):
-    """
+    r"""
     A FIR convolution backend, which can use either native FFT-based convolution or :python:`FlashFFTConv` :cite:`fu2023flashfftconv`.
     Allows for causal and zero-phase convolution modes.
 
-        For an input $\mathbf{U}$ and
+        For an input $\mathbf{U}\in\mathbb{R}^{B\times C_{\mathrm{in}} \times L_{\mathrm{in}}}$
+        and a filter $\mathbf{U}\in\mathbb{R}^{B\times C_{\mathrm{filter}} \times L_{\mathrm{filter}}}$
+        the operation is defined as a usual convolution. However, the output length will be the one of the input
+        and the number of the output channels will be determined by broadcasting.
 
     Args:
         mode (:python:`str`, *optional*):
@@ -80,6 +83,10 @@ class FIRConvolution(nn.Module):
         return convolve(x, h, mode=self.mode)
 
     def _flashfftconv_forward(self, x, h):
+        if self.mode == "zerophase":
+            assert (
+                False
+            ), "We currently do not support zerophase mode with FlashFFTConv."
         x_shape, h_shape = x.shape, h.shape
 
         if x_shape[-2] == 1 and h_shape[-2] != 1:
