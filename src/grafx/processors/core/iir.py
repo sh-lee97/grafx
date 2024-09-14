@@ -106,6 +106,8 @@ class IIRFilter(nn.Module):
                 self.process = self._process_fsm
             case "lfilter":
                 self.process = self._process_lfilter
+            case "ssm":
+                self.process = self._process_ssm
             case _:
                 raise ValueError(f"Unsupported backend: {backend}")
 
@@ -157,6 +159,7 @@ class IIRFilter(nn.Module):
                 b_coeffs=Bs[:, i, :],
                 a_coeffs=As[:, i, :],
                 batching=True,
+                clamp=False,
             )
         output_signal = output_signal.view(b, c, audio_len)
         return output_signal
@@ -166,7 +169,7 @@ class IIRFilter(nn.Module):
         assert Bs.shape[-1] == As.shape[-1] == 3, "The filter order must be 2."
 
         if num_channels == 1:
-            input_signal = input_signal.repeat(1, Bs.shaep[1], 1)
+            input_signal = input_signal.repeat(1, Bs.shape[1], 1)
             num_channels = Bs.shape[1]
         elif Bs.shape[1] == 1:
             Bs = Bs.repeat(1, num_channels, 1, 1)
@@ -226,15 +229,15 @@ class IIRFilter(nn.Module):
                     poles,
                 )
 
-            return cur_b0.unsqueeze(-1) * x + torch.cat(
+            return cur_b0 * x + torch.cat(
                 [torch.zeros_like(output_signal[:, :1]), output_signal[:, :-1]], -1
             )
 
-        return reduce(
-            lambda x, i: filter_runner(x, b0[:, i], b12[:, i], a12[:, i]),
-            range(K),
-            input_signal,
-        )
+        output_signal = input_signal
+        for i in range(K):
+            output_signal = filter_runner(output_signal, b0[:, i], b12[:, i], a12[:, i])
+
+        return output_signal.view(batch, num_channels, audio_len)
 
     @staticmethod
     def iir_fsm(Bs, As, delays, eps=1e-10):
@@ -252,35 +255,45 @@ class IIRFilter(nn.Module):
         return delay
 
 
+def _first_order_recursive_filter(x, a):
+    # x: (batch, T)
+    # a: (batch,)
+    return sample_wise_lpc(x, -a[:, None, None].expand(-1, x.shape[1], -1))
+
+
 def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
     u = -1j * x
-    h = sample_wise_lpc(u, -complex_pole[:, None, None].expand(-1, x.shape[1], -1))
+    h = _first_order_recursive_filter(u, complex_pole)
     b1 = b12[..., 0]
     b2 = b12[..., 1]
     return (
-        h.real * (b1 * complex_pole.real / complex_pole.imag + b2 / complex_pole.imag)
-        - b1 * h.imag
+        h.real
+        * (b1 * complex_pole.real / complex_pole.imag + b2 / complex_pole.imag)[
+            ..., None
+        ]
+        - b1[..., None] * h.imag
     )
 
 
 def _ssm_real_pole(x, b12, poles):
     pole_1, pole_2 = poles.unbind(-1)
     diff = pole_1 - pole_2
-    u = x.unsqueeze(1) * (torch.stack((pole_1, -pole_2), -1) / diff).unsqueeze(-1)
-    h = sample_wise_lpc(
-        u.view(-1, u.shape[-1]), -poles.view(-1, 1, 1).expand(-1, u.shape[-1], -1)
+    u = (
+        x.unsqueeze(1)
+        * (torch.stack([pole_1, -pole_2], dim=-1) / diff[:, None])[..., None]
+    )
+    h = _first_order_recursive_filter(
+        u.view(-1, u.shape[-1]), poles.view(-1, 1)
     ).view_as(u)
-    b1 = b12[..., 0]
-    b2 = b12[..., 1]
+    b1 = b12[..., :1]
+    b2 = b12[..., 1:]
     return b1 * h.sum(1) + b2 * torch.sum(h * poles.reciprocal().unsqueeze(-1), 1)
 
 
 def _ssm_double_real_pole(x, b12, pole):
-    def runner(u):
-        return sample_wise_lpc(u, -pole[:, None, None].expand(-1, u.shape[1], -1))
-
-    h = reduce(lambda x, _: runner(x), range(2), x)
+    runner = lambda u: _first_order_recursive_filter(u, pole)
+    h = runner(runner(x))
     return (
-        h * b12[..., 0]
-        + torch.cat((torch.zeros_like(h[:, :1]), h[:, :-1]), -1) * b12[..., 1]
+        h * b12[..., :1]
+        + torch.cat((torch.zeros_like(h[:, :1]), h[:, :-1]), -1) * b12[..., 1:]
     )
