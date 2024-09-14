@@ -31,7 +31,7 @@ class IIRFilter(nn.Module):
         H(z) = \prod_{k=1}^K H_k(z) = \prod_k \frac{ b_{k, 0} + b_{k, 1} z^{-1} + b_{i, 2} z^{-2}}{a_{i, 0} + a_{i, 1} z^{-1} + a_{i, 2} z^{-2}}.
         $$
 
-        We provide two backends for the filtering.
+        We provide three backends for the filtering.
         The first one, :python:`"lfilter"`, is the time-domain method that computes the difference equation exactly.
         It uses :python:`torchaudio.lfilter`, which uses the direct form I implementation
         (the bar denotes the normalized coefficients by $a_{i, 0}$) :cite:`yu2024differentiable`.
@@ -59,6 +59,9 @@ class IIRFilter(nn.Module):
         $$
         
         where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
+
+        The third one, :python:`"ssm"`, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
+        The input sequence is first projected to the eigenbasis of the transition matrix $A$. Then, the `parallel_scan` function is used to run two first-order recursive filters in parallel. Finally, the output is projected back to the original basis. This method provides significant speedup over :python:`"lfilter"` when running on GPU.
 
     Args:
         num_filters (:python:`int`, *optional*):
@@ -192,7 +195,7 @@ class IIRFilter(nn.Module):
 
         def filter_runner(x, cur_b0, cur_b12, cur_a12):
             # find the roots of transition matrix A
-            # first, check are they real or complex conjugate
+            # first, check are they real or complex conjugates
             tmp = cur_a12[..., 0] ** 2 - 4 * cur_a12[..., 1]
             complex_poles_mask = tmp < 0
             real_poles_mask = tmp > 0
@@ -264,6 +267,18 @@ def _first_order_recursive_filter(x, a):
 
 
 def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
+    #     |2 * Re(p) -|p|^2|
+    # A = |1         0     | = V^-1 @ R @ V
+    #
+    #     |0  Im(p)|
+    # V = |-1  Re(p)|
+    #
+    # The rotation matrix R is given by
+    #     |Re(p)  -Im(p)|
+    # R = |Im(p)   Re(p)|
+    # which is a rotation matrix and can be written as complex exponential |p|e^{j angle(p)} = p.
+    # We utilise this fact to filter the signal using one complex first-order filter.
+    # This kind of filter is also known as `Minimum Norm Recursive Filter`.
     u = -1j * x
     h = _first_order_recursive_filter(u, complex_pole)
     b1 = b12[..., 0]
@@ -278,6 +293,11 @@ def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
 
 
 def _ssm_real_pole(x, b12, poles):
+    #     |p1 + p2  -p1 * p2|
+    # A = |1        0       | = V @ diag(p1, p2) @ V^-1
+    #
+    #     |1      1    |
+    # V = |p1^-1  p2^-1|
     pole_1, pole_2 = poles.unbind(-1)
     diff = pole_1 - pole_2
     u = (
@@ -293,6 +313,7 @@ def _ssm_real_pole(x, b12, poles):
 
 
 def _ssm_double_real_pole(x, b12, pole):
+    # Since we cannot perform the diagonalisation when double poles are present, we just perform two first-order recursive filters in series.
     runner = partial(_first_order_recursive_filter, a=pole)
     h = reduce(lambda u, f: f(u), [runner] * 2, x)
     return (
