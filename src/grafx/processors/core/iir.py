@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio
 from torchaudio.functional import lfilter
-from functools import reduce
+from functools import reduce, partial
 from torchlpc import sample_wise_lpc
 
 from grafx.processors.core.convolution import FIRConvolution
@@ -233,9 +233,11 @@ class IIRFilter(nn.Module):
                 [torch.zeros_like(output_signal[:, :1]), output_signal[:, :-1]], -1
             )
 
-        output_signal = input_signal
-        for i in range(K):
-            output_signal = filter_runner(output_signal, b0[:, i], b12[:, i], a12[:, i])
+        output_signal = reduce(
+            lambda x, args: filter_runner(x, *args),
+            zip(b0.unbind(1), b12.unbind(1), a12.unbind(1)),
+            input_signal,
+        )
 
         return output_signal.view(batch, num_channels, audio_len)
 
@@ -291,8 +293,8 @@ def _ssm_real_pole(x, b12, poles):
 
 
 def _ssm_double_real_pole(x, b12, pole):
-    runner = lambda u: _first_order_recursive_filter(u, pole)
-    h = runner(runner(x))
+    runner = partial(_first_order_recursive_filter, a=pole)
+    h = reduce(lambda u, f: f(u), [runner] * 2, x)
     return (
         h * b12[..., :1]
         + torch.cat((torch.zeros_like(h[:, :1]), h[:, :-1]), -1) * b12[..., 1:]
