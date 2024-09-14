@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio
 from torchaudio.functional import lfilter
+from functools import reduce
+from torchlpc import sample_wise_lpc
 
 from grafx.processors.core.convolution import FIRConvolution
 from grafx.processors.core.midside import lr_to_ms, ms_to_lr
@@ -159,6 +161,81 @@ class IIRFilter(nn.Module):
         output_signal = output_signal.view(b, c, audio_len)
         return output_signal
 
+    def _process_ssm(self, input_signal, Bs, As):
+        batch, num_channels, audio_len = input_signal.shape
+        assert Bs.shape[-1] == As.shape[-1] == 3, "The filter order must be 2."
+
+        if num_channels == 1:
+            input_signal = input_signal.repeat(1, Bs.shaep[1], 1)
+            num_channels = Bs.shape[1]
+        elif Bs.shape[1] == 1:
+            Bs = Bs.repeat(1, num_channels, 1, 1)
+            As = As.repeat(1, num_channels, 1, 1)
+        else:
+            assert num_channels == Bs.shape[1], "The number of channels must match."
+
+        input_signal = input_signal.view(batch * num_channels, audio_len)
+        Bs = Bs.view(batch * num_channels, -1, 3)
+        As = As.view(batch * num_channels, -1, 3)
+        K = Bs.shape[1]
+
+        # normalise the coefficients so that a_0 = 1
+        Bs = Bs / As[:, :, :1]
+        a12 = As[:, :, 1:] / As[:, :, :1]
+
+        # treat the direct component separately
+        b0 = Bs[:, :, :1]
+        b12 = Bs[:, :, 1:] - b0 * a12
+
+        def filter_runner(x, cur_b0, cur_b12, cur_a12):
+            # find the roots of transition matrix A
+            # first, check are they real or complex conjugate
+            tmp = cur_a12[..., 0] ** 2 - 4 * cur_a12[..., 1]
+            complex_poles_mask = tmp < 0
+            real_poles_mask = tmp > 0
+            double_poles_mask = ~complex_poles_mask & ~real_poles_mask
+
+            output_signal = torch.zeros_like(x)
+            if complex_poles_mask.any():
+                complex_poles = 0.5 * (
+                    -cur_a12[complex_poles_mask][..., 0]
+                    + 1j * torch.sqrt(-tmp[complex_poles_mask])
+                )
+                output_signal[complex_poles_mask] = _ssm_complex_conjugate(
+                    input_signal[complex_poles_mask],
+                    cur_b12[complex_poles_mask],
+                    complex_poles,
+                )
+            if real_poles_mask.any():
+                root_term = torch.sqrt(tmp[real_poles_mask])
+                poles = 0.5 * (
+                    -cur_a12[real_poles_mask][..., :1]
+                    + torch.stack((root_term, -root_term), -1)
+                )
+                output_signal[real_poles_mask] = _ssm_real_pole(
+                    input_signal[real_poles_mask],
+                    cur_b12[real_poles_mask],
+                    poles,
+                )
+
+            if double_poles_mask.any():
+                poles = -cur_a12[double_poles_mask][..., 0] * 0.5
+                output_signal[double_poles_mask] = _ssm_double_real_pole(
+                    input_signal[double_poles_mask],
+                    cur_b12[double_poles_mask],
+                    poles,
+                )
+
+            return cur_b0.unsqueeze(-1) * x + torch.cat(
+                [torch.zeros_like(output_signal[:, :1]), output_signal[:, :-1]], -1
+            )
+
+        return reduce(
+            lambda x, i: filter_runner(x, b0[:, i], b12[:, i], a12[:, i]),
+            range(K),
+            input_signal,
+        )
+
     @staticmethod
     def iir_fsm(Bs, As, delays, eps=1e-10):
         Bs, As = Bs.unsqueeze(-1), As.unsqueeze(-1)
@@ -173,3 +250,37 @@ class IIRFilter(nn.Module):
         phase = delay_length.unsqueeze(-1) * arange / fir_length * 2 * np.pi
         delay = torch.exp(-1j * phase)
         return delay
+
+
+def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
+    u = -1j * x
+    h = sample_wise_lpc(u, -complex_pole[:, None, None].expand(-1, x.shape[1], -1))
+    b1 = b12[..., 0]
+    b2 = b12[..., 1]
+    return (
+        h.real * (b1 * complex_pole.real / complex_pole.imag + b2 / complex_pole.imag)
+        - b1 * h.imag
+    )
+
+
+def _ssm_real_pole(x, b12, poles):
+    pole_1, pole_2 = poles.unbind(-1)
+    diff = pole_1 - pole_2
+    u = x.unsqueeze(1) * (torch.stack((pole_1, -pole_2), -1) / diff).unsqueeze(-1)
+    h = sample_wise_lpc(
+        u.view(-1, u.shape[-1]), -poles.view(-1, 1, 1).expand(-1, u.shape[-1], -1)
+    ).view_as(u)
+    b1 = b12[..., 0]
+    b2 = b12[..., 1]
+    return b1 * h.sum(1) + b2 * torch.sum(h * poles.reciprocal().unsqueeze(-1), 1)
+
+
+def _ssm_double_real_pole(x, b12, pole):
+    def runner(u):
+        return sample_wise_lpc(u, -pole[:, None, None].expand(-1, u.shape[1], -1))
+
+    h = reduce(lambda x, _: runner(x), range(2), x)
+    return (
+        h * b12[..., 0]
+        + torch.cat((torch.zeros_like(h[:, :1]), h[:, :-1]), -1) * b12[..., 1]
+    )
