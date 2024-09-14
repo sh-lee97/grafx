@@ -273,7 +273,7 @@ def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
     #     |0  Im(p)|
     # V = |-1  Re(p)|
     #
-    # The rotation matrix R is given by
+    # The matrix R is given by
     #     |Re(p)  -Im(p)|
     # R = |Im(p)   Re(p)|
     # which is a rotation matrix and can be written as complex exponential |p|e^{j angle(p)} = p.
