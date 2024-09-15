@@ -71,8 +71,8 @@ class IIRFilter(nn.Module):
         B_i &= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad 
         C_i = \begin{bmatrix}b_{i, 1} - b_{i, 0} a_{i, 1} & b_{i, 2} - b_{i, 0} a_{i, 2} \end{bmatrix}.
         $$
-        If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix of real poles or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
-        Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we can leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
+        If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix with real poles on the diagonal or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
+        Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
         Finally, the output is projected back to the original basis using $V_i$. 
 
         We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, as the former runs several times faster on the GPU and is more numerically stable than the latter.
