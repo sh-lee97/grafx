@@ -64,12 +64,12 @@ class IIRFilter(nn.Module):
         The direct form I implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
         $$
         x_i[n+1] &= A_i x_i[n] + B_i s[n], \\
-        y_i[n] &= C_i x_i[n] + b_{i, 0} s[n],
+        y_i[n] &= C_i x_i[n] + \bar{b}_{i, 0} s[n],
         $$
         $$
-        A_i = \begin{bmatrix}-a_{i, 1} & -a_{i, 2} \\ 1 & 0 \end{bmatrix}, \quad 
+        A_i = \begin{bmatrix}-\bar{a}_{i, 1} & -\bar{a}_{i, 2} \\ 1 & 0 \end{bmatrix}, \quad 
         B_i &= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad 
-        C_i = \begin{bmatrix}b_{i, 1} - b_{i, 0} a_{i, 1} & b_{i, 2} - b_{i, 0} a_{i, 2} \end{bmatrix}.
+        C_i = \begin{bmatrix}\bar{b}_{i, 1} - \bar{b}_{i, 0} \bar{a}_{i, 1} & \bar{b}_{i, 2} - \bar{b}_{i, 0} \bar{a}_{i, 2} \end{bmatrix}.
         $$
         If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix with real poles on the diagonal or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
         Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
@@ -85,8 +85,8 @@ class IIRFilter(nn.Module):
             making the number of learnable parameters $5$ per biquad instead of $6$
             (default: :python:`False`).
         backend (:python:`str`, *optional*):
-            The backend to use for the filtering, which can either be the frequency-sampling method
-            :python:`"fsm"` or exact time-domain filter :python:`"lfilter"` (default: :python:`"fsm"`).
+            The backend to use for the filtering, which can either be the frequency-sampling method :python:`"fsm"` 
+            or exact time-domain filters, :python:`"lfilter"` or :python:`"ssm"` (default: :python:`"fsm"`).
         fsm_fir_len (:python:`int`, *optional*):
             The length of FIR approximation when :python:`backend == "fsm"` (default: :python:`8192`).
     """
