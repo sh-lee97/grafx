@@ -61,7 +61,21 @@ class IIRFilter(nn.Module):
         where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
 
         The third one, :python:`"ssm"`, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
-        The input sequence is first projected to the eigenbasis of the transition matrix $A$. Then, the `parallel_scan` function is used to run two first-order recursive filters in parallel. Finally, the output is projected back to the original basis. This method provides significant speedup over :python:`"lfilter"` when running on GPU.
+        The direct form I implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
+        $$
+        x_i[m+1] &= A_i x_i[m] + B_i s[m], \\
+        y_i[m] &= C_i x_i[m] + b_{i, 0} s[m],
+        $$
+        $$
+        A_i = \begin{bmatrix}-a_{i, 1} & -a_{i, 2} \\ 1 & 0 \end{bmatrix}, \quad 
+        B_i &= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad 
+        C_i = \begin{bmatrix}b_{i, 1} - b_{i, 0} a_{i, 1} & b_{i, 2} - b_{i, 0} a_{i, 2} \end{bmatrix}.
+        $$
+        If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix of real poles or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
+        Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[m]$, where we can leverage `parallel_scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
+        Finally, the output is projected back to the original basis using $V_i$. 
+
+        We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, as the former runs several times faster on the GPU and is more numerically stable than the latter.
 
     Args:
         num_filters (:python:`int`, *optional*):
