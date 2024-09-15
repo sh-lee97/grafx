@@ -180,9 +180,9 @@ class IIRFilter(nn.Module):
         else:
             assert num_channels == Bs.shape[1], "The number of channels must match."
 
-        input_signal = input_signal.view(batch * num_channels, audio_len)
-        Bs = Bs.view(batch * num_channels, -1, 3)
-        As = As.view(batch * num_channels, -1, 3)
+        input_signal = input_signal.reshape(batch * num_channels, audio_len)
+        Bs = Bs.reshape(batch * num_channels, -1, 3)
+        As = As.reshape(batch * num_channels, -1, 3)
         K = Bs.shape[1]
 
         # normalise the coefficients so that a_0 = 1
@@ -242,7 +242,7 @@ class IIRFilter(nn.Module):
             input_signal,
         )
 
-        return output_signal.view(batch, num_channels, audio_len)
+        return output_signal.reshape(batch, num_channels, audio_len)
 
     @staticmethod
     def iir_fsm(Bs, As, delays, eps=1e-10):
@@ -305,7 +305,7 @@ def _ssm_real_pole(x, b12, poles):
         * (torch.stack([pole_1, -pole_2], dim=-1) / diff[:, None])[..., None]
     )
     h = _first_order_recursive_filter(
-        u.view(-1, u.shape[-1]), poles.view(-1, 1)
+        u.reshape(-1, u.shape[-1]), poles.reshape(-1)
     ).view_as(u)
     b1 = b12[..., :1]
     b2 = b12[..., 1:]
