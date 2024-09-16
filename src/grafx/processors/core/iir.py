@@ -61,7 +61,7 @@ class IIRFilter(nn.Module):
         where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
 
         The third one, :python:`"ssm"`, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
-        The direct form I implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
+        The direct form II implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
         $$
         x_i[n+1] &= A_i x_i[n] + B_i s[n], \\
         y_i[n] &= C_i x_i[n] + \bar{b}_{i, 0} s[n],
