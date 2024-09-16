@@ -75,7 +75,7 @@ class IIRFilter(nn.Module):
         Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
         Finally, the output is projected back to the original basis using $V_i$. 
 
-        We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, as the former runs several times faster on the GPU and is more numerically stable than the latter.
+        We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, not only because it runs several times faster on the GPU but it's more numerically stable.
 
     Args:
         num_filters (:python:`int`, *optional*):
