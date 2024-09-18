@@ -2,3 +2,5 @@
 build/
 dist/
 sphinx-doc/build
+*.pyc
+*.egg-info
