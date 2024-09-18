@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from utils import _save_audio_and_mel, _test_single_processor
 
-import tests.processors.conftest as conftest
+import conftest
 from grafx.processors import *
 
 # region Fixture

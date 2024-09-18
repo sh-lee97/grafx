@@ -5,7 +5,7 @@ from utils import (
     create_empty_parameters_from_shape_dict,
 )
 
-import tests.processors.conftest as conftest
+import conftest
 from grafx.processors.delay import MultitapDelay
 
 # region Fixture
