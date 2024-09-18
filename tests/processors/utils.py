@@ -44,7 +44,7 @@ def _test_lti_processor(
     magnitude = 20 * torch.log10(torch.abs(torch.fft.rfft(output_signal)))
     ax.plot(magnitude)
     name = type(processor)
-    fig.savefig(f"tests/outputs/{name}.pdf", bbox_inches="tight")
+    fig.savefig(f"outputs/{name}.pdf", bbox_inches="tight")
     plt.close(fig)
 
 
@@ -95,10 +95,10 @@ def get_device_setup(setup):
 
 
 def load_audio_files():
-    audio_path = "tests/samples"
+    audio_path = "samples"
     audio_files = {
         "drums": "drums.wav",
-        "speech": "speech.wav",
+        # "speech": "speech.wav",
         "bass": "bass.wav",
         "guitar": "guitar.wav",
         "singing": "singing.wav",
@@ -121,7 +121,7 @@ def load_audio_files():
 
 
 def save_output(processor_class, subgroup, output, sample_rate, test_name):
-    output_dir = f"tests/outputs/{subgroup}/{processor_class}"
+    output_dir = f"outputs/{subgroup}/{processor_class}"
     os.makedirs(output_dir, exist_ok=True)
     output_file = opj(output_dir, f"{test_name}.wav")
     sf.write(output_file, output[0].detach().cpu().numpy().T, sample_rate)
@@ -206,14 +206,14 @@ def plot_and_save_mel_spectrograms(
         axs[2, i].set_title(f"Difference Mel Spectrogram ({channel}) - {audio_name}")
         plt.colorbar(spec_diff, ax=axs[2, i], format="%+2.0f dB")
 
-    output_dir = f"tests/outputs/{subgroup}/{processor_name}/mels"
+    output_dir = f"outputs/{subgroup}/{processor_name}/mels"
     os.makedirs(output_dir, exist_ok=True)
     plt.savefig(os.path.join(output_dir, f"{name}_mel.png"))
     plt.close(fig)
 
 
 def save_output(processor_class, subgroup, output, sample_rate, test_name):
-    output_dir = f"tests/outputs/{subgroup}/{processor_class}"
+    output_dir = f"outputs/{subgroup}/{processor_class}"
     os.makedirs(output_dir, exist_ok=True)
     output_file = opj(output_dir, f"{test_name}.wav")
     sf.write(output_file, output[0].T, sample_rate)
@@ -371,7 +371,7 @@ def _save_audio_and_mel(
             plt.colorbar(spec_diff, ax=axs[2, i], format="%+2.0f dB")
 
         # Save the plot
-        output_dir = f"tests/outputs/{subgroup}/{processor_name}/mels"
+        output_dir = f"outputs/{subgroup}/{processor_name}/mels"
         os.makedirs(output_dir, exist_ok=True)
         plt.suptitle(f"{audio_name.capitalize()} std:{std}", fontsize=20)
         plt.savefig(

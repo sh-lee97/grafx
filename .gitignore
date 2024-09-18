@@ -1,6 +1,7 @@
 # .gitignore
 build/
 dist/
-sphinx-doc/build
+tests/outputs/
+sphinx-doc/build/
 *.pyc
 *.egg-info

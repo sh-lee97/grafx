@@ -6,7 +6,7 @@ import pytest
 try:
     import grafx
 except:
-    sys.path.insert(0, "src")
+    sys.path.insert(0, "../src")
 
 
 def pytest_addoption(parser):

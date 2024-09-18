@@ -1,3 +1,4 @@
+import conftest
 import pytest
 from utils import (
     _save_audio_and_mel,
@@ -5,7 +6,6 @@ from utils import (
     create_empty_parameters_from_shape_dict,
 )
 
-import conftest
 from grafx.processors.delay import MultitapDelay
 
 # region Fixture

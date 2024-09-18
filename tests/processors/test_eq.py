@@ -28,17 +28,17 @@ def setup(request):
     return request.param
 
 
-@pytest.fixture(params=[0, 0.01, 1])
+@pytest.fixture(scope="session", params=[0, 1e-2, 1e-1, 1, 10])
 def std(request):
     return request.param
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def processor_list():
     return []
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session", autouse=True)
 def save_audio_mel_once(processor_list, std):
     yield
     if processor_list:

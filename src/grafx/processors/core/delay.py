@@ -113,7 +113,7 @@ class SurrogateDelay(nn.Module):
         mag = torch.abs(z)
         z = z * torch.tanh(mag) / (mag + 1e-7)
 
-        sins = z[:, None] ** self.arange_sin
+        sins = (z[:, None] + 1e-7) ** self.arange_sin
         irs = torch.fft.irfft(sins)
 
         if self.straight_through:
