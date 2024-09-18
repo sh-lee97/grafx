@@ -20,7 +20,7 @@ def flashfftconv(request):
     return request.param
 
 
-@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+@pytest.fixture(params=[0, 0.01, 1])
 def std(request):
     return request.param
 

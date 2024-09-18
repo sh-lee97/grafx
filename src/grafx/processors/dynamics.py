@@ -104,7 +104,7 @@ class ApproxCompressor(nn.Module):
         """
 
         log_energy = self.env_follower(input_signals, z_alpha)
-        log_gain = compressor_gain_quad_knee(
+        log_gain = Compressor.gain_quad_knee(
             log_energy, log_threshold - 6, log_ratio, log_knee
         )
         gain = torch.exp(log_gain)

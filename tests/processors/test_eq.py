@@ -1,7 +1,6 @@
 import pytest
 from utils import _save_audio_and_mel, _test_single_processor, get_device_setup
 
-import conftest
 from grafx.processors import *
 
 # region Fixture
@@ -29,17 +28,17 @@ def setup(request):
     return request.param
 
 
-@pytest.fixture(scope="session")
-def processor_list():
-    return []
-
-
-@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+@pytest.fixture(params=[0, 0.01, 1])
 def std(request):
     return request.param
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture()
+def processor_list():
+    return []
+
+
+@pytest.fixture()
 def save_audio_mel_once(processor_list, std):
     yield
     if processor_list:

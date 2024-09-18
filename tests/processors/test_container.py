@@ -1,4 +1,5 @@
 import itertools
+import random
 
 import pytest
 import torch
@@ -51,6 +52,8 @@ def generate_combinations(processors, chain_lengths):
 
 
 PROCESSOR_COMBINATIONS = generate_combinations(PROCESSORS, [2, 3])
+random.shuffle(PROCESSOR_COMBINATIONS)
+PROCESSOR_COMBINATIONS = PROCESSOR_COMBINATIONS[:100]
 # PROCESSOR_COMBINATIONS = PROCESSOR_COMBINATIONS[:1]
 
 

@@ -1,9 +1,8 @@
 import pytest
 import torch
+from utils import _save_audio_and_mel, _test_single_processor
 
-from .utils import _save_audio_and_mel, _test_single_processor
-
-import tests.processors.conftest as conftest
+import conftest
 from grafx.processors import *
 from grafx.processors.core.iir import IIRFilter
 
@@ -40,7 +39,7 @@ def fsm_regularization(request):
     return request.param
 
 
-@pytest.fixture(params=[1])  # [-1, 0, 0.01, 1]
+@pytest.fixture(params=[0, 0.01, 1])
 def std(request):
     return request.param
 
