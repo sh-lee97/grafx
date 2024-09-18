@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio
 from torchaudio.functional import lfilter
+from functools import reduce, partial
+from torchlpc import sample_wise_lpc
 
 from grafx.processors.core.convolution import FIRConvolution
 from grafx.processors.core.midside import lr_to_ms, ms_to_lr
@@ -29,7 +31,7 @@ class IIRFilter(nn.Module):
         H(z) = \prod_{k=1}^K H_k(z) = \prod_k \frac{ b_{k, 0} + b_{k, 1} z^{-1} + b_{i, 2} z^{-2}}{a_{i, 0} + a_{i, 1} z^{-1} + a_{i, 2} z^{-2}}.
         $$
 
-        We provide two backends for the filtering.
+        We provide three backends for the filtering.
         The first one, :python:`"lfilter"`, is the time-domain method that computes the difference equation exactly.
         It uses :python:`torchaudio.lfilter`, which uses the direct form I implementation
         (the bar denotes the normalized coefficients by $a_{i, 0}$) :cite:`yu2024differentiable`.
@@ -58,6 +60,23 @@ class IIRFilter(nn.Module):
         
         where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
 
+        The third one, :python:`"ssm"`, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
+        The direct form II implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
+        $$
+        x_i[n+1] &= A_i x_i[n] + B_i s[n], \\
+        y_i[n] &= C_i x_i[n] + \bar{b}_{i, 0} s[n],
+        $$
+        $$
+        A_i = \begin{bmatrix}-\bar{a}_{i, 1} & -\bar{a}_{i, 2} \\ 1 & 0 \end{bmatrix}, \quad 
+        B_i &= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad 
+        C_i = \begin{bmatrix}\bar{b}_{i, 1} - \bar{b}_{i, 0} \bar{a}_{i, 1} & \bar{b}_{i, 2} - \bar{b}_{i, 0} \bar{a}_{i, 2} \end{bmatrix}.
+        $$
+        If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix with real poles on the diagonal or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
+        Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
+        Finally, the output is projected back to the original basis using $V_i$. 
+
+        We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, not only because it runs several times faster on the GPU but it's more numerically stable.
+
     Args:
         num_filters (:python:`int`, *optional*):
             Number of biquads to use (default: :python:`1`).
@@ -66,8 +85,8 @@ class IIRFilter(nn.Module):
             making the number of learnable parameters $5$ per biquad instead of $6$
             (default: :python:`False`).
         backend (:python:`str`, *optional*):
-            The backend to use for the filtering, which can either be the frequency-sampling method
-            :python:`"fsm"` or exact time-domain filter :python:`"lfilter"` (default: :python:`"fsm"`).
+            The backend to use for the filtering, which can either be the frequency-sampling method :python:`"fsm"` 
+            or exact time-domain filters, :python:`"lfilter"` or :python:`"ssm"` (default: :python:`"fsm"`).
         fsm_fir_len (:python:`int`, *optional*):
             The length of FIR approximation when :python:`backend == "fsm"` (default: :python:`8192`).
     """
@@ -104,6 +123,8 @@ class IIRFilter(nn.Module):
                 self.process = self._process_fsm
             case "lfilter":
                 self.process = self._process_lfilter
+            case "ssm":
+                self.process = self._process_ssm
             case _:
                 raise ValueError(f"Unsupported backend: {backend}")
 
@@ -155,9 +176,87 @@ class IIRFilter(nn.Module):
                 b_coeffs=Bs[:, i, :],
                 a_coeffs=As[:, i, :],
                 batching=True,
+                clamp=False,
             )
         output_signal = output_signal.view(b, c, audio_len)
         return output_signal
+
+    def _process_ssm(self, input_signal, Bs, As):
+        batch, num_channels, audio_len = input_signal.shape
+        assert Bs.shape[-1] == As.shape[-1] == 3, "The filter order must be 2."
+
+        if num_channels == 1:
+            input_signal = input_signal.repeat(1, Bs.shape[1], 1)
+            num_channels = Bs.shape[1]
+        elif Bs.shape[1] == 1:
+            Bs = Bs.repeat(1, num_channels, 1, 1)
+            As = As.repeat(1, num_channels, 1, 1)
+        else:
+            assert num_channels == Bs.shape[1], "The number of channels must match."
+
+        input_signal = input_signal.reshape(batch * num_channels, audio_len)
+        Bs = Bs.reshape(batch * num_channels, -1, 3)
+        As = As.reshape(batch * num_channels, -1, 3)
+        K = Bs.shape[1]
+
+        # normalise the coefficients so that a_0 = 1
+        Bs = Bs / As[:, :, :1]
+        a12 = As[:, :, 1:] / As[:, :, :1]
+
+        # treat the direct component separately
+        b0 = Bs[:, :, :1]
+        b12 = Bs[:, :, 1:] - b0 * a12
+
+        def filter_runner(x, cur_b0, cur_b12, cur_a12):
+            # find the roots of transition matrix A
+            # first, check are they real or complex conjugates
+            tmp = cur_a12[..., 0] ** 2 - 4 * cur_a12[..., 1]
+            complex_poles_mask = tmp < 0
+            real_poles_mask = tmp > 0
+            double_poles_mask = ~complex_poles_mask & ~real_poles_mask
+
+            output_signal = torch.zeros_like(x)
+            if complex_poles_mask.any():
+                complex_poles = 0.5 * (
+                    -cur_a12[complex_poles_mask][..., 0]
+                    + 1j * torch.sqrt(-tmp[complex_poles_mask])
+                )
+                output_signal[complex_poles_mask] = _ssm_complex_conjugate(
+                    input_signal[complex_poles_mask],
+                    cur_b12[complex_poles_mask],
+                    complex_poles,
+                )
+            if real_poles_mask.any():
+                root_term = torch.sqrt(tmp[real_poles_mask])
+                poles = 0.5 * (
+                    -cur_a12[real_poles_mask][..., :1]
+                    + torch.stack((root_term, -root_term), -1)
+                )
+                output_signal[real_poles_mask] = _ssm_real_pole(
+                    input_signal[real_poles_mask],
+                    cur_b12[real_poles_mask],
+                    poles,
+                )
+
+            if double_poles_mask.any():
+                poles = -cur_a12[double_poles_mask][..., 0] * 0.5
+                output_signal[double_poles_mask] = _ssm_double_real_pole(
+                    input_signal[double_poles_mask],
+                    cur_b12[double_poles_mask],
+                    poles,
+                )
+
+            return cur_b0 * x + torch.cat(
+                [torch.zeros_like(output_signal[:, :1]), output_signal[:, :-1]], -1
+            )
+
+        output_signal = reduce(
+            lambda x, args: filter_runner(x, *args),
+            zip(b0.unbind(1), b12.unbind(1), a12.unbind(1)),
+            input_signal,
+        )
+
+        return output_signal.reshape(batch, num_channels, audio_len)
 
     @staticmethod
     def iir_fsm(Bs, As, delays, eps=1e-10):
@@ -173,3 +272,65 @@ class IIRFilter(nn.Module):
         phase = delay_length.unsqueeze(-1) * arange / fir_length * 2 * np.pi
         delay = torch.exp(-1j * phase)
         return delay
+
+
+def _first_order_recursive_filter(x, a):
+    # x: (batch, T)
+    # a: (batch,)
+    return sample_wise_lpc(x, -a[:, None, None].expand(-1, x.shape[1], -1))
+
+
+def _ssm_complex_conjugate(x, b12, complex_pole: torch.Tensor):
+    #     |2 * Re(p) -|p|^2|
+    # A = |1         0     | = V^-1 @ R @ V
+    #
+    #     |0  Im(p)|
+    # V = |-1  Re(p)|
+    #
+    # The matrix R is given by
+    #     |Re(p)  -Im(p)|
+    # R = |Im(p)   Re(p)|
+    # which is a rotation matrix and can be written as complex exponential |p|e^{j angle(p)} = p.
+    # We utilise this fact to filter the signal using one complex first-order filter.
+    # This kind of filter is also known as `Minimum Norm Recursive Filter`.
+    u = -1j * x
+    h = _first_order_recursive_filter(u, complex_pole)
+    b1 = b12[..., 0]
+    b2 = b12[..., 1]
+    return (
+        h.real
+        * (b1 * complex_pole.real / complex_pole.imag + b2 / complex_pole.imag)[
+            ..., None
+        ]
+        - b1[..., None] * h.imag
+    )
+
+
+def _ssm_real_pole(x, b12, poles):
+    #     |p1 + p2  -p1 * p2|
+    # A = |1        0       | = V @ diag(p1, p2) @ V^-1
+    #
+    #     |1      1    |
+    # V = |p1^-1  p2^-1|
+    pole_1, pole_2 = poles.unbind(-1)
+    diff = pole_1 - pole_2
+    u = (
+        x.unsqueeze(1)
+        * (torch.stack([pole_1, -pole_2], dim=-1) / diff[:, None])[..., None]
+    )
+    h = _first_order_recursive_filter(
+        u.reshape(-1, u.shape[-1]), poles.reshape(-1)
+    ).view_as(u)
+    b1 = b12[..., :1]
+    b2 = b12[..., 1:]
+    return b1 * h.sum(1) + b2 * torch.sum(h * poles.reciprocal().unsqueeze(-1), 1)
+
+
+def _ssm_double_real_pole(x, b12, pole):
+    # Since we cannot perform the diagonalisation when double poles are present, we just perform two first-order recursive filters in series.
+    runner = partial(_first_order_recursive_filter, a=pole)
+    h = reduce(lambda u, f: f(u), [runner] * 2, x)
+    return (
+        h * b12[..., :1]
+        + torch.cat((torch.zeros_like(h[:, :1]), h[:, :-1]), -1) * b12[..., 1:]
+    )

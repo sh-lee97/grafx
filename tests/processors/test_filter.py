@@ -1,8 +1,11 @@
 import pytest
-from utils import _save_audio_and_mel, _test_single_processor
+import torch
 
-# import tests.processors.conftest as conftest
+from .utils import _save_audio_and_mel, _test_single_processor
+
+import tests.processors.conftest as conftest
 from grafx.processors import *
+from grafx.processors.core.iir import IIRFilter
 
 # region Fixture
 
@@ -208,6 +211,27 @@ def test_hs(device, backend, num_filters, fsm_fir_len, flashfftconv):
         fsm_regularization=False,
     )
     _test_single_processor(processor, device=device)
+
+
+def test_ssm_lfilter_equivalence():
+    batch_size = 7
+    num_filters = 6
+    num_channels = 5
+    T = 10000
+
+    x = torch.randn(batch_size, num_channels, T).double()
+    Bs = torch.randn(batch_size, num_channels, num_filters, 3).double()
+    a1 = torch.rand(batch_size, num_channels, num_filters).double() * 4 - 2
+    a2 = ((torch.rand_like(a1) * 2 - 1) * (2 - a1.abs()) + a1.abs()) * 0.5
+    As = torch.stack([torch.ones_like(a1), a1, a2], dim=-1)
+
+    baseline_processor = IIRFilter(backend="lfilter")
+    ssm_processor = IIRFilter(backend="ssm")
+
+    target = baseline_processor(x, Bs, As)
+    output = ssm_processor(x, Bs, As)
+
+    assert torch.allclose(target, output), (target - output).abs().max()
 
 
 if __name__ == "__main__":
