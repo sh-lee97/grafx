@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.data" href="../graph_api/data.html" /><link rel="prev" title="Differentiable Processors" href="processors.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>Batched Audio Processing - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
@@ -315,26 +315,30 @@ to have all of the <code class="code highlight python docutils literal highlight
 For example, the below graph was first constructed with a fixed chain of processors, and then got pruned to the current graph <span id="id3">[<a class="reference internal" href="../references/reference.html#id148" title="Sungho Lee, Marco A Martinez-Ramirez, Wei-Hsiang Liao, Stefan Uhlich, Giorgio Fabbro, Kyogu Lee, and Yuki Mitsufuji. Searching for music mixing graphs: a pruning approach. In DAFx. 2024.">LMRL+24a</a>]</span>.
 In such a case, we know that the optimal order is a subsequence of the original processor chain.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../_images/fixed.svg"><img alt="../_images/fixed.svg" src="../_images/fixed.svg" style="width: 837.8399999999999px; height: 298.56px;" /></a>
+<a class="reference internal image-reference" href="../_images/fixed.svg"><img alt="../_images/fixed.svg" src="../_images/fixed.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
 </figure>
 </li>
 <li><p><strong>Greedy method —</strong> If we cannot use the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fixed&quot;</span></code> method, we have to find a short sequence by our own. However, since the search tree for the shortest sequence exponentially grows,
 the brute-force search is too expensive for most graphs.
 Instead, we can try the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;greedy&quot;</span></code> method that chooses a type with the largest number of computable nodes.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../_images/greedy.svg"><img alt="../_images/greedy.svg" src="../_images/greedy.svg" style="width: 837.8399999999999px; height: 298.56px;" /></a>
+<a class="reference internal image-reference" href="../_images/greedy.svg"><img alt="../_images/greedy.svg" src="../_images/greedy.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
 </figure>
 </li>
 <li><p><strong>Beam search —</strong> The greedy method usually finds a longer sequence and slows down the processing.
 We can alleviate this with the beam search, i.e., keeping multiple best <span class="math notranslate nohighlight">\(W&gt;1\)</span> schedules as candidates instead of one.
 By default, we use <span class="math notranslate nohighlight">\(W=32\)</span>.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../_images/beam.svg"><img alt="../_images/beam.svg" src="../_images/beam.svg" style="width: 837.8399999999999px; height: 298.56px;" /></a>
+<a class="reference internal image-reference" href="../_images/beam.svg"><img alt="../_images/beam.svg" src="../_images/beam.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
 </figure>
 </li>
 <li><p><strong>One-by-one —</strong> Finally, we can ignore the batched processing and compute each node one by one.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../_images/one-by-one.svg"><img alt="../_images/one-by-one.svg" src="../_images/one-by-one.svg" style="width: 837.8399999999999px; height: 298.56px;" /></a>
+<a class="reference internal image-reference" href="../_images/one-by-one.svg"><img alt="../_images/one-by-one.svg" src="../_images/one-by-one.svg" style="width: 837.8399999999999px; height: 298.56px;" />
+</a>
 </figure>
 </li>
 </ul>

@@ -372,7 +372,7 @@ method implemented properly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>**processors_kwargs</strong> (<em>optional</em>) – Keyword arguments (i.e., mostly parameters) that will be passed to the processor.</p></li>
 </ul>
 </dd>
@@ -431,7 +431,7 @@ The set of all learnable parameters is given as <span class="math notranslate no
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_signal</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
+<li><p><strong>input_signals</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times C \times L\)</span>) – A batch of input audio signals.</p></li>
 <li><p><strong>log_gains</strong> (<code class="code highlight python docutils literal highlight-python"><span class="n">FloatTensor</span></code>, <span class="math notranslate nohighlight">\(B \times K \:\!\)</span>) – A batch of log-gain vectors of the GEQ.</p></li>
 </ul>
 </dd>

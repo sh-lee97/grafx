@@ -386,6 +386,10 @@
 <span class="label"><span class="fn-bracket">[</span>LSY19<span class="fn-bracket">]</span></span>
 <p>Hanxiao Liu, Karen Simonyan, and Yiming Yang. DARTS: differentiable architecture search. In <em>ICLR</em>. 2019.</p>
 </div>
+<div class="citation" id="id167" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MC18<span class="fn-bracket">]</span></span>
+<p>Eric Martin and Chris Cundy. Parallelizing linear recurrent neural nets over sequence length. In <em>International Conference on Learning Representations</em>. 2018.</p>
+</div>
 <div class="citation" id="id121" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>MRBR20<span class="fn-bracket">]</span></span>
 <p>Marco A Martinez Ramirez, Emmanouil Benetos, and Joshua D Reiss. Deep learning for black-box modeling of audio effects. <em>Applied Sciences</em>, 10(2):638, 2020.</p>

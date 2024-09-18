@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="grafx.processors.filter" href="filter.html" /><link rel="prev" title="grafx.utils" href="../graph_api/utils.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.07.18 -->
         <title>grafx.processors.core - GRAFX Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a6743078" />
     
@@ -386,7 +386,7 @@ H(z) = \prod_{k=1}^K H_k(z) = \prod_k \frac{ b_{k, 0} + b_{k, 1} z^{-1} + b_{i, 
 \]</div>
 </div>
 </p>
-<p>We provide two backends for the filtering.
+<p>We provide three backends for the filtering.
 The first one, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code>, is the time-domain method that computes the difference equation exactly.
 It uses <code class="code highlight python docutils literal highlight-python"><span class="n">torchaudio</span><span class="o">.</span><span class="n">lfilter</span></code>, which uses the direct form I implementation
 (the bar denotes the normalized coefficients by <span class="math notranslate nohighlight">\(a_{i, 0}\)</span>) <span id="id3">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.
@@ -423,6 +423,29 @@ h_N[n] = \sum_{m=0}^\infty h[n+mN].
 </div>
 </p>
 <p>where <span class="math notranslate nohighlight">\(h[n]\)</span> is the true infinite impulse response (IIR). Clearly, increasing the number of samples <span class="math notranslate nohighlight">\(N\)</span> reduces the error.</p>
+<p>The third one, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;ssm&quot;</span></code>, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
+The direct form II implementation of the biquad filter can be written in state-space form <span id="id6">[<a class="reference internal" href="../references/reference.html#id160" title="Julius Orion Smith. Introduction to digital filters: with audio applications. Volume 2. Julius Smith, 2007.">Smi07b</a>]</span> as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+x_i[n+1] &amp;= A_i x_i[n] + B_i s[n], \\
+y_i[n] &amp;= C_i x_i[n] + \bar{b}_{i, 0} s[n],
+\end{split}\]</div>
+</div>
+
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+A_i = \begin{bmatrix}-\bar{a}_{i, 1} &amp; -\bar{a}_{i, 2} \\ 1 &amp; 0 \end{bmatrix}, \quad
+B_i &amp;= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad
+C_i = \begin{bmatrix}\bar{b}_{i, 1} - \bar{b}_{i, 0} \bar{a}_{i, 1} &amp; \bar{b}_{i, 2} - \bar{b}_{i, 0} \bar{a}_{i, 2} \end{bmatrix}.
+\end{split}\]</div>
+</div>
+
+If the poles of the filter are unique, the transition matrix <span class="math notranslate nohighlight">\(A_i\)</span> can be decomposed as <span class="math notranslate nohighlight">\(A_i = V_i \Lambda_i V_i^{-1}\)</span> where <span class="math notranslate nohighlight">\(\Lambda_i\)</span> is either a diagonal matrix with real poles on the diagonal or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
+Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl <span class="math notranslate nohighlight">\(V_i^{-1} B_i s[n]\)</span>, where we leverage <cite>Parallel Scan</cite> <span id="id7">[<a class="reference internal" href="../references/reference.html#id167" title="Eric Martin and Chris Cundy. Parallelizing linear recurrent neural nets over sequence length. In International Conference on Learning Representations. 2018.">MC18</a>]</span> to speed up the computation on the GPU.
+Finally, the output is projected back to the original basis using <span class="math notranslate nohighlight">\(V_i\)</span>.</p>
+<p>We recommend using the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;ssm&quot;</span></code> over the <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code> backend in general, not only because it runs several times faster on the GPU but it’s more numerically stable.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -431,8 +454,8 @@ h_N[n] = \sum_{m=0}^\infty h[n+mN].
 <li><p><strong>normalized</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">bool</span></code>, <em>optional</em>) – If set to <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the filter coefficients are assumed to be normalized by <span class="math notranslate nohighlight">\(a_{i, 0}\)</span>,
 making the number of learnable parameters <span class="math notranslate nohighlight">\(5\)</span> per biquad instead of <span class="math notranslate nohighlight">\(6\)</span>
 (default: <code class="code highlight python docutils literal highlight-python"><span class="kc">False</span></code>).</p></li>
-<li><p><strong>backend</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The backend to use for the filtering, which can either be the frequency-sampling method
-<code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code> or exact time-domain filter <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code>).</p></li>
+<li><p><strong>backend</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">str</span></code>, <em>optional</em>) – The backend to use for the filtering, which can either be the frequency-sampling method <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code>
+or exact time-domain filters, <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;lfilter&quot;</span></code> or <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;ssm&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="s2">&quot;fsm&quot;</span></code>).</p></li>
 <li><p><strong>fsm_fir_len</strong> (<code class="code highlight python docutils literal highlight-python"><span class="nb">int</span></code>, <em>optional</em>) – The length of FIR approximation when <code class="code highlight python docutils literal highlight-python"><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;fsm&quot;</span></code> (default: <code class="code highlight python docutils literal highlight-python"><span class="mi">8192</span></code>).</p></li>
 </ul>
 </dd>
@@ -467,9 +490,9 @@ h[n] = \delta[n-d]
 where <span class="math notranslate nohighlight">\(0\leq d &lt; N\)</span> is a delay length we want to optimize and <span class="math notranslate nohighlight">\(\delta[n]\)</span> denotes a unit impulse.
 We exploit the fact that each delay corresponds to a complex sinusoid in the frequency domain.
 Such a sinusoid’s angular frequency <span class="math notranslate nohighlight">\(z \in \mathbb{C}\)</span> can be optimized with the gradient descent
-if we allow it to be inside the unit disk, i.e., <span class="math notranslate nohighlight">\(|z| \leq 1\)</span> <span id="id6">[<a class="reference internal" href="../references/reference.html#id85" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>.
+if we allow it to be inside the unit disk, i.e., <span class="math notranslate nohighlight">\(|z| \leq 1\)</span> <span id="id8">[<a class="reference internal" href="../references/reference.html#id85" title="Ben Hayes, Charalampos Saitis, and György Fazekas. Sinusoidal frequency estimation by gradient descent. In IEEE ICASSP, 1–5. 2023.">HSF23</a>]</span>.
 We first start with an unconstrained complex parameter <span class="math notranslate nohighlight">\(\tilde{z} \in \mathbb{C}\)</span>
-and restrict it to be inside the unit disk (in the same way of restricting the poles <span id="id7">[<a class="reference internal" href="../references/reference.html#id11" title="Shahan Nercessian, Andy Sarroff, and Kurt James Werner. Lightweight and interpretable neural modeling of an audio distortion effect using hyperconditioned differentiable biquads. In ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 890–894. IEEE, 2021.">NSW21</a>]</span>)
+and restrict it to be inside the unit disk (in the same way of restricting the poles <span id="id9">[<a class="reference internal" href="../references/reference.html#id11" title="Shahan Nercessian, Andy Sarroff, and Kurt James Werner. Lightweight and interpretable neural modeling of an audio distortion effect using hyperconditioned differentiable biquads. In ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 890–894. IEEE, 2021.">NSW21</a>]</span>)
 with the following activation function.
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -489,7 +512,7 @@ z = \tilde{z}_k \cdot \frac{\tanh( | \tilde{z}_k | )}{ | \tilde{z}_k | + \epsilo
 <p>where <span class="math notranslate nohighlight">\(z_{N} = \exp(j\cdot 2\pi/N)\)</span>.
 Clearly, it is not a sparse delay line unless <span class="math notranslate nohighlight">\(z\)</span> is an integer power of <span class="math notranslate nohighlight">\(z_N\)</span> (on the unit circle with an exact angle).
 Instead it becomes a time-aliased and low-passed sinc kernel.
-We can use this soft delay as is, or we can use straight-through estimation (STE) <span id="id8">[<a class="reference internal" href="../references/reference.html#id13" title="Yoshua Bengio, Nicholas Leonard, and Aaron Courville. Estimating or propagating gradients through stochastic neurons for conditional computation. arXiv:1308.3432, 2013.">BLC13</a>]</span>
+We can use this soft delay as is, or we can use straight-through estimation (STE) <span id="id10">[<a class="reference internal" href="../references/reference.html#id13" title="Yoshua Bengio, Nicholas Leonard, and Aaron Courville. Estimating or propagating gradients through stochastic neurons for conditional computation. arXiv:1308.3432, 2013.">BLC13</a>]</span>
 so that the forward pass uses the hard delays <span class="math notranslate nohighlight">\(h[n]\)</span> and the backward pass uses the soft delays <span class="math notranslate nohighlight">\(\smash{\tilde{h}[n]}\)</span>.
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -605,7 +628,7 @@ y[n] = \begin{cases}
 </p>
 <p>We calculate the coefficients from the inputs with the sigmoid function, i.e.,
 <span class="math notranslate nohighlight">\(\alpha_\mathrm{A} = \sigma(z_{\mathrm{A}})\)</span> and <span class="math notranslate nohighlight">\(\alpha_\mathrm{R} = \sigma(z_{\mathrm{R}})\)</span>.
-We use <code class="code highlight python docutils literal highlight-python"><span class="n">diffcomp</span></code> for the optimized forward and backward computation <span id="id9">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.</p>
+We use <code class="code highlight python docutils literal highlight-python"><span class="n">diffcomp</span></code> for the optimized forward and backward computation <span id="id11">[<a class="reference internal" href="../references/reference.html#id158" title="Chin-Yun Yu, Christopher Mitcheltree, Alistair Carson, Stefan Bilbao, Joshua D Reiss, and György Fazekas. Differentiable all-pole filters for time-varying audio systems. arXiv preprint arXiv:2404.07970, 2024.">YMC+24</a>]</span>.</p>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="grafx.processors.core.envelope.Ballistics.forward">
