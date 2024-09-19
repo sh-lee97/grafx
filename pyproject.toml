@@ -1,6 +1,6 @@
 [project]
 name = "GRAFX"
-version = "0.6.0b"
+version = "0.6.0"
 description = "An Open-Source Library For Audio Processing Graphs in PyTorch"
 authors = [
     { name = "Sungho Lee" },
