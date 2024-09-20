@@ -17,6 +17,8 @@ dependencies = [
     "einops",
     "torchlpc>=0.4",
     "torchcomp",
+    "torchaudio",
+    "scipy",
 #"monarch-cuda @ git+https://github.com/HazyResearch/flash-fft-conv.git#subdirectory=csrc/flashfftconv",
 #    "flashfftconv @ git+https://github.com/HazyResearch/flash-fft-conv.git",
 ]
