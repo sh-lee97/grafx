@@ -61,6 +61,7 @@ class IIRFilter(nn.Module):
         where $h[n]$ is the true infinite impulse response (IIR). Clearly, increasing the number of samples $N$ reduces the error.
 
         The third one, :python:`"ssm"`, is based on the diagonalisation of the state-space model (SSM) of the biquad filter so it only works for the second-order filters.
+        This idea is based on `Ben Hayes <https://benhayes.net/>`_'s derivation of associative scan for parallel IIR filter computation and implemented by `Chin-Yun Yu <https://yoyololicon.github.io/>`_.
         The direct form II implementation of the biquad filter can be written in state-space form :cite:`smith2007introduction` as
         $$
         x_i[n+1] &= A_i x_i[n] + B_i s[n], \\
@@ -73,7 +74,7 @@ class IIRFilter(nn.Module):
         $$
         If the poles of the filter are unique, the transition matrix $A_i$ can be decomposed as $A_i = V_i \Lambda_i V_i^{-1}$ where $\Lambda_i$ is either a diagonal matrix with real poles on the diagonal or a scaled rotation matrix, which can be represented by one of the complex conjugate poles.
         Using this decomposition, the filter can be implemented as first-order recursive filters on the projected siganl $V_i^{-1} B_i s[n]$, where we leverage `Parallel Scan` :cite:`martin2018parallelizing` to speed up the computation on the GPU.
-        Finally, the output is projected back to the original basis using $V_i$. 
+        Finally, the output is projected back to the original basis using $V_i$.
 
         We recommend using the :python:`"ssm"` over the :python:`"lfilter"` backend in general, not only because it runs several times faster on the GPU but it's more numerically stable.
 
