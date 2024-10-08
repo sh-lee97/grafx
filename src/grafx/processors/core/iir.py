@@ -1,4 +1,5 @@
 import warnings
+from functools import partial, reduce
 
 import numpy as np
 import torch
@@ -7,7 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio
 from torchaudio.functional import lfilter
-from functools import reduce, partial
 from torchlpc import sample_wise_lpc
 
 from grafx.processors.core.convolution import FIRConvolution
@@ -67,6 +67,7 @@ class IIRFilter(nn.Module):
         x_i[n+1] &= A_i x_i[n] + B_i s[n], \\
         y_i[n] &= C_i x_i[n] + \bar{b}_{i, 0} s[n],
         $$
+        where the state transition transition matrices are given as
         $$
         A_i = \begin{bmatrix}-\bar{a}_{i, 1} & -\bar{a}_{i, 2} \\ 1 & 0 \end{bmatrix}, \quad 
         B_i &= \begin{bmatrix}1 \\ 0 \end{bmatrix}, \quad 
