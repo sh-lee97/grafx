@@ -16,30 +16,30 @@ class GRAFX(nx.MultiDiGraph):
     It inherits :python:`MultiDiGraph` class from :python:`networkx`.
 
     Args:
-        config (:class:`~grafx.data.configs.NodeConfigs`, *optional*): 
-            Node type configurations 
+        config (:class:`~grafx.data.configs.NodeConfigs`, *optional*):
+            Node type configurations
             (default: :python:`None`).
-        invalid_op (:python:`str`, *optional*): 
-            Behavior when an invalid operation is performed ("error", "warn", "mute") 
+        invalid_op (:python:`str`, *optional*):
+            Behavior when an invalid operation is performed ("error", "warn", "mute")
             (default: :python:`"error"`).
 
     Attributes:
-        counter (:python:`Union[List[int], int]`): 
+        counter (:python:`Union[List[int], int]`):
             A counter (for each graph, if it is a batched graph) for the number of nodes.
-        consecutive_ids (:python:`bool`): 
+        consecutive_ids (:python:`bool`):
             Indicates if node IDs are consecutive. This is useful when converting the graph to a tensor with the preserved order.
-        batch (:python:`bool`): 
+        batch (:python:`bool`):
             Indicates if the graph is a single large disconnected graph created by batching multiple graphs.
-        config (:class:`~grafx.data.configs.NodeConfigs`): 
+        config (:class:`~grafx.data.configs.NodeConfigs`):
             Node type configurations.
-        config_hash (:python:`int`): 
+        config_hash (:python:`int`):
             Hash value of the configuration.
-        invalid_op (:python:`str`): 
+        invalid_op (:python:`str`):
             Behavior when an invalid operation is performed.
-        rendering_order_method (:python:`str`): 
+        rendering_order_method (:python:`str`):
             Method used for determining the rendering order.
             Set to :python:`None` unless running a :func:`~grafx.render.order.graph.return_render_ordered_graph`.
-        type_sequence (:python:`list`): 
+        type_sequence (:python:`list`):
             Node type sequence for the output audio rendering.
             Set to :python:`None` unless running a :func:`~grafx.render.order.graph.return_render_ordered_graph`.
     """
@@ -147,9 +147,7 @@ class GRAFX(nx.MultiDiGraph):
         self.graph["consecutive_ids"] = False
         return incoming_edges, outgoing_edges
 
-    def connect(
-        self, source_id, dest_id, outlet="main", inlet="main"
-    ):
+    def connect(self, source_id, dest_id, outlet="main", inlet="main"):
         r"""
         Connects two nodes in the graph.
 
@@ -199,8 +197,8 @@ class GRAFX(nx.MultiDiGraph):
         Adds a serial chain of nodes.
 
         Args:
-            node_list (:python:`List[Union[str, dict]]`): 
-                A list of nodes, each given as a type 
+            node_list (:python:`List[Union[str, dict]]`):
+                A list of nodes, each given as a type
                 or a dictionary that forms keyword arguments for the :func:`~grafx.data.graph.GRAFX.add` method.
 
         Returns:
@@ -237,7 +235,7 @@ class GRAFX(nx.MultiDiGraph):
 
     @counter.setter
     def counter(self, val):
-        assert isinstance(val, int)
+        assert isinstance(val, int) or isinstance(val, list)
         self.graph["counter"] = val
 
     @property
@@ -300,4 +298,3 @@ class GRAFX(nx.MultiDiGraph):
     def type_sequence(self, val):
         assert isinstance(val, list) or isinstance(val, torch.LongTensor)
         self.graph["type_sequence"] = val
-
