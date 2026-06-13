@@ -85,6 +85,9 @@ class RenderData:
     # Static per-edge gains in convert order (GRAFXTensor.edge_indices order), or None.
     # A dynamic ``edge_gains`` passed to ``render_grafx`` overrides this.
     edge_gains: Optional[torch.Tensor] = None
+    # Number of signal-buffer slots (one per outlet). Defaults to num_nodes (SISO);
+    # set to sum(num_outlets) for graphs with multi-outlet nodes.
+    num_buffers: Optional[int] = None
 
     def __str__(self):
         strings = []
@@ -141,6 +144,10 @@ def prepare_render(G_t):
 
     max_order = torch.max(G_t.rendering_orders)
     num_nodes = G_t.num_nodes
+    # Signal-buffer size: one slot per OUTLET. For SISO that equals num_nodes, but with
+    # multi-outlet nodes (e.g. crossover) the dest_write slots run up to sum(num_outlets),
+    # which can exceed num_nodes — so the buffer must be sized by total outlets.
+    num_buffers = num_nodes if siso_only else int(sum(num_outlets))
 
     edge_indices = edge_indices.T
 
@@ -217,6 +224,7 @@ def prepare_render(G_t):
         siso_only=siso_only,
         iter_list=iter_list,
         edge_gains=G_t.edge_gains,
+        num_buffers=num_buffers,
     )
     return render_data
 

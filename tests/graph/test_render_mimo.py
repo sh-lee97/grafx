@@ -103,6 +103,36 @@ def test_parallel_edges_same_pair_convert_and_render():
     assert torch.allclose(y[0], (x * 0.5 - x * 0.25)[0], atol=1e-6)
 
 
+def test_cascaded_multi_outlet_buffer_size():
+    """Two cascaded crossover-like splits: sum(num_outlets) > num_nodes, so the signal
+    buffer must be sized by total outlets, not node count (regression)."""
+    cfg = _cfg()
+    G = GRAFX(config=cfg)
+    i_in = G.add("in")
+    s0 = G.add("split")
+    s1 = G.add("split")
+    a = G.add("ident")
+    b = G.add("ident")
+    c = G.add("ident")
+    mix = G.add("mix")
+    i_out = G.add("out")
+    G.connect(i_in, s0)
+    G.connect(s0, s1, outlet="high")     # cascade: s0.high -> s1
+    G.connect(s0, a, outlet="low")
+    G.connect(s1, b, outlet="low")
+    G.connect(s1, c, outlet="high")
+    G.connect(a, mix)
+    G.connect(b, mix)
+    G.connect(c, mix)
+    G.connect(mix, i_out)
+    rd = _compile(G)
+    procs = {"split": Split(), "merge": Merge(), "ident": Ident()}
+    params = create_empty_parameters(procs, G)
+    x = torch.randn(1, 2, 4096)
+    y, _, _ = render_grafx(procs, x, params, rd)
+    assert y.shape == (1, 2, 4096) and torch.isfinite(y).all()
+
+
 def test_mimo_backprop():
     """Gradients flow through a MIMO graph to a learnable parameter."""
     cfg = _cfg()

@@ -108,7 +108,7 @@ def render_grafx(
         with torch.no_grad():
             signal_buffer = create_signal_buffer(
                 method,
-                render_data.num_nodes,
+                render_data.num_buffers or render_data.num_nodes,
                 input_signals,
             )
 
