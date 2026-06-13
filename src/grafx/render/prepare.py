@@ -36,6 +36,9 @@ class _SingleRenderData:
     aggregations: List[_AggregationData]
     parameter_read: _TensorAccessData
     dest_write: _TensorAccessData
+    # Per-inlet LongTensors of convert-order edge ids, parallel to each source read's
+    # gathered signals. Used to gather per-edge gains; None-safe / optional.
+    source_edge_ids: Optional[List[torch.Tensor]] = None
 
     def __str__(self):
         strings = []
@@ -79,6 +82,9 @@ class RenderData:
     max_order: int
     siso_only: bool
     iter_list: List[_SingleRenderData]
+    # Static per-edge gains in convert order (GRAFXTensor.edge_indices order), or None.
+    # A dynamic ``edge_gains`` passed to ``render_grafx`` overrides this.
+    edge_gains: Optional[torch.Tensor] = None
 
     def __str__(self):
         strings = []
@@ -111,13 +117,23 @@ def prepare_render(G_t):
 
     per_type_indices = create_per_type_indices(G_t.node_types)
 
+    # Thread convert-order edge ids through the sort so each (post-sort) edge knows its
+    # original position in GRAFXTensor.edge_indices — needed to gather per-edge gains.
+    num_edges = G_t.edge_indices.shape[1]
+    convert_edge_ids = torch.arange(num_edges).unsqueeze(1)  # (E, 1)
+
     if siso_only:
-        edge_indices = sort_edge_index(G_t.edge_indices, sort_by_row=False)
-    else:
-        edge_indices, edge_types = sort_edge_index(
-            G_t.edge_indices, edge_attr=G_t.edge_types, sort_by_row=False
+        edge_indices, sorted_ids = sort_edge_index(
+            G_t.edge_indices, edge_attr=convert_edge_ids, sort_by_row=False
         )
-        edge_types = edge_types.tolist()
+        edge_ids = sorted_ids.squeeze(1).tolist()
+    else:
+        attr = torch.cat([G_t.edge_types, convert_edge_ids], dim=1)  # (E, 3)
+        edge_indices, attr = sort_edge_index(
+            G_t.edge_indices, edge_attr=attr, sort_by_row=False
+        )
+        edge_types = attr[:, :2].tolist()
+        edge_ids = attr[:, 2].tolist()
 
         num_outlets = torch.tensor([configs.num_outlets[t] for t in configs.node_types])
         num_outlets = num_outlets[G_t.node_types].tolist()
@@ -138,28 +154,36 @@ def prepare_render(G_t):
         if siso_only:
             source_idx = []
             scatter_idx = []
-            edges = get_incoming_edges(edge_indices, node_idxs).tolist()
-            for source, dest in edges:
+            eid_list = []
+            edges, edge_positions = get_incoming_edges(edge_indices, node_idxs)
+            for (source, dest), pos in zip(edges.tolist(), edge_positions.tolist()):
                 scatter_idx.append(node_list.index(dest))
                 source_idx.append(source)
+                eid_list.append(edge_ids[pos])
             source_reads = [check_and_convert_arange(source_idx)]
             aggregations = [check_aggregate_method(scatter_idx, node_list)]
+            source_edge_ids = [torch.tensor(eid_list, dtype=torch.long)]
 
         else:
             num_inlets = configs.num_inlets[node_type]
             scatter_idxs = [[] for _ in range(num_inlets)]
             source_idxs = [[] for _ in range(num_inlets)]
-            edges = get_incoming_edges(edge_indices, node_idxs).tolist()
+            eid_lists = [[] for _ in range(num_inlets)]
+            edges, edge_positions = get_incoming_edges(edge_indices, node_idxs)
 
-            for source, dest in edges:
-                outlet, inlet = edge_types[i]
+            # Use each edge's OWN (outlet, inlet) type, looked up by its position in
+            # the sorted edge array — not edge_types[i] (i is the render-order stage).
+            for (source, dest), pos in zip(edges.tolist(), edge_positions.tolist()):
+                outlet, inlet = edge_types[pos]
                 scatter_idxs[inlet].append(node_list.index(dest))
                 source_idxs[inlet].append(buffer_offsets[source] + outlet)
+                eid_lists[inlet].append(edge_ids[pos])
 
             source_reads = [check_and_convert_arange(idx) for idx in source_idxs]
             aggregations = [
                 check_aggregate_method(idx, node_list) for idx in scatter_idxs
             ]
+            source_edge_ids = [torch.tensor(e, dtype=torch.long) for e in eid_lists]
 
         parameter_idx = per_type_indices[node_mask]
         parameter_read = check_and_convert_arange(parameter_idx)
@@ -182,6 +206,7 @@ def prepare_render(G_t):
             source_reads=source_reads,
             parameter_read=parameter_read,
             dest_write=dest_write,
+            source_edge_ids=source_edge_ids,
         )
         iter_list.append(single_iter_data)
 
@@ -191,6 +216,7 @@ def prepare_render(G_t):
         max_order=max_order,
         siso_only=siso_only,
         iter_list=iter_list,
+        edge_gains=G_t.edge_gains,
     )
     return render_data
 
@@ -231,7 +257,11 @@ def check_and_convert_arange(idx):
 def get_incoming_edges(edge_indices, node_idxs):
     dests = edge_indices[:, 1]
     edge_masks = torch.any(dests[:, None] == node_idxs[None, :], -1)
-    return edge_indices[edge_masks]
+    # Also return the positions of the selected edges so callers can look up the
+    # corresponding per-edge attributes (edge_types / edge_gains), which stay
+    # parallel to ``edge_indices`` after sorting.
+    edge_positions = torch.where(edge_masks)[0]
+    return edge_indices[edge_masks], edge_positions
 
 
 def create_per_type_indices(node_types):

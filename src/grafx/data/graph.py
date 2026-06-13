@@ -74,7 +74,7 @@ class GRAFX(nx.MultiDiGraph):
             if num_out_edges == 1:
                 e = list(out_edges)[0]
                 _, to, config = e
-                outlet, inlet = config.values()
+                outlet, inlet = config["outlet"], config["inlet"]
                 if outlet != "main":
                     string += f" <{outlet}>"
                 string += " -> "
@@ -86,7 +86,7 @@ class GRAFX(nx.MultiDiGraph):
                 string_es = []
                 for e in out_edges:
                     _, to, config = e
-                    outlet, inlet = config.values()
+                    outlet, inlet = config["outlet"], config["inlet"]
                     string_e = "    "
                     if outlet != "main":
                         string_e += f"<{outlet}>"
@@ -147,7 +147,7 @@ class GRAFX(nx.MultiDiGraph):
         self.graph["consecutive_ids"] = False
         return incoming_edges, outgoing_edges
 
-    def connect(self, source_id, dest_id, outlet="main", inlet="main"):
+    def connect(self, source_id, dest_id, outlet="main", inlet="main", gain=None):
         r"""
         Connects two nodes in the graph.
 
@@ -156,6 +156,10 @@ class GRAFX(nx.MultiDiGraph):
             dest_id (:python:`int`): The ID of the destination node.
             outlet (:python:`str`, *optional*): The outlet of the source node (default: :python:`"main"`).
             inlet (:python:`str`, *optional*): The inlet of the destination node (default: :python:`"main"`).
+            gain (:python:`float`, *optional*): A linear gain multiplier applied to the signal
+                carried by this edge before it is summed at the destination inlet. :python:`None`
+                (default) means unity and is fully backward-compatible — edge gains are only
+                materialized when at least one edge sets a non-:python:`None` gain.
 
         Returns:
             :python:`None`
@@ -190,7 +194,13 @@ class GRAFX(nx.MultiDiGraph):
                 )
                 return
 
-        self.add_edge(source_id, dest_id, outlet=outlet, inlet=inlet)
+        # Only attach a gain attribute when explicitly set, so gain-less graphs keep
+        # exactly {outlet, inlet} edge data (backward compatible with existing code
+        # that assumes two edge attributes).
+        if gain is None:
+            self.add_edge(source_id, dest_id, outlet=outlet, inlet=inlet)
+        else:
+            self.add_edge(source_id, dest_id, outlet=outlet, inlet=inlet, gain=gain)
 
     def add_serial_chain(self, node_list):
         r"""

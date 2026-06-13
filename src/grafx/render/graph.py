@@ -21,6 +21,7 @@ def render_grafx(
     common_parameters=None,
     parameters_grad=True,
     input_signal_grad=False,
+    edge_gains=None,
 ):
     r"""
     Renders an audio graph using a specified processing method, handling both batched and non-batched inputs.
@@ -59,6 +60,8 @@ def render_grafx(
         case 3:
             node_dim = 0
             postprocess = None
+            # needed by the multi-outlet list-stacking path below (was only set for 4D)
+            channels, audio_len = input_signals.shape[-2], input_signals.shape[-1]
 
         case 4:
             batch_size, _, channels, audio_len = input_signals.shape
@@ -81,6 +84,12 @@ def render_grafx(
 
     any_grad = parameters_grad or input_signal_grad
 
+    # Per-edge linear gains: dynamic arg overrides any static gains baked into render_data.
+    # 1D tensor of length num_edges in convert order (GRAFXTensor.edge_indices order).
+    gains = edge_gains if edge_gains is not None else getattr(render_data, "edge_gains", None)
+    if gains is not None:
+        gains = gains.to(input_signals.device)
+
     if input_signal_grad:
         signal_buffer = create_signal_buffer(
             method,
@@ -101,13 +110,23 @@ def render_grafx(
         render_i = render_data.iter_list[i]
 
         input_signals = []
-        for read, aggregate in zip(render_i.source_reads, render_i.aggregations):
+        source_edge_ids = getattr(render_i, "source_edge_ids", None)
+        for j, (read, aggregate) in enumerate(zip(render_i.source_reads, render_i.aggregations)):
             input_signal = read_tensor_or_tensor_dict(
                 signal_buffer,
                 read,
                 return_copy=any_grad,
                 dim=node_dim,
             )
+
+            # Apply per-edge gains (before aggregation, so the sum is weighted).
+            if gains is not None and source_edge_ids is not None:
+                eids = source_edge_ids[j]
+                if eids.numel() > 0:
+                    g = gains[eids.to(gains.device)]  # (num_edges_into_this_read,)
+                    view = [1] * input_signal.dim()
+                    view[node_dim] = g.numel()
+                    input_signal = input_signal * g.view(view)
 
             input_signal = aggregate_tensor(
                 input_signal,

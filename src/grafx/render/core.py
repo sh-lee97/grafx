@@ -92,9 +92,12 @@ def inplace_write_tensor(method, x, y, access, dim=0):
                     x[access.idx] = y
                 elif dim == 1:
                     x[:, access.idx] = y
+            case "none":
+                # zero-outlet nodes (e.g. `out`) own no buffer slots — nothing to write
+                pass
             case _:
                 raise Exception(
-                    f"The provided inplace write method is not available: {access_method}."
+                    f"The provided inplace write method is not available: {access.method}."
                 )
 
 

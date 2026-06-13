@@ -55,6 +55,7 @@ class GRAFXTensor:
     invalid_op: str
 
     edge_types: Union[torch.LongTensor, None] = None
+    edge_gains: Union[torch.Tensor, None] = None
     rendering_order_method: Union[str, None] = None
     rendering_orders: Union[torch.LongTensor, None] = None
     type_sequence: Union[torch.LongTensor, None] = None

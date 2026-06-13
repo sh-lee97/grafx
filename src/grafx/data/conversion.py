@@ -19,8 +19,13 @@ def convert_to_tensor(G):
     if not G.consecutive_ids:
         G = _relabel_nodes_to_consequtive_ids(G)
 
-    nodes_with_data, edges_with_data = sorted(G.nodes(data=True)), sorted(
-        G.edges(data=True)
+    # Sort with an explicit key so parallel edges between the same node pair (which
+    # differ only in outlet/inlet) never fall through to comparing data dicts (a
+    # TypeError). For graphs without parallel edges this reproduces the (u, v) order.
+    nodes_with_data = sorted(G.nodes(data=True), key=lambda n: n[0])
+    edges_with_data = sorted(
+        G.edges(data=True),
+        key=lambda e: (e[0], e[1], e[2].get("outlet", ""), e[2].get("inlet", "")),
     )
 
     node_types = []
@@ -61,10 +66,21 @@ def convert_to_tensor(G):
             edge_types.append([outlet_id, inlet_id])
         edge_types = torch.tensor(edge_types)
 
+    # Edge gains (linear multipliers). Only materialized when at least one edge sets a
+    # non-None gain; otherwise None (fully backward-compatible — no behavior change).
+    edge_gain_vals = [data.get("gain", None) for _, _, data in edges_with_data]
+    if any(g is not None for g in edge_gain_vals):
+        edge_gains = torch.tensor(
+            [1.0 if g is None else float(g) for g in edge_gain_vals], dtype=torch.float
+        )
+    else:
+        edge_gains = None
+
     return GRAFXTensor(
         node_types=node_types,
         edge_indices=edge_indices,
         edge_types=edge_types,
+        edge_gains=edge_gains,
         rendering_order_method=G.rendering_order_method,
         rendering_orders=rendering_orders,
         type_sequence=G.type_sequence,
