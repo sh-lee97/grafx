@@ -88,7 +88,14 @@ def return_render_ordered_graph(G: GRAFX, method, **kwargs):
 
 def get_sorted_graph(G):
     H = GRAFX()
-    H.add_nodes_from(sorted(G.nodes(data=True)))
-    H.add_edges_from(sorted(G.edges(data=True)))
+    # Sort with explicit keys so parallel edges between the same node pair (differing
+    # only in outlet/inlet) don't fall through to comparing edge data dicts (TypeError).
+    H.add_nodes_from(sorted(G.nodes(data=True), key=lambda n: n[0]))
+    H.add_edges_from(
+        sorted(
+            G.edges(data=True),
+            key=lambda e: (e[0], e[1], e[2].get("outlet", ""), e[2].get("inlet", "")),
+        )
+    )
     H.graph = G.graph.copy()
     return H

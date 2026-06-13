@@ -88,6 +88,14 @@ def render_grafx(
     # 1D tensor of length num_edges in convert order (GRAFXTensor.edge_indices order).
     gains = edge_gains if edge_gains is not None else getattr(render_data, "edge_gains", None)
     if gains is not None:
+        if gains.dim() != 1:
+            # Per-item batched gains (B, E) are not implemented yet — fail loudly rather
+            # than silently indexing the batch dim. Use batch_grafx (one 1D [E_total]
+            # vector) for heterogeneous batches.
+            raise NotImplementedError(
+                f"edge_gains must be 1D [num_edges]; got shape {tuple(gains.shape)}. "
+                "Per-item (B, E) gains are not yet supported."
+            )
         gains = gains.to(input_signals.device)
 
     if input_signal_grad:

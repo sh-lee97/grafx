@@ -86,6 +86,71 @@ def test_dynamic_edge_gains_override():
     assert torch.allclose(y[0], (5.0 * x + 1.0 * x)[0], atol=1e-6)  # 6x, overrides 5x
 
 
+class _Split(nn.Module):
+    def parameter_size(self):
+        return {}
+
+    def forward(self, x):
+        return [x * 1.0, x * 1.0]  # low, high (identity; gains differentiate them)
+
+
+class _Merge(nn.Module):
+    def parameter_size(self):
+        return {}
+
+    def forward(self, a, b):
+        return a + b
+
+
+def test_edge_gains_on_non_siso_per_inlet():
+    """Distinct gains on the two inlets of a merge node (non-SISO path) are applied
+    to the correct inlet."""
+    cfg = NodeConfigs({
+        "split": {"inlets": ["main"], "outlets": ["low", "high"]},
+        "merge": {"inlets": ["a", "b"], "outlets": ["main"]},
+        "ident": {"inlets": ["main"], "outlets": ["main"]},
+    })
+    G = GRAFX(config=cfg)
+    i_in = G.add("in")
+    i_sp = G.add("split")
+    i_a = G.add("ident")
+    i_b = G.add("ident")
+    i_mg = G.add("merge")
+    i_out = G.add("out")
+    G.connect(i_in, i_sp)
+    G.connect(i_sp, i_a, outlet="low")
+    G.connect(i_sp, i_b, outlet="high")
+    G.connect(i_a, i_mg, inlet="a", gain=2.0)
+    G.connect(i_b, i_mg, inlet="b", gain=5.0)
+    G.connect(i_mg, i_out)
+    assert cfg.siso_only is False
+
+    G_t = convert_to_tensor(G)
+    G_t = reorder_for_fast_render(G_t, method="beam")
+    rd = prepare_render(G_t)
+    procs = {"split": _Split(), "merge": _Merge(), "ident": Ident()}
+    params = create_empty_parameters(procs, G)
+    x = torch.randn(1, 2, 4096)
+    y, _, _ = render_grafx(procs, x, params, rd)
+    # merge(a,b) = 2*x + 5*x = 7x (inlet routing + per-inlet gains correct)
+    assert torch.allclose(y[0], (7.0 * x)[0], atol=1e-6)
+
+
+def test_batched_edge_gains_rejected():
+    """(B, E) gains must raise (not silently mis-render); use batch_grafx instead."""
+    import pytest
+
+    cfg = NodeConfigs(["ident"])
+    G, (i1, i2, i_mix) = _two_branch_graph(cfg)
+    G_t, rd = _compile(G)
+    procs = {"ident": Ident()}
+    params = create_empty_parameters(procs, G)
+    x = torch.randn(4, 1, 2, 4096)  # 4D
+    E = G_t.edge_indices.shape[1]
+    with pytest.raises(NotImplementedError):
+        render_grafx(procs, x, params, rd, edge_gains=torch.ones(4, E))
+
+
 def test_edge_gains_backprop():
     cfg = NodeConfigs(["ident"])
     G, (i1, i2, i_mix) = _two_branch_graph(cfg)  # no static gains
