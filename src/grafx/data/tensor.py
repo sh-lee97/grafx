@@ -35,8 +35,16 @@ class GRAFXTensor:
         rendering_orders (:python:`Union[LongTensor, None]`, *optional*): 
             Tensor of rendering orders 
             (default: :python:`None`).
-        type_sequence (:python:`Union[LongTensor, None`], *optional*): 
-            Tensor of type sequences 
+        type_sequence (:python:`Union[LongTensor, None`], *optional*):
+            Tensor of type sequences
+            (default: :python:`None`).
+        parameter_indices (:python:`Union[LongTensor, None]`, *optional*):
+            Per-node index into its type's parameter tensor, i.e. each node's rank among
+            same-type nodes in **convert order** (sorted node id). Set by
+            :func:`~grafx.data.conversion.convert_to_tensor` and permuted alongside the
+            nodes by :func:`~grafx.utils.permute_grafx_tensor`, so callers supply
+            ``per_type_parameters`` in node-id order and the renderer maps them correctly
+            regardless of the rendering reorder
             (default: :python:`None`).
 
     Attributes:
@@ -59,6 +67,7 @@ class GRAFXTensor:
     rendering_order_method: Union[str, None] = None
     rendering_orders: Union[torch.LongTensor, None] = None
     type_sequence: Union[torch.LongTensor, None] = None
+    parameter_indices: Union[torch.LongTensor, None] = None
 
     def __str__(self):
         """

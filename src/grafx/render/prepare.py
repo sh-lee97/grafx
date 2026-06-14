@@ -118,7 +118,16 @@ def prepare_render(G_t):
     siso_only = configs.siso_only
     type_sequence = G_t.type_sequence
 
-    per_type_indices = create_per_type_indices(G_t.node_types)
+    # Per-node parameter-tensor index. Prefer the convert-order ranks carried on the tensor
+    # (set by convert_to_tensor, permuted through the reorder) so callers supply per-type
+    # params in node-id order. Fall back to recomputing on the reordered node_types only for
+    # tensors built without convert_to_tensor (legacy / hand-constructed) — that path keeps
+    # the historical (reorder-order) behavior.
+    per_type_indices = (
+        G_t.parameter_indices
+        if getattr(G_t, "parameter_indices", None) is not None
+        else create_per_type_indices(G_t.node_types)
+    )
 
     # Thread convert-order edge ids through the sort so each (post-sort) edge knows its
     # original position in GRAFXTensor.edge_indices — needed to gather per-edge gains.

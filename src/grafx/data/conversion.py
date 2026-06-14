@@ -35,6 +35,16 @@ def convert_to_tensor(G):
         node_types.append(node_type_id)
     node_types = torch.tensor(node_types, dtype=torch.long)
 
+    # Per-node index into its type's parameter tensor: each node's rank among same-type
+    # nodes in THIS (convert / sorted-node-id) order. Carried through the rendering reorder
+    # (permute_grafx_tensor) so render_grafx can consume per-type parameters supplied in
+    # node-id order, regardless of how the schedule permutes the nodes. (Matches the
+    # ordering of grafx.utils.create_empty_parameters / count_nodes_per_type.)
+    parameter_indices = torch.zeros_like(node_types)
+    for t in torch.unique(node_types):
+        mask = node_types == t
+        parameter_indices[mask] = torch.arange(int(mask.sum()))
+
     if G.rendering_order_method is not None:
         rendering_orders = []
         for _, data in nodes_with_data:
@@ -84,6 +94,7 @@ def convert_to_tensor(G):
         rendering_order_method=G.rendering_order_method,
         rendering_orders=rendering_orders,
         type_sequence=G.type_sequence,
+        parameter_indices=parameter_indices,
         counter=G.counter,
         batch=G.batch,
         config=G.config,

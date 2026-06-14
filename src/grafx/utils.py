@@ -134,7 +134,7 @@ def create_empty_parameters_from_shape_dict(
 def permute_grafx_tensor(
     G_t,
     node_id,
-    node_attrs=["node_types", "rendering_orders"],
+    node_attrs=["node_types", "rendering_orders", "parameter_indices"],
     id_attrs=["edge_indices"],
 ):
     """
@@ -148,7 +148,7 @@ def permute_grafx_tensor(
             The permutation index given by the node IDs.
         node_attrs (:python:`List[str]`, *optional*):
             List of node attributes to permute
-            (default: :python:`["node_types", "rendering_orders"]`).
+            (default: :python:`["node_types", "rendering_orders", "parameter_indices"]`).
         id_attrs (:python:`List[str]`, *optional*): List of attributes that contain node IDs
             (default: :python:`["edge_indices"]`).
 
