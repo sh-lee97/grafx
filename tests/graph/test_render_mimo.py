@@ -130,7 +130,13 @@ def test_cascaded_multi_outlet_buffer_size():
     params = create_empty_parameters(procs, G)
     x = torch.randn(1, 2, 4096)
     y, _, _ = render_grafx(procs, x, params, rd)
-    assert y.shape == (1, 2, 4096) and torch.isfinite(y).all()
+    # ANALYTIC ground truth (not just shape/finite): s0 -> low=0.5x, high=0.25x;
+    # s0.high -> s1 -> low=0.5*0.25x=0.125x, high=0.25*0.25x=0.0625x; mix sums the three
+    # idents a(0.5x)+b(0.125x)+c(0.0625x) = 0.6875x. Wrong cascaded routing/buffer sizing
+    # would change this value, so assert the value, not merely that it is finite.
+    expected = 0.6875 * x
+    assert y.shape == (1, 2, 4096)
+    assert torch.allclose(y[0], expected[0], atol=1e-6)
 
 
 def test_mimo_backprop():
